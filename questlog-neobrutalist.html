@@ -2013,7 +2013,10 @@ async function loadAllData() {
 async function loadTasks() {
   if (!sb || !curUser) return [];
   const { data, error } = await sb.from('tasks').select('*').order('created_at');
-  if (error) console.error('loadTasks error:', error);
+  if (error) {
+    console.error('loadTasks error:', error);
+    toast('⚠️', 'Load Failed', error.message, 'p');
+  }
   return (data || []).map(t => ({
     id: t.id,
     name: t.name,
@@ -2037,7 +2040,10 @@ async function saveAddTask(task) {
     user_id: curUser.id
   };
   const { data, error } = await sb.from('tasks').insert(row).select().single();
-  if (error) console.error('saveAddTask error:', error);
+  if (error) {
+    console.error('saveAddTask error:', error);
+    toast('⚠️', 'Save Failed', error.message, 'p');
+  }
   return data ? {
     id: data.id,
     name: data.name,
@@ -2052,7 +2058,10 @@ async function saveAddTask(task) {
 async function saveToggleTask(id, done) {
   if (!sb || !curUser) return;
   const { error } = await sb.from('tasks').update({ done }).eq('id', id);
-  if (error) console.error('saveToggleTask error:', error);
+  if (error) {
+    console.error('saveToggleTask error:', error);
+    toast('⚠️', 'Update Failed', error.message, 'p');
+  }
 }
 
 async function saveUpdateTask(task) {
@@ -2063,21 +2072,33 @@ async function saveUpdateTask(task) {
     day: task.created,
     done: task.done
   }).eq('id', task.id);
-  if (error) console.error('saveUpdateTask error:', error);
+  if (error) {
+    console.error('saveUpdateTask error:', error);
+    toast('⚠️', 'Update Failed', error.message, 'p');
+  }
 }
 
 async function saveDeleteTask(id) {
   if (!sb || !curUser) return;
   const { error } = await sb.from('tasks').delete().eq('id', id);
-  if (error) console.error('saveDeleteTask error:', error);
+  if (error) {
+    console.error('saveDeleteTask error:', error);
+    toast('⚠️', 'Delete Failed', error.message, 'p');
+  }
 }
 
 async function loadHabits() {
   if (!sb || !curUser) return [];
   const { data: habits, error: he } = await sb.from('habits').select('*');
   const { data: checks, error: ce } = await sb.from('habit_checks').select('*');
-  if (he) console.error('loadHabits query error:', he);
-  if (ce) console.error('loadHabits checks error:', ce);
+  if (he) {
+    console.error('loadHabits query error:', he);
+    toast('⚠️', 'Load Failed', he.message, 'p');
+  }
+  if (ce) {
+    console.error('loadHabits checks error:', ce);
+    toast('⚠️', 'Load Failed', ce.message, 'p');
+  }
   return (habits || []).map(h => ({
     id: h.id,
     name: h.name,
@@ -2093,7 +2114,10 @@ async function saveAddHabit(habit) {
     color: habit.color,
     user_id: curUser.id
   }).select().single();
-  if (error) console.error('saveAddHabit error:', error);
+  if (error) {
+    console.error('saveAddHabit error:', error);
+    toast('⚠️', 'Save Failed', error.message, 'p');
+  }
   return data ? { ...habit, id: data.id } : habit;
 }
 
@@ -2101,8 +2125,14 @@ async function saveDeleteHabit(id) {
   if (!sb || !curUser) return;
   const { error: he } = await sb.from('habits').delete().eq('id', id);
   const { error: ce } = await sb.from('habit_checks').delete().eq('habit_id', id);
-  if (he) console.error('saveDeleteHabit habits error:', he);
-  if (ce) console.error('saveDeleteHabit checks error:', ce);
+  if (he) {
+    console.error('saveDeleteHabit habits error:', he);
+    toast('⚠️', 'Delete Failed', he.message, 'p');
+  }
+  if (ce) {
+    console.error('saveDeleteHabit checks error:', ce);
+    toast('⚠️', 'Delete Failed', ce.message, 'p');
+  }
 }
 
 async function saveToggleHabit(habitId, dateStr, isChecking) {
@@ -2113,10 +2143,16 @@ async function saveToggleHabit(habitId, dateStr, isChecking) {
       user_id: curUser.id,
       checked_on: dateStr
     });
-    if (error) console.error('saveToggleHabit insert error:', error);
+    if (error) {
+      console.error('saveToggleHabit insert error:', error);
+      toast('⚠️', 'Update Failed', error.message, 'p');
+    }
   } else {
     const { error } = await sb.from('habit_checks').delete().eq('habit_id', habitId).eq('checked_on', dateStr);
-    if (error) console.error('saveToggleHabit delete error:', error);
+    if (error) {
+      console.error('saveToggleHabit delete error:', error);
+      toast('⚠️', 'Update Failed', error.message, 'p');
+    }
   }
 }
 function uid()  { return Date.now().toString(36) + Math.random().toString(36).slice(2,5); }
