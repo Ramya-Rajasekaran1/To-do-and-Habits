@@ -822,10 +822,10 @@ async function loadAllData(){
 }
 async function loadTasks(){
   const {data}=await sb.from('tasks').select('*').order('created_at');
-  return (data||[]).map(t=>({...t,sm:t.start_min,dm:t.dur_min,created:t.day}));
+  return (data||[]).map(t=>({...t,sm:t.sm,dm:t.dm,created:t.created_for}));
 }
 async function saveAddTask(task){
-  const row={name:task.name,cat:task.cat,done:false,start_min:task.sm??null,dur_min:task.dm||60,day:task.created,user_id:curUser.id};
+  const row={name:task.name,cat:task.cat,done:false,sm:task.sm??null,dm:task.dm||60,created_for:task.created,user_id:curUser.id};
   const {data}=await sb.from('tasks').insert(row).select().single();
   posthog.capture('task_created',{category:task.cat,has_time_block:task.sm!=null});
   return data?{...task,id:data.id}:task;
@@ -835,7 +835,7 @@ async function saveToggleTask(id,done){
   if(done) posthog.capture('task_completed',{task_id:id});
 }
 async function saveUpdateTask(task){
-  await sb.from('tasks').update({start_min:task.sm??null,dur_min:task.dm||60,day:task.created,done:task.done}).eq('id',task.id);
+  await sb.from('tasks').update({sm:task.sm??null,dm:task.dm||60,created_for:task.created,done:task.done}).eq('id',task.id);
 }
 async function saveDeleteTask(id){
   await sb.from('tasks').delete().eq('id',id);
