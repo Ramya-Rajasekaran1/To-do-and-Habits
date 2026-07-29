@@ -401,6 +401,7 @@ body{font-family:var(--fb);background:var(--w);color:var(--k);min-height:100vh;o
       <div class="auth-field"><div class="auth-lbl">Email</div><input class="auth-inp" id="r-email" type="email" placeholder="ramya@example.com" onkeydown="authKey(event,'register')"></div>
       <div class="auth-field"><div class="auth-lbl">Password</div><input class="auth-inp" id="r-pass" type="password" placeholder="Choose a strong password" onkeydown="authKey(event,'register')"></div>
       <div class="auth-err" id="r-err"></div>
+      <div class="auth-success" id="r-success"></div>
       <button class="auth-btn" onclick="doRegister()">CREATE ACCOUNT →</button>
     </div>
 
@@ -763,7 +764,15 @@ async function doRegister(){
     if(error){setErr('r-err',error.message);return;}
     posthog.identify(data.user.id,{email,name});
     posthog.capture('user_signed_up',{method:'email',name});
-    loginAs(data.user);
+    if (data.session) {
+      loginAs(data.user);
+    } else {
+      const successEl = document.getElementById('r-success');
+      if (successEl) {
+        successEl.textContent = 'Account created! Please check your email to confirm your account.';
+        successEl.classList.add('show');
+      }
+    }
   }catch(e){
     console.error('Registration error:', e);
     let msg = e.message || 'please try again.';

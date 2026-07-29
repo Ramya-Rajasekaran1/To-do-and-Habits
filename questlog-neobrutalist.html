@@ -1686,6 +1686,7 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
       <div class="auth-field"><div class="auth-lbl">Email</div><input class="auth-inp" id="r-email" type="email" placeholder="ramya@example.com" onkeydown="authKey(event,'register')"></div>
       <div class="auth-field"><div class="auth-lbl">Password</div><input class="auth-inp" id="r-pass" type="password" placeholder="Choose a strong password" onkeydown="authKey(event,'register')"></div>
       <div class="auth-err" id="r-err"></div>
+      <div class="auth-success" id="r-success"></div>
       <button class="auth-btn" onclick="doRegister()">CREATE ACCOUNT →</button>
     </div>
 
@@ -1945,7 +1946,16 @@ async function doRegister() {
     const redirectUrl = window.location.origin + window.location.pathname;
     const { data, error } = await sb.auth.signUp({ email, password: pw, options: { data: { name }, emailRedirectTo: redirectUrl } });
     if (error) { setErr('r-err', error.message); return; }
-    loginAs(data.user);
+    
+    if (data.session) {
+      loginAs(data.user);
+    } else {
+      const successEl = document.getElementById('r-success');
+      if (successEl) {
+        successEl.textContent = 'Account created! Please check your email to confirm your account.';
+        successEl.classList.add('show');
+      }
+    }
   } catch (e) {
     console.error('Registration error:', e);
     let msg = e.message || 'Unknown error';
