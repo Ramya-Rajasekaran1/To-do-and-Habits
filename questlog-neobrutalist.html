@@ -2176,7 +2176,12 @@ async function saveToggleHabit(habitId, dateStr, isChecking) {
       toast('⚠️', 'Update Failed', error.message, 'p');
     }
   }
+function trackEvent(name, meta = {}) {
+  if (window.posthog && typeof window.posthog.capture === 'function') {
+    window.posthog.capture(name, meta);
+  }
 }
+
 function uid()  { return Date.now().toString(36) + Math.random().toString(36).slice(2,5); }
 function todayStr() { return localDateStr(new Date()); }
 function localDateStr(d) {
