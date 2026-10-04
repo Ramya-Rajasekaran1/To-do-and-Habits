@@ -383,7 +383,11 @@ body{font-family:var(--fb);background:var(--w);color:var(--k);min-height:100vh;o
     <div class="auth-body" id="auth-login">
       <div class="auth-field"><div class="auth-lbl">Email</div><input class="auth-inp" id="l-email" type="email" placeholder="ramya@example.com" onkeydown="authKey(event,'login')"></div>
       <div class="auth-field"><div class="auth-lbl">Password</div><input class="auth-inp" id="l-pass" type="password" placeholder="••••••••" onkeydown="authKey(event,'login')"></div>
-      <div style="text-align: right; margin-top: -6px; margin-bottom: 6px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:-4px;margin-bottom:8px">
+        <label style="display:flex;align-items:center;gap:6px;font-family:var(--fm);font-size:11px;font-weight:700;color:var(--k);cursor:pointer;user-select:none">
+          <input type="checkbox" id="remember-me" checked style="accent-color:var(--k);width:14px;height:14px;cursor:pointer">
+          Remember me
+        </label>
         <a href="#" onclick="showAuthTab('forgot', this); return false;" style="font-family: var(--fm); font-size: 11px; font-weight: 500; color: var(--pk); text-decoration: underline;">Forgot Password?</a>
       </div>
       <div class="auth-err" id="l-err"></div>
@@ -704,6 +708,14 @@ async function doLogin(){
   const email=document.getElementById('l-email').value.trim();
   const pw=document.getElementById('l-pass').value;
   if(!email||!pw){setErr('l-err','Please enter your email and password.');return;}
+  
+  const remember = document.getElementById('remember-me')?.checked;
+  if (remember) {
+    localStorage.setItem('ql_remembered_email', email);
+  } else {
+    localStorage.removeItem('ql_remembered_email');
+  }
+
   const btn=document.querySelector('#auth-login .auth-btn');
   btn.textContent='SIGNING IN…';btn.disabled=true;
   try{
@@ -730,6 +742,9 @@ async function doRegister(){
   if(!name){setErr('r-err','Please enter your name.');return;}
   if(!email){setErr('r-err','Please enter your email.');return;}
   if(pw.length<6){setErr('r-err','Password must be at least 6 characters.');return;}
+  
+  localStorage.setItem('ql_remembered_email', email);
+
   const btn=document.querySelector('#auth-register .auth-btn');
   btn.textContent='CREATING…';btn.disabled=true;
   try{
@@ -768,10 +783,21 @@ async function doLogout(){
   showLoginScreen();
 }
 
+function loadRememberedUser(){
+  const saved = localStorage.getItem('ql_remembered_email');
+  const emailInput = document.getElementById('l-email');
+  const rememberCheckbox = document.getElementById('remember-me');
+  if (emailInput && saved) {
+    emailInput.value = saved;
+    if (rememberCheckbox) rememberCheckbox.checked = true;
+  }
+}
+
 function showLoginScreen(){
   document.getElementById('auth-screen').style.display='flex';
   document.getElementById('app').style.display='none';
   S={tasks:[],habits:[]};curUser=null;
+  loadRememberedUser();
 }
 async function loginAs(user){
   curUser=user;
@@ -1301,6 +1327,7 @@ async function init(){
   setInterval(updateNowLine,15000);
 }
 
+loadRememberedUser();
 init();
 </script>
 </body>
