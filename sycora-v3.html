@@ -842,11 +842,20 @@ async function saveDeleteTask(id){
 async function loadHabits(){
   const {data:habits}=await sb.from('habits').select('*');
   const {data:checks}=await sb.from('habit_checks').select('*');
-  return (habits||[]).map(h=>({...h,col:h.color,c:(checks||[]).filter(c=>c.habit_id===h.id).map(c=>c.checked_on)}));
+  return (habits||[]).map(h=>({...h,col:h.color||h.col||'#FFE135',c:(checks||[]).filter(c=>c.habit_id===h.id).map(c=>c.checked_on||c.date||c.created_for)}));
 }
 async function saveAddHabit(habit){
-  const {data}=await sb.from('habits').insert({name:habit.name,color:habit.col,user_id:curUser.id}).select().single();
-  return data?{...habit,id:data.id}:habit;
+  let {data,error}=await sb.from('habits').insert({name:habit.name,color:habit.col,user_id:curUser.id}).select().single();
+  if(error&&error.message&&error.message.includes('color')){
+    const res=await sb.from('habits').insert({name:habit.name,col:habit.col,user_id:curUser.id}).select().single();
+    data=res.data;error=res.error;
+  }
+  if(error){
+    console.error('saveAddHabit error:',error);
+    toast('⚠️','Save Failed',error.message,'p');
+    return null;
+  }
+  return data?{...habit,id:data.id,col:data.color||data.col||habit.col}:null;
 }
 async function saveDeleteHabit(id){
   await sb.from('habits').delete().eq('id',id);
@@ -854,10 +863,20 @@ async function saveDeleteHabit(id){
 }
 async function saveToggleHabit(habitId,dateStr,isChecking){
   if(isChecking){
-    await sb.from('habit_checks').insert({habit_id:habitId,user_id:curUser.id,checked_on:dateStr});
-    posthog.capture('habit_logged',{habit_id:habitId,date:dateStr});
+    let {error}=await sb.from('habit_checks').insert({habit_id:habitId,user_id:curUser.id,checked_on:dateStr});
+    if(error&&error.message&&error.message.includes('checked_on')){
+      const res=await sb.from('habit_checks').insert({habit_id:habitId,user_id:curUser.id,date:dateStr});
+      error=res.error;
+    }
+    if(error){console.error('saveToggleHabit error:',error);toast('⚠️','Update Failed',error.message,'p');}
+    else posthog.capture('habit_logged',{habit_id:habitId,date:dateStr});
   } else {
-    await sb.from('habit_checks').delete().eq('habit_id',habitId).eq('checked_on',dateStr);
+    let {error}=await sb.from('habit_checks').delete().eq('habit_id',habitId).eq('checked_on',dateStr);
+    if(error&&error.message&&error.message.includes('checked_on')){
+      const res=await sb.from('habit_checks').delete().eq('habit_id',habitId).eq('date',dateStr);
+      error=res.error;
+    }
+    if(error){console.error('saveToggleHabit error:',error);toast('⚠️','Update Failed',error.message,'p');}
   }
 }
 
@@ -1199,9 +1218,10 @@ async function delT(e,id){
 }
 async function addHabit(){
   const nm=document.getElementById('hi').value.trim();if(!nm)return;
-  let h={id:uid(),name:nm,col:document.getElementById('hcol').value,c:[],created:todayStr()};
+  let h={name:nm,col:document.getElementById('hcol').value,c:[],created:todayStr()};
   document.getElementById('hi').value='';
-  h=await saveAddHabit(h);S.habits.push(h);render();toast('🔁','Habit added!',nm.slice(0,28),'y');
+  const saved=await saveAddHabit(h);
+  if(saved){S.habits.push(saved);render();toast('🔁','Habit added!',nm.slice(0,28),'y');}
 }
 function habKey(e){if(e.key==='Enter')addHabit();}
 async function tglHab(hid,ds){

@@ -2100,23 +2100,35 @@ async function loadHabits() {
   return (habits || []).map(h => ({
     id: h.id,
     name: h.name,
-    color: h.color,
-    completions: (checks || []).filter(c => c.habit_id === h.id).map(c => c.checked_on)
+    color: h.color || h.col || '#FFE135',
+    completions: (checks || []).filter(c => c.habit_id === h.id).map(c => c.checked_on || c.date || c.created_for)
   }));
 }
 
 async function saveAddHabit(habit) {
-  if (!sb || !curUser) return habit;
-  const { data, error } = await sb.from('habits').insert({
+  if (!sb || !curUser) return null;
+  let { data, error } = await sb.from('habits').insert({
     name: habit.name,
     color: habit.color,
     user_id: curUser.id
   }).select().single();
+  
+  if (error && error.message && error.message.includes('color')) {
+    const res = await sb.from('habits').insert({
+      name: habit.name,
+      col: habit.color,
+      user_id: curUser.id
+    }).select().single();
+    data = res.data;
+    error = res.error;
+  }
+
   if (error) {
     console.error('saveAddHabit error:', error);
     toast('⚠️', 'Save Failed', error.message, 'p');
+    return null;
   }
-  return data ? { ...habit, id: data.id } : habit;
+  return data ? { ...habit, id: data.id, color: data.color || data.col || habit.color } : null;
 }
 
 async function saveDeleteHabit(id) {
@@ -2136,17 +2148,29 @@ async function saveDeleteHabit(id) {
 async function saveToggleHabit(habitId, dateStr, isChecking) {
   if (!sb || !curUser) return;
   if (isChecking) {
-    const { error } = await sb.from('habit_checks').insert({
+    let { error } = await sb.from('habit_checks').insert({
       habit_id: habitId,
       user_id: curUser.id,
       checked_on: dateStr
     });
+    if (error && error.message && error.message.includes('checked_on')) {
+      const res = await sb.from('habit_checks').insert({
+        habit_id: habitId,
+        user_id: curUser.id,
+        date: dateStr
+      });
+      error = res.error;
+    }
     if (error) {
       console.error('saveToggleHabit insert error:', error);
       toast('⚠️', 'Update Failed', error.message, 'p');
     }
   } else {
-    const { error } = await sb.from('habit_checks').delete().eq('habit_id', habitId).eq('checked_on', dateStr);
+    let { error } = await sb.from('habit_checks').delete().eq('habit_id', habitId).eq('checked_on', dateStr);
+    if (error && error.message && error.message.includes('checked_on')) {
+      const res = await sb.from('habit_checks').delete().eq('habit_id', habitId).eq('date', dateStr);
+      error = res.error;
+    }
     if (error) {
       console.error('saveToggleHabit delete error:', error);
       toast('⚠️', 'Update Failed', error.message, 'p');
@@ -2999,12 +3023,14 @@ async function handleHabAdd(e) {
   const name = document.getElementById('hab-inp').value.trim();
   if (!name) return;
   const color = document.getElementById('hab-col').value;
-  let h = { id:uid(), name, color, completions:[], created:todayStr() };
+  let h = { name, color, completions:[], created:todayStr() };
   document.getElementById('hab-inp').value = '';
-  h = await saveAddHabit(h);
-  S.habits.push(h);
-  render();
-  toast('🔁','Habit added!', name.slice(0,28), 'y');
+  const saved = await saveAddHabit(h);
+  if (saved) {
+    S.habits.push(saved);
+    render();
+    toast('🔁','Habit added!', name.slice(0,28), 'y');
+  }
 }
 
 async function toggleHab(hid, dateStr) {
