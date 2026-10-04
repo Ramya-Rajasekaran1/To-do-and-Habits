@@ -29,6 +29,46 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: var(--fb); background: var(--white); color: var(--black); min-height: 100vh; overflow-x: hidden; }
 
+/* ── ACCESSIBILITY & FOCUS VISIBLE ── */
+.skip-to-content {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  background: var(--yellow);
+  color: var(--black);
+  padding: 10px 16px;
+  font-family: var(--fh);
+  font-size: 13px;
+  border: var(--border);
+  box-shadow: var(--shadow);
+  z-index: 10000;
+  text-decoration: none;
+  transition: top 0.15s;
+}
+.skip-to-content:focus {
+  top: 12px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--black);
+  outline-offset: 2px;
+}
+
+.cal-block:focus-within,
+.us-card:focus-within,
+.hab-card:focus-within {
+  outline: 2px solid var(--black);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* ── TOPNAV ── */
 .topnav {
   border-bottom: var(--border);
@@ -1554,149 +1594,161 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
 </style>
 </head>
 <body>
+<a href="#main-content" class="skip-to-content">Skip to content</a>
 
 <!-- APP WRAPPER -->
 <div id="app" style="display:none">
 
 <!-- TOPNAV -->
-<nav class="topnav">
-  <div class="logo"><div class="logo-sq"></div>QUESTLOG</div>
-  <button class="tab-btn active" onclick="switchTab('today',this)">⚡ TODAY <span class="tab-count" id="tc-today">0</span></button>
-  <button class="tab-btn" onclick="switchTab('all',this)">📋 ALL <span class="tab-count" id="tc-all">0</span></button>
-  <button class="tab-btn" onclick="switchTab('habits',this)">🔁 HABITS <span class="tab-count" id="tc-hab">0</span></button>
-  <span class="nav-date" id="nav-date"></span>
-  <button class="gcal-nav-btn" id="nav-logout-btn" onclick="doLogout()">Sign Out</button>
-</nav>
+<header role="banner">
+  <nav class="topnav" aria-label="Main Navigation">
+    <div class="logo"><div class="logo-sq" aria-hidden="true"></div>QUESTLOG</div>
+    <button class="tab-btn active" onclick="switchTab('today',this)" aria-controls="page-today" aria-selected="true" role="tab">⚡ TODAY <span class="tab-count" id="tc-today">0</span></button>
+    <button class="tab-btn" onclick="switchTab('all',this)" aria-controls="page-all" aria-selected="false" role="tab">📋 ALL <span class="tab-count" id="tc-all">0</span></button>
+    <button class="tab-btn" onclick="switchTab('habits',this)" aria-controls="page-habits" aria-selected="false" role="tab">🔁 HABITS <span class="tab-count" id="tc-hab">0</span></button>
+    <span class="nav-date" id="nav-date" aria-label="Current date"></span>
+    <button class="gcal-nav-btn" id="nav-logout-btn" onclick="doLogout()" aria-label="Sign out of account">Sign Out</button>
+  </nav>
+</header>
+
+<!-- MAIN CONTENT LANDMARK -->
+<main id="main-content" role="main">
 
 <!-- ADD BAR (hidden on habits) -->
 <div class="add-bar-wrap" id="add-bar-wrap">
   <div class="add-bar">
-    <input type="text" id="add-inp" placeholder="Add a task… press Enter" onkeydown="handleAdd(event)">
-    <div class="vsep"></div>
-    <select id="add-cat">
+    <input type="text" id="add-inp" placeholder="Add a task… press Enter" aria-label="New task name" onkeydown="handleAdd(event)">
+    <div class="vsep" aria-hidden="true"></div>
+    <select id="add-cat" aria-label="Select task category">
       <option value="personal">Personal</option>
       <option value="work">Work</option>
       <option value="health">Health</option>
       <option value="learn">Learning</option>
       <option value="finance">Finance</option>
     </select>
-    <div class="vsep"></div>
-    <button class="add-btn" onclick="handleAdd()">ADD ↗</button>
+    <div class="vsep" aria-hidden="true"></div>
+    <button class="add-btn" onclick="handleAdd()" aria-label="Add task to list">ADD ↗</button>
   </div>
 </div>
 
 <!-- ── TODAY PAGE ── -->
-<div class="page active" id="page-today">
+<div class="page active" id="page-today" role="tabpanel" aria-labelledby="tc-today">
   <div class="today-layout">
-    <div class="cal-col" id="cal-col">
+    <section class="cal-col" id="cal-col" aria-labelledby="cal-col-heading">
       <div class="cal-col-hdr"
         ondragover="headerDragOver(event)"
         ondragenter="headerDragOver(event)"
         ondrop="headerDrop(event)"
         ondragleave="headerDragLeave(event)">
         <div>
-          <div class="cal-col-title">Time Blocks</div>
+          <h2 class="cal-col-title" id="cal-col-heading">Time Blocks</h2>
           <div class="cal-col-sub">Drag to move · resize from bottom edge</div>
         </div>
         <div class="date-nav-wrap">
-          <button class="date-nav-btn" onclick="shiftDate(-1)">←</button>
+          <button class="date-nav-btn" onclick="shiftDate(-1)" aria-label="Previous day">←</button>
           <div class="date-picker-wrapper" id="cal-date-picker-wrapper">
-            <button class="date-display-btn" id="cal-date-lbl" onclick="toggleCalendarDropdown(event)">Loading...</button>
-            <div class="cal-dropdown" id="cal-dropdown">
+            <button class="date-display-btn" id="cal-date-lbl" onclick="toggleCalendarDropdown(event)" aria-label="Select calendar date" aria-haspopup="dialog">Loading...</button>
+            <div class="cal-dropdown" id="cal-dropdown" role="dialog" aria-label="Calendar date selector">
               <div class="cal-dropdown-hdr">
-                <button class="cal-drop-btn" onclick="prevMonth(event)">←</button>
+                <button class="cal-drop-btn" onclick="prevMonth(event)" aria-label="Previous month">←</button>
                 <div class="cal-drop-month" id="cal-drop-month">Loading...</div>
-                <button class="cal-drop-btn" onclick="nextMonth(event)">→</button>
+                <button class="cal-drop-btn" onclick="nextMonth(event)" aria-label="Next month">→</button>
               </div>
-              <div class="cal-dropdown-weekdays">
+              <div class="cal-dropdown-weekdays" aria-hidden="true">
                 <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
               </div>
-              <div class="cal-dropdown-days" id="cal-dropdown-days"></div>
+              <div class="cal-dropdown-days" id="cal-dropdown-days" role="grid"></div>
             </div>
           </div>
-          <button class="date-nav-btn" onclick="shiftDate(1)">→</button>
-          <button class="date-today-btn" id="cal-today-btn" onclick="goToday()">Today</button>
+          <button class="date-nav-btn" onclick="shiftDate(1)" aria-label="Next day">→</button>
+          <button class="date-today-btn" id="cal-today-btn" onclick="goToday()" aria-label="Go to today">Today</button>
         </div>
       </div>
       <div class="time-grid" id="time-grid"
+        role="region"
+        aria-label="Hourly schedule timeline"
         ondragover="gridDragOver(event)"
         ondrop="gridDrop(event)"
         ondragleave="gridDragLeave(event)">
         <!-- rows + blocks rendered by JS -->
       </div>
-    </div>
-    <div class="unsched-col"
+    </section>
+    <section class="unsched-col"
+      role="region"
+      aria-labelledby="unsched-heading"
       ondragover="unschedDragOver(event)"
       ondragenter="unschedDragOver(event)"
       ondragleave="unschedDragLeave(event)"
       ondrop="unschedDrop(event)">
       <div class="unsched-hdr">
-        <div class="unsched-title">Unscheduled</div>
+        <h2 class="unsched-title" id="unsched-heading">Unscheduled</h2>
         <div class="unsched-sub">Drag onto a time slot</div>
       </div>
       <div class="unsched-body" id="unsched-body"></div>
-    </div>
+    </section>
   </div>
 </div>
 
 <!-- ── ALL TASKS PAGE ── -->
-<div class="page" id="page-all">
+<div class="page" id="page-all" role="tabpanel">
   <div class="all-wrap">
     <div class="all-pg-hdr">
-      <div class="all-pg-title">ALL TASKS</div>
-      <div class="badge" id="all-badge">0 TASKS</div>
+      <h1 class="all-pg-title">ALL TASKS</h1>
+      <div class="badge" id="all-badge" aria-live="polite">0 TASKS</div>
     </div>
-    <div class="all-list" id="all-list"></div>
+    <div class="all-list" id="all-list" role="list"></div>
   </div>
 </div>
 
 <!-- ── HABITS PAGE ── -->
-<div class="page" id="page-habits">
+<div class="page" id="page-habits" role="tabpanel">
   <div class="habits-wrap">
     <div class="hab-pg-hdr">
-      <div class="hab-pg-title">HABITS</div>
-      <div class="badge" id="hab-badge">0 HABITS</div>
+      <h1 class="hab-pg-title">HABITS</h1>
+      <div class="badge" id="hab-badge" aria-live="polite">0 HABITS</div>
     </div>
 
     <!-- Add habit -->
     <div class="hab-add">
-      <input type="text" id="hab-inp" placeholder="New habit name… press Enter" onkeydown="handleHabAdd(event)">
-      <input type="color" class="hab-color-pick" id="hab-col" value="#FFE135">
-      <button class="hab-add-btn" onclick="handleHabAdd()">ADD HABIT</button>
+      <input type="text" id="hab-inp" placeholder="New habit name… press Enter" aria-label="New habit name" onkeydown="handleHabAdd(event)">
+      <input type="color" class="hab-color-pick" id="hab-col" value="#FFE135" aria-label="Pick habit accent color">
+      <button class="hab-add-btn" onclick="handleHabAdd()" aria-label="Add habit">ADD HABIT</button>
     </div>
 
     <!-- Week nav -->
     <div class="week-nav">
-      <button class="week-nav-btn" onclick="shiftWeek(-1)">←</button>
-      <button class="week-nav-btn" onclick="shiftWeek(1)">→</button>
-      <span class="week-range" id="week-range"></span>
-      <button class="week-today-btn" onclick="goThisWeek()">THIS WEEK</button>
+      <button class="week-nav-btn" onclick="shiftWeek(-1)" aria-label="Previous week">←</button>
+      <button class="week-nav-btn" onclick="shiftWeek(1)" aria-label="Next week">→</button>
+      <span class="week-range" id="week-range" aria-live="polite"></span>
+      <button class="week-today-btn" onclick="goThisWeek()" aria-label="Go to this week">THIS WEEK</button>
     </div>
 
     <div id="hab-list"></div>
   </div>
 </div>
 
-<div class="toasts" id="toasts"></div>
+</main>
+
+<div class="toasts" id="toasts" aria-live="polite" aria-atomic="true"></div>
 
 <!-- QUICK-ADD POPUP -->
-<div class="qa-overlay" id="qa-overlay" onclick="closeQA()" style="display:none"></div>
-<div class="qabox" id="qabox" style="display:none">
+<div class="qa-overlay" id="qa-overlay" onclick="closeQA()" style="display:none" aria-hidden="true"></div>
+<div class="qabox" id="qabox" style="display:none" role="dialog" aria-labelledby="qa-title">
   <div class="qa-hdr">
-    <span>NEW TASK</span><span class="qa-time" id="qa-time-lbl"></span>
-    <button class="qa-close" onclick="closeQA()">✕</button>
+    <span id="qa-title">NEW TASK</span><span class="qa-time" id="qa-time-lbl"></span>
+    <button class="qa-close" onclick="closeQA()" aria-label="Close dialog">✕</button>
   </div>
   <div class="qa-body">
-    <input class="qa-inp" id="qa-inp" placeholder="Task name…" onkeydown="qaKey(event)">
+    <input class="qa-inp" id="qa-inp" placeholder="Task name…" aria-label="Task name" onkeydown="qaKey(event)">
     <div class="qa-row">
-      <select class="qa-sel" id="qa-cat">
+      <select class="qa-sel" id="qa-cat" aria-label="Task category">
         <option value="personal">Personal</option>
         <option value="work">Work</option>
         <option value="health">Health</option>
         <option value="learn">Learning</option>
         <option value="finance">Finance</option>
       </select>
-      <select class="qa-dur" id="qa-dur">
+      <select class="qa-dur" id="qa-dur" aria-label="Task duration">
         <option value="15">15 min</option>
         <option value="30">30 min</option>
         <option value="45">45 min</option>
@@ -1706,41 +1758,45 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
         <option value="180">3 hrs</option>
       </select>
     </div>
-    <button class="qa-submit" onclick="commitQA()">ADD TO CALENDAR ↗</button>
+    <button class="qa-submit" onclick="commitQA()" aria-label="Add task to calendar">ADD TO CALENDAR ↗</button>
   </div>
 </div>
 
 </div>
 
 <!-- GRAFFITI CANVAS -->
-<canvas id="graffiti-canvas"></canvas>
-
-
+<canvas id="graffiti-canvas" aria-hidden="true"></canvas>
 
 <!-- CELEBRATION -->
-<div class="celeb" id="celeb">
-  <div class="celeb-bg" onclick="closeCeleb()"></div>
+<div class="celeb" id="celeb" role="dialog" aria-modal="true" aria-labelledby="celeb-title">
+  <div class="celeb-bg" onclick="closeCeleb()" aria-hidden="true"></div>
   <div class="celeb-card">
-    <div style="font-size:52px;margin-bottom:10px">🏆</div>
-    <div class="celeb-title">GREAT JOB!</div>
+    <div style="font-size:52px;margin-bottom:10px" aria-hidden="true">🏆</div>
+    <h2 class="celeb-title" id="celeb-title">GREAT JOB!</h2>
     <div class="celeb-sub">You crushed every single task today.<br>That's the energy of a true champion! 🔥<br>Take a moment — you earned it.</div>
-    <button class="celeb-close" onclick="closeCeleb()">KEEP GOING →</button>
+    <button class="celeb-close" onclick="closeCeleb()" aria-label="Dismiss celebration">KEEP GOING →</button>
   </div>
 </div>
 
 <!-- ── AUTH SCREEN ── -->
 <div class="auth-screen" id="auth-screen">
   <div class="auth-box">
-    <div class="auth-logo"><div class="auth-logo-sq"></div><div class="auth-logo-txt">QUESTLOG</div></div>
-    <div class="auth-tabs">
-      <button class="auth-tab on" onclick="showAuthTab('login',this)">SIGN IN</button>
-      <button class="auth-tab" onclick="showAuthTab('register',this)">SIGN UP</button>
+    <div class="auth-logo"><div class="auth-logo-sq" aria-hidden="true"></div><div class="auth-logo-txt">QUESTLOG</div></div>
+    <div class="auth-tabs" role="tablist">
+      <button class="auth-tab on" onclick="showAuthTab('login',this)" role="tab" aria-selected="true">SIGN IN</button>
+      <button class="auth-tab" onclick="showAuthTab('register',this)" role="tab" aria-selected="false">SIGN UP</button>
     </div>
 
     <!-- LOGIN -->
     <div class="auth-body" id="auth-login">
-      <div class="auth-field"><div class="auth-lbl">Email</div><input class="auth-inp" id="l-email" type="email" placeholder="ramya@example.com" onkeydown="authKey(event,'login')"></div>
-      <div class="auth-field"><div class="auth-lbl">Password</div><input class="auth-inp" id="l-pass" type="password" placeholder="••••••••" onkeydown="authKey(event,'login')"></div>
+      <div class="auth-field">
+        <label class="auth-lbl" for="l-email">Email</label>
+        <input class="auth-inp" id="l-email" type="email" placeholder="ramya@example.com" onkeydown="authKey(event,'login')">
+      </div>
+      <div class="auth-field">
+        <label class="auth-lbl" for="l-pass">Password</label>
+        <input class="auth-inp" id="l-pass" type="password" placeholder="••••••••" onkeydown="authKey(event,'login')">
+      </div>
       <div style="display: flex; align-items: center; justify-content: space-between; margin-top: -4px; margin-bottom: 8px;">
         <label style="display: flex; align-items: center; gap: 6px; font-family: var(--fm); font-size: 11px; font-weight: 700; color: var(--black); cursor: pointer; user-select: none;">
           <input type="checkbox" id="remember-me" checked style="accent-color: var(--black); width: 14px; height: 14px; cursor: pointer;">
@@ -1748,7 +1804,7 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
         </label>
         <a href="#" onclick="showAuthTab('forgot', this); return false;" style="font-family: var(--fm); font-size: 11px; font-weight: 700; color: var(--blue); text-decoration: underline;">Forgot Password?</a>
       </div>
-      <div class="auth-err" id="l-err"></div>
+      <div class="auth-err" id="l-err" role="alert" aria-live="assertive"></div>
       <button class="auth-btn" onclick="doLogin()">SIGN IN →</button>
       <div style="text-align: center; margin-top: 14px; padding-top: 14px; border-top: 1.5px dashed #ccc;">
         <button type="button" class="auth-btn" onclick="loginAsDemo()" style="background: var(--yellow); color: var(--black); font-size: 12px; padding: 10px;">⚡ TRY DEMO MODE (OFFLINE) →</button>
@@ -1757,19 +1813,31 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
 
     <!-- REGISTER -->
     <div class="auth-body hidden" id="auth-register">
-      <div class="auth-field"><div class="auth-lbl">Name</div><input class="auth-inp" id="r-name" type="text" placeholder="Ramya" onkeydown="authKey(event,'register')"></div>
-      <div class="auth-field"><div class="auth-lbl">Email</div><input class="auth-inp" id="r-email" type="email" placeholder="ramya@example.com" onkeydown="authKey(event,'register')"></div>
-      <div class="auth-field"><div class="auth-lbl">Password</div><input class="auth-inp" id="r-pass" type="password" placeholder="Choose a strong password" onkeydown="authKey(event,'register')"></div>
-      <div class="auth-err" id="r-err"></div>
-      <div class="auth-success" id="r-success"></div>
+      <div class="auth-field">
+        <label class="auth-lbl" for="r-name">Name</label>
+        <input class="auth-inp" id="r-name" type="text" placeholder="Ramya" onkeydown="authKey(event,'register')">
+      </div>
+      <div class="auth-field">
+        <label class="auth-lbl" for="r-email">Email</label>
+        <input class="auth-inp" id="r-email" type="email" placeholder="ramya@example.com" onkeydown="authKey(event,'register')">
+      </div>
+      <div class="auth-field">
+        <label class="auth-lbl" for="r-pass">Password</label>
+        <input class="auth-inp" id="r-pass" type="password" placeholder="Choose a strong password" onkeydown="authKey(event,'register')">
+      </div>
+      <div class="auth-err" id="r-err" role="alert" aria-live="assertive"></div>
+      <div class="auth-success" id="r-success" role="status" aria-live="polite"></div>
       <button class="auth-btn" onclick="doRegister()">CREATE ACCOUNT →</button>
     </div>
 
     <!-- FORGOT PASSWORD -->
     <div class="auth-body hidden" id="auth-forgot">
-      <div class="auth-field"><div class="auth-lbl">Email</div><input class="auth-inp" id="f-email" type="email" placeholder="ramya@example.com" onkeydown="authKey(event,'forgot')"></div>
-      <div class="auth-err" id="f-err"></div>
-      <div class="auth-success" id="f-success"></div>
+      <div class="auth-field">
+        <label class="auth-lbl" for="f-email">Email</label>
+        <input class="auth-inp" id="f-email" type="email" placeholder="ramya@example.com" onkeydown="authKey(event,'forgot')">
+      </div>
+      <div class="auth-err" id="f-err" role="alert" aria-live="assertive"></div>
+      <div class="auth-success" id="f-success" role="status" aria-live="polite"></div>
       <button class="auth-btn" onclick="doResetPasswordRequest()">SEND RESET LINK →</button>
       <div style="text-align: center; margin-top: 8px;">
         <a href="#" onclick="showAuthTab('login', this); return false;" style="font-family: var(--fm); font-size: 11px; font-weight: 700; color: var(--black); text-decoration: underline;">Back to Sign In</a>
@@ -1778,10 +1846,15 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
 
     <!-- UPDATE PASSWORD -->
     <div class="auth-body hidden" id="auth-recovery">
-      <div class="auth-field"><div class="auth-lbl">New Password</div><input class="auth-inp" id="rec-pass" type="password" placeholder="Enter new password" onkeydown="authKey(event,'recovery')"></div>
-      <div class="auth-err" id="rec-err"></div>
+      <div class="auth-field">
+        <label class="auth-lbl" for="rec-pass">New Password</label>
+        <input class="auth-inp" id="rec-pass" type="password" placeholder="Enter new password" onkeydown="authKey(event,'recovery')">
+      </div>
+      <div class="auth-err" id="rec-err" role="alert" aria-live="assertive"></div>
       <button class="auth-btn" onclick="doUpdatePassword()">UPDATE PASSWORD →</button>
     </div>
+  </div>
+</div>
   </div>
 </div>
 
@@ -2503,7 +2576,7 @@ function renderDropdownCalendar() {
   
   // Render empty cells for days before the 1st of the month
   for (let i = 0; i < firstDayIndex; i++) {
-    daysHTML += `<div class="cal-drop-day empty-day"></div>`;
+    daysHTML += `<div class="cal-drop-day empty-day" aria-hidden="true"></div>`;
   }
   
   // Render day numbers
@@ -2516,7 +2589,7 @@ function renderDropdownCalendar() {
     if (isSel) classes += ' selected-day';
     if (isTod) classes += ' today-day';
     
-    daysHTML += `<div class="${classes}" onclick="selectPickerDate(${year}, ${month}, ${d})">${d}</div>`;
+    daysHTML += `<button type="button" class="${classes}" aria-label="${monthNames[month]} ${d}, ${year}" aria-pressed="${isSel}" onclick="selectPickerDate(${year}, ${month}, ${d})">${d}</button>`;
   }
   
   daysGrid.innerHTML = daysHTML;
@@ -2587,6 +2660,10 @@ function renderCalendar() {
     rowsHTML += `
       <div class="grid-row${isCur?' current-hr':''}" style="position:relative"
         data-hour="${h}"
+        tabindex="0"
+        role="button"
+        aria-label="Add task at ${lbl}"
+        onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();slotClick(event,${h});}"
         onclick="slotClick(event,${h})">
         <div class="hr-label${isCur?' now-lbl':''}">${lbl}</div>
         <div class="hr-drop"></div>
@@ -2612,11 +2689,13 @@ function renderCalendar() {
         data-cat="${t.cat}" data-id="${t.id}"
         style="top:${top}px;height:${height}px;"
         draggable="true"
+        role="article"
+        aria-label="Scheduled task: ${esc(t.name)}, from ${fmtMinutes(t.startMin)} to ${fmtMinutes(t.startMin+dur)}"
         onmousedown="blkMouseDown(event,'${t.id}')"
         ondragstart="blkDragStart(event,'${t.id}')"
         ondragend="blkDragEnd(event)"
         onclick="handleTaskClick(event, '${esc(t.name)}')">
-        <div class="blk-check" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
+        <div class="blk-check" role="checkbox" tabindex="0" aria-checked="${t.done}" aria-label="Mark task ${esc(t.name)} as ${t.done?'incomplete':'complete'}" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleDone(event,'${t.id}');}" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
         <div class="blk-body">
           <div style="display:flex; align-items:center; gap:4px;">
             <div class="blk-name" style="flex:1">${esc(t.name)}</div>
@@ -2624,8 +2703,8 @@ function renderCalendar() {
           <div class="blk-time">${fmtMinutes(t.startMin)} – ${fmtMinutes(t.startMin+dur)}</div>
           <div class="blk-cat">${CEMOJI[t.cat]||''} ${CATS[t.cat]||''}</div>
         </div>
-        <button class="blk-del" onclick="delTask(event,'${t.id}')">✕</button>
-        <div class="blk-resize" onmousedown="resizeStart(event,'${t.id}')"></div>
+        <button class="blk-del" aria-label="Delete task: ${esc(t.name)}" onclick="delTask(event,'${t.id}')">✕</button>
+        <div class="blk-resize" role="separator" aria-label="Resize duration handle" onmousedown="resizeStart(event,'${t.id}')"></div>
       </div>`;
   }).join('');
 
@@ -2633,7 +2712,7 @@ function renderCalendar() {
   grid.style.position = 'relative';
   grid.innerHTML = rowsHTML +
     `<div class="blocks-layer" style="height:${gridH}px">${blocksHTML}</div>` +
-    (showNow ? `<div class="now-line" id="now-line-el" style="top:${nowTop}px"></div>` : '');
+    (showNow ? `<div class="now-line" id="now-line-el" style="top:${nowTop}px" aria-label="Current time indicator"></div>` : '');
 
   // Scroll to either the first scheduled item, current time, or default to 8 AM (only once on load/tab switch)
   const cal = document.getElementById('cal-col');
@@ -2693,6 +2772,7 @@ function updateNowLine() {
         div.className = 'now-line';
         div.id = 'now-line-el';
         div.style.top = nowTop + 'px';
+        div.setAttribute('aria-label', 'Current time indicator');
         grid.appendChild(div);
       }
     }
@@ -2779,20 +2859,22 @@ function renderUnscheduled() {
   const el = document.getElementById('unsched-body');
   const tasks = S.tasks.filter(t => t.startMin == null);
   if (!tasks.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-ico">🎯</div><div class="empty-txt">All tasks<br>are scheduled!</div></div>`;
+    el.innerHTML = `<div class="empty"><div class="empty-ico" aria-hidden="true">🎯</div><div class="empty-txt">All tasks<br>are scheduled!</div></div>`;
     return;
   }
   el.innerHTML = tasks.map(t => `
     <div class="us-card${t.done?' done-us':''}" data-cat="${t.cat}" data-id="${t.id}"
       draggable="true"
+      role="article"
+      aria-label="Unscheduled task: ${esc(t.name)}"
       onmousedown="usMouseDown(event)"
       ondragstart="usDragStart(event,'${t.id}')"
       ondragend="usDragEnd(event)"
       onclick="handleTaskClick(event, '${esc(t.name)}')">
       <div class="us-row">
-        <div class="us-check" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
+        <div class="us-check" role="checkbox" tabindex="0" aria-checked="${t.done}" aria-label="Mark task ${esc(t.name)} as ${t.done?'incomplete':'complete'}" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleDone(event,'${t.id}');}" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
         <div class="us-name">${esc(t.name)}</div>
-        <button class="us-del" onclick="delTask(event,'${t.id}')">✕</button>
+        <button class="us-del" aria-label="Delete task: ${esc(t.name)}" onclick="delTask(event,'${t.id}')">✕</button>
       </div>
       <div class="us-meta">${CEMOJI[t.cat]||''} ${CATS[t.cat]||t.cat} · drag to schedule</div>
     </div>`).join('') + `<div class="drag-hint">↑ drag onto time slots</div>`;
@@ -3041,7 +3123,7 @@ function resizeEnd() {
 function renderAllTasks() {
   const el = document.getElementById('all-list');
   if (!S.tasks.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-ico">🎯</div><div class="empty-txt">No tasks yet.<br>Add one above!</div></div>`;
+    el.innerHTML = `<div class="empty"><div class="empty-ico" aria-hidden="true">🎯</div><div class="empty-txt">No tasks yet.<br>Add one above!</div></div>`;
     return;
   }
   const groups = {};
@@ -3053,8 +3135,8 @@ function renderAllTasks() {
       const taskDate = t.created || todayStr();
       const dateLabel = taskDate !== todayStr() ? formatDateShort(taskDate) + ' · ' : '';
       const timeTg = t.startMin != null ? `<span class="tag tg-time">⏰ ${dateLabel}${fmtMinutes(t.startMin)}</span>` : '';
-      return `<div class="all-task${t.done?' done-all':''}" data-cat="${t.cat}" onclick="handleTaskClick(event, '${esc(t.name)}')">
-        <div class="all-chk" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
+      return `<div class="all-task${t.done?' done-all':''}" role="listitem" data-cat="${t.cat}" onclick="handleTaskClick(event, '${esc(t.name)}')">
+        <div class="all-chk" role="checkbox" tabindex="0" aria-checked="${t.done}" aria-label="Mark task ${esc(t.name)} as ${t.done?'incomplete':'complete'}" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleDone(event,'${t.id}');}" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
         <div class="all-body">
           <div class="all-name">${esc(t.name)}</div>
           <div class="all-tags">
@@ -3062,7 +3144,7 @@ function renderAllTasks() {
             ${timeTg}
           </div>
         </div>
-        <button class="all-del" onclick="delTask(event,'${t.id}')">✕</button>
+        <button class="all-del" aria-label="Delete task: ${esc(t.name)}" onclick="delTask(event,'${t.id}')">✕</button>
       </div>`;
     }).join('');
   });
@@ -3097,7 +3179,7 @@ function renderHabits() {
 
   const el = document.getElementById('hab-list');
   if (!S.habits.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-ico">🔁</div><div class="empty-txt">No habits yet.<br>Add one above!</div></div>`;
+    el.innerHTML = `<div class="empty"><div class="empty-ico" aria-hidden="true">🔁</div><div class="empty-txt">No habits yet.<br>Add one above!</div></div>`;
     return;
   }
 
@@ -3116,26 +3198,26 @@ function renderHabits() {
       const isFut = ds > today;
       const checkBg = done ? h.color : '';
       return `
-        <div class="hab-day-cell${isFut?' future-day':''}" onclick="toggleHab('${h.id}','${ds}')">
+        <div class="hab-day-cell${isFut?' future-day':''}" role="checkbox" tabindex="0" aria-checked="${done}" aria-label="${dayLabels[i]} ${d.getDate()}, ${esc(h.name)}: ${done?'completed':'not completed'}" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleHab('${h.id}','${ds}');}" onclick="toggleHab('${h.id}','${ds}')">
           <div class="hab-day-label${isTod?' today-lbl':''}">${dayLabels[i]}</div>
           <div class="hab-day-num${isTod?' today-num':''}">${d.getDate()}</div>
-          <div class="hab-day-check${done?' checked':''}" style="${done?`background:${h.color};border-color:${h.color}`:''}">
+          <div class="hab-day-check${done?' checked':''}" aria-hidden="true" style="${done?`background:${h.color};border-color:${h.color}`:''}">
             ${done ? '✓' : ''}
           </div>
         </div>`;
     }).join('');
 
     html += `
-      <div class="hab-card">
+      <div class="hab-card" role="article" aria-label="Habit: ${esc(h.name)}">
         <div class="hab-card-hdr">
-          <div class="hab-swatch" style="background:${h.color}"></div>
+          <div class="hab-swatch" style="background:${h.color}" aria-hidden="true"></div>
           <div class="hab-name-txt">${esc(h.name)}</div>
-          <div class="hab-streak">🔥 ${streak} DAY${streak!==1?'S':''}</div>
-          <button class="hab-del" onclick="delHab('${h.id}')">✕</button>
+          <div class="hab-streak" aria-label="Current streak: ${streak} days">🔥 ${streak} DAY${streak!==1?'S':''}</div>
+          <button class="hab-del" aria-label="Delete habit: ${esc(h.name)}" onclick="delHab('${h.id}')">✕</button>
         </div>
-        <div class="hab-week-grid">${cellsHTML}</div>
+        <div class="hab-week-grid" role="group" aria-label="Weekly completion grid">${cellsHTML}</div>
         <div class="hab-footer">
-          <div class="hab-prog-wrap">
+          <div class="hab-prog-wrap" role="progressbar" aria-valuenow="${weekDone}" aria-valuemin="0" aria-valuemax="7" aria-label="Weekly progress">
             <div class="hab-prog-fill" style="width:${Math.round(weekDone/7*100)}%;background:${h.color}"></div>
           </div>
           <div class="hab-prog-label">${weekDone}/7 THIS WEEK</div>
