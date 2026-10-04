@@ -347,11 +347,6 @@ body{font-family:var(--fb);background:var(--w);color:var(--k);min-height:100vh;o
 .celeb-sub{font-family:var(--fm);font-size:12px;color:#555;font-weight:700;margin-bottom:24px;line-height:1.7}
 .celeb-close{border:var(--bdr);background:var(--k);color:var(--y);font-family:var(--fh);font-size:13px;padding:10px 28px;cursor:pointer;box-shadow:var(--sh);transition:transform .1s}
 .celeb-close:hover{transform:translate(-2px,-2px);box-shadow:var(--shl)}
-.spray{position:fixed;top:0;bottom:0;width:140px;z-index:8999;pointer-events:none;display:none}
-.spray.show{display:block}
-.spray-l{left:-140px;animation:sprayL .6s .1s forwards}
-.spray-r{right:-140px;animation:sprayR .6s .1s forwards}
-@keyframes sprayL{to{left:0}}@keyframes sprayR{to{right:0}}
 .conf{position:fixed;top:-10px;z-index:9001;width:10px;height:10px;pointer-events:none;animation:fall linear forwards}
 @keyframes fall{to{top:110vh;transform:rotate(720deg)}}
 
@@ -516,24 +511,7 @@ body{font-family:var(--fb);background:var(--w);color:var(--k);min-height:100vh;o
   </div>
 </div>
 
-<!-- SPRAYS -->
-<div class="spray spray-l" id="sp-l">
-  <svg width="140" height="100%" viewBox="0 0 140 800" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="140" height="800" fill="#FFE135"/>
-    <circle cx="30" cy="100" r="60" fill="#FF3CAC" opacity=".3"/>
-    <circle cx="100" cy="300" r="80" fill="#2563EB" opacity=".2"/>
-    <text x="10" y="200" font-size="40" fill="#FF3CAC" opacity=".5">★</text>
-    <text x="60" y="400" font-size="30" fill="#2563EB" opacity=".5">⚡</text>
-  </svg>
-</div>
-<div class="spray spray-r" id="sp-r">
-  <svg width="140" height="100%" viewBox="0 0 140 800" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="140" height="800" fill="#FF3CAC"/>
-    <circle cx="110" cy="150" r="70" fill="#FFE135" opacity=".35"/>
-    <text x="20" y="180" font-size="36" fill="#fff" opacity=".5">★</text>
-    <text x="70" y="380" font-size="30" fill="#FFE135" opacity=".6">⚡</text>
-  </svg>
-</div>
+
 
 <!-- CELEBRATION -->
 <div class="celeb" id="celeb">
@@ -1247,12 +1225,10 @@ function checkAllDone(){
   if(!all)celebShown=false;
 }
 function showCeleb(){
-  document.getElementById('sp-l').classList.add('show');document.getElementById('sp-r').classList.add('show');
   document.getElementById('celeb').classList.add('show');spawnConfetti();
   for(let i=0;i<6;i++) setTimeout(()=>spawnGraffiti(Math.random()*window.innerWidth,100+Math.random()*window.innerHeight*.6),i*180);
 }
 function closeCeleb(){
-  document.getElementById('sp-l').classList.remove('show');document.getElementById('sp-r').classList.remove('show');
   document.getElementById('celeb').classList.remove('show');document.querySelectorAll('.conf').forEach(c=>c.remove());
 }
 function spawnConfetti(){
