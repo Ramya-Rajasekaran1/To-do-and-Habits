@@ -626,11 +626,6 @@ function drawGraffiti(){
     GX.save();GX.globalAlpha=alpha;GX.translate(t.x,t.y);GX.rotate(t.angle);
     for(const d of t.dots){GX.beginPath();GX.arc(d.ox,d.oy,d.r,0,Math.PI*2);GX.fillStyle=t.fill;GX.globalAlpha=alpha*d.a;GX.fill();}
     GX.globalAlpha=alpha;
-    GX.font=`900 ${t.size}px 'Archivo Black',sans-serif`;GX.textAlign='center';GX.textBaseline='middle';GX.lineJoin='round';
-    GX.lineWidth=t.size*.22;GX.strokeStyle=t.outline;GX.strokeText(t.word,0,0);
-    GX.lineWidth=t.size*.1;GX.strokeStyle=t.fill;GX.strokeText(t.word,0,0);
-    GX.fillStyle=t.fill;GX.fillText(t.word,0,0);
-    GX.font=`900 ${t.size*.7}px 'Archivo Black',sans-serif`;GX.fillStyle='rgba(255,255,255,0.3)';GX.fillText(t.word,-2,-5);
     const dripY=t.size*.52;
     for(const d of t.drips){d.prog=Math.min(1,d.prog+d.spd);const dLen=d.len*d.prog;GX.beginPath();GX.moveTo(d.ox,dripY);GX.bezierCurveTo(d.ox+d.w*.5,dripY+dLen*.3,d.ox-d.w*.3,dripY+dLen*.7,d.ox,dripY+dLen);GX.lineWidth=d.w;GX.lineCap='round';GX.strokeStyle=t.fill;GX.stroke();GX.beginPath();GX.arc(d.ox,dripY+dLen,d.w*.7,0,Math.PI*2);GX.fillStyle=t.fill;GX.fill();}
     GX.restore();
@@ -914,7 +909,7 @@ function renderCal(){
   const sched=S.tasks.filter(t=>t.sm!=null&&t.created===ds);
   let blks=sched.map(t=>{
     const top=(t.sm-h0*60)/60*SH,ht=Math.max(28,(t.dm||60)/60*SH);
-    return '<div class="cblk'+(t.done?' done-blk':'')+'" data-cat="'+t.cat+'" data-id="'+t.id+'" style="top:'+top+'px;height:'+ht+'px"'
+    return '<div class="cblk'+(t.done?' done-blk':'')+'" data-cat="'+t.cat+'" data-id="'+t.id+'" style="top:'+top+'px;height:'+ht+'px" onclick="handleTaskClick(event, \''+esc(t.name)+'\')"'
       +(canEdit?' onmousedown="blkMD(event,\''+t.id+'\')"':'')+'>'
       +'<div class="bchk" onmousedown="ev_stop(event)" onclick="tglDone(event,\''+t.id+'\')">'+(t.done?'✓':'')+'</div>'
       +'<div class="bbody"><div class="blk-name">'+esc(t.name)+'</div>'
@@ -1073,12 +1068,12 @@ function renderUS(){
   const el=document.getElementById('us-body');
   if(!isToday()){
     const tasks=S.tasks.filter(t=>t.created===viewDS()&&t.sm==null);
-    el.innerHTML=tasks.length?tasks.map(t=>'<div class="ucard'+(t.done?' done-uc':'')+'" data-cat="'+t.cat+'" style="cursor:default"><div class="urow"><div class="uchk" style="cursor:pointer" onclick="tglDone(event,\''+t.id+'\')">'+(t.done?'✓':'')+'</div><div class="uc-name">'+esc(t.name)+'</div></div><div class="umeta">'+(CEMOJI[t.cat]||'')+' '+(CATS[t.cat]||t.cat)+'</div></div>').join('')
+    el.innerHTML=tasks.length?tasks.map(t=>'<div class="ucard'+(t.done?' done-uc':'')+'" data-cat="'+t.cat+'" style="cursor:default" onclick="handleTaskClick(event, \''+esc(t.name)+'\')"><div class="urow"><div class="uchk" style="cursor:pointer" onclick="tglDone(event,\''+t.id+'\')">'+(t.done?'✓':'')+'</div><div class="uc-name">'+esc(t.name)+'</div></div><div class="umeta">'+(CEMOJI[t.cat]||'')+' '+(CATS[t.cat]||t.cat)+'</div></div>').join('')
       :'<div class="empty"><div class="empty-i">📅</div><div class="empty-t">No unscheduled<br>tasks this day.</div></div>';return;
   }
   const tasks=S.tasks.filter(t=>t.sm==null&&t.created===todayStr());
   if(!tasks.length){el.innerHTML='<div class="empty"><div class="empty-i">🎯</div><div class="empty-t">All tasks<br>scheduled!</div></div>';return;}
-  el.innerHTML=tasks.map((t,i)=>'<div class="ucard'+(t.done?' done-uc':'')+'" data-cat="'+t.cat+'" data-id="'+t.id+'" data-idx="'+i+'" draggable="true" ondragstart="uDrgStart(event,\''+t.id+'\')" ondragend="uDrgEnd(event)"><div class="urow"><div class="uchk" onclick="tglDone(event,\''+t.id+'\')">'+(t.done?'✓':'')+'</div><div class="uc-name">'+esc(t.name)+'</div><button class="udel" onclick="delT(event,\''+t.id+'\')">✕</button></div><div class="umeta">'+(CEMOJI[t.cat]||'')+' '+(CATS[t.cat]||t.cat)+'</div><div class="udrag" onmousedown="usSort(event,\''+t.id+'\','+i+')">⠿</div></div>').join('')+'<div class="drag-hint">↑ drag cards to reorder</div>';
+  el.innerHTML=tasks.map((t,i)=>'<div class="ucard'+(t.done?' done-uc':'')+'" data-cat="'+t.cat+'" data-id="'+t.id+'" data-idx="'+i+'" draggable="true" ondragstart="uDrgStart(event,\''+t.id+'\')" ondragend="uDrgEnd(event)" onclick="handleTaskClick(event, \''+esc(t.name)+'\')"><div class="urow"><div class="uchk" onclick="tglDone(event,\''+t.id+'\')">'+(t.done?'✓':'')+'</div><div class="uc-name">'+esc(t.name)+'</div><button class="udel" onclick="delT(event,\''+t.id+'\')">✕</button></div><div class="umeta">'+(CEMOJI[t.cat]||'')+' '+(CATS[t.cat]||t.cat)+'</div><div class="udrag" onmousedown="usSort(event,\''+t.id+'\','+i+')">⠿</div></div>').join('')+'<div class="drag-hint">↑ drag cards to reorder</div>';
 }
 function uDrgStart(e,id){drgId=id;e.dataTransfer.effectAllowed='move';setTimeout(()=>{const c=document.querySelector('[data-id="'+id+'"]');if(c)c.style.opacity='.35';},0);}
 function uDrgEnd(){drgId=null;document.querySelectorAll('[data-id]').forEach(c=>c.style.opacity='');}
@@ -1119,7 +1114,7 @@ function renderAll(){
   Object.keys(g).forEach(cat=>{
     h+='<div class="cg-hdr">'+(CEMOJI[cat]||'')+' '+(CATS[cat]||cat)+' <span style="font-family:var(--fm);font-size:9px;color:#ccc">'+g[cat].length+'</span></div>';
     h+=g[cat].map(t=>{const tt=t.sm!=null?'<span class="tg tg-time">⏰ '+fmtM(t.sm)+'</span>':'';
-      return '<div class="atask'+(t.done?' done-at':'')+'" data-cat="'+t.cat+'"><div class="achk" onclick="tglDone(event,\''+t.id+'\')">'+(t.done?'✓':'')+'</div><div class="at-body"><div class="at-name">'+esc(t.name)+'</div><div class="at-tags"><span class="tg tg-'+t.cat+'">'+(CEMOJI[t.cat]||'')+' '+(CATS[t.cat]||t.cat)+'</span>'+tt+'</div></div><button class="adel" onclick="delT(event,\''+t.id+'\')">✕</button></div>';
+      return '<div class="atask'+(t.done?' done-at':'')+'" data-cat="'+t.cat+'" onclick="handleTaskClick(event, \''+esc(t.name)+'\')"><div class="achk" onclick="tglDone(event,\''+t.id+'\')">'+(t.done?'✓':'')+'</div><div class="at-body"><div class="at-name">'+esc(t.name)+'</div><div class="at-tags"><span class="tg tg-'+t.cat+'">'+(CEMOJI[t.cat]||'')+' '+(CATS[t.cat]||t.cat)+'</span>'+tt+'</div></div><button class="adel" onclick="delT(event,\''+t.id+'\')">✕</button></div>';
     }).join('');
   });
   el.innerHTML=h;
@@ -1173,6 +1168,26 @@ async function tglDone(e,id){
   }
   await saveToggleTask(id,t.done);
   render();checkAllDone();
+}
+function handleTaskClick(e, name) {
+  const target = e.target;
+  if (
+    target.closest('button') || 
+    target.closest('.us-check') || 
+    target.closest('.blk-check') || 
+    target.closest('.all-chk') || 
+    target.closest('.uchk') || 
+    target.closest('.achk') || 
+    target.closest('.bchk') ||
+    target.closest('.blk-resize') ||
+    target.closest('.brsz')
+  ) {
+    return;
+  }
+  if (name && name.toLowerCase().trim() === 'tracking quality dashboard') {
+    e.stopPropagation();
+    window.open('https://pitch.com/v/tracking-quality-dashboard-gfpdq7', '_blank');
+  }
 }
 async function delT(e,id){
   e.stopPropagation();S.tasks=S.tasks.filter(t=>t.id!==id);

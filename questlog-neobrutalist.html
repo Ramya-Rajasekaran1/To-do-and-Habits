@@ -1805,11 +1805,6 @@ function drawGraffiti() {
       GX.beginPath(); GX.arc(d.ox, d.oy, d.r, 0, Math.PI * 2); GX.fillStyle = t.fill; GX.globalAlpha = alpha * d.a; GX.fill();
     }
     GX.globalAlpha = alpha;
-    GX.font = `900 ${t.size}px sans-serif`; GX.textAlign = 'center'; GX.textBaseline = 'middle'; GX.lineJoin = 'round';
-    GX.lineWidth = t.size * .22; GX.strokeStyle = t.outline; GX.strokeText(t.word, 0, 0);
-    GX.lineWidth = t.size * .1; GX.strokeStyle = t.fill; GX.strokeText(t.word, 0, 0);
-    GX.fillStyle = t.fill; GX.fillText(t.word, 0, 0);
-    GX.font = `900 ${t.size * .7}px sans-serif`; GX.fillStyle = 'rgba(255,255,255,0.3)'; GX.fillText(t.word, -2, -5);
     const dripY = t.size * .52;
     for (const d of t.drips) {
       d.prog = Math.min(1, d.prog + d.spd); const dLen = d.len * d.prog;
@@ -2382,7 +2377,8 @@ function renderCalendar() {
         draggable="true"
         onmousedown="blkMouseDown(event,'${t.id}')"
         ondragstart="blkDragStart(event,'${t.id}')"
-        ondragend="blkDragEnd(event)">
+        ondragend="blkDragEnd(event)"
+        onclick="handleTaskClick(event, '${esc(t.name)}')">
         <div class="blk-check" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
         <div class="blk-body">
           <div style="display:flex; align-items:center; gap:4px;">
@@ -2554,7 +2550,8 @@ function renderUnscheduled() {
       draggable="true"
       onmousedown="usMouseDown(event)"
       ondragstart="usDragStart(event,'${t.id}')"
-      ondragend="usDragEnd(event)">
+      ondragend="usDragEnd(event)"
+      onclick="handleTaskClick(event, '${esc(t.name)}')">
       <div class="us-row">
         <div class="us-check" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
         <div class="us-name">${esc(t.name)}</div>
@@ -2819,7 +2816,7 @@ function renderAllTasks() {
       const taskDate = t.created || todayStr();
       const dateLabel = taskDate !== todayStr() ? formatDateShort(taskDate) + ' · ' : '';
       const timeTg = t.startMin != null ? `<span class="tag tg-time">⏰ ${dateLabel}${fmtMinutes(t.startMin)}</span>` : '';
-      return `<div class="all-task${t.done?' done-all':''}" data-cat="${t.cat}">
+      return `<div class="all-task${t.done?' done-all':''}" data-cat="${t.cat}" onclick="handleTaskClick(event, '${esc(t.name)}')">
         <div class="all-chk" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
         <div class="all-body">
           <div class="all-name">${esc(t.name)}</div>
@@ -2964,6 +2961,27 @@ async function toggleDone(e, id) {
   await saveToggleTask(id, t.done);
   render();
   checkAllDone();
+}
+
+function handleTaskClick(e, name) {
+  const target = e.target;
+  if (
+    target.closest('button') || 
+    target.closest('.us-check') || 
+    target.closest('.blk-check') || 
+    target.closest('.all-chk') || 
+    target.closest('.uchk') || 
+    target.closest('.achk') || 
+    target.closest('.bchk') ||
+    target.closest('.blk-resize') ||
+    target.closest('.brsz')
+  ) {
+    return;
+  }
+  if (name && name.toLowerCase().trim() === 'tracking quality dashboard') {
+    e.stopPropagation();
+    window.open('https://pitch.com/v/tracking-quality-dashboard-gfpdq7', '_blank');
+  }
 }
 
 async function delTask(e, id) {
