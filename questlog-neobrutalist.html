@@ -729,10 +729,101 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-thumb { background: #ddd; }
 
-@media (max-width: 680px) {
-  .today-layout { grid-template-columns: 1fr; height: auto; }
-  .unsched-col { height: 320px; border-top: var(--border); }
-  .cal-col { height: 65vh; }
+/* ── TACTILE MICRO-INTERACTIONS & ACCESSIBILITY ── */
+button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab-add-btn:active, .add-btn:active, .auth-btn:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0 var(--black) !important;
+}
+:focus-visible {
+  outline: 3px solid var(--yellow) !important;
+  outline-offset: 2px !important;
+}
+.us-card.dragging, .cal-block.dragging {
+  transform: rotate(2deg) scale(1.02);
+  box-shadow: 8px 8px 0 var(--black) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── RESPONSIVE BREAKPOINTS ── */
+@media (max-width: 900px) {
+  .today-layout {
+    grid-template-columns: 1fr 280px;
+  }
+  .add-bar {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .topnav {
+    padding: 0 12px;
+    height: auto;
+    min-height: 54px;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+  .tab-btn {
+    height: 44px;
+    padding: 0 14px;
+  }
+  .nav-date {
+    display: none;
+  }
+  .add-bar-wrap {
+    padding: 10px 12px;
+  }
+  .add-bar {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .add-bar input {
+    width: 100%;
+    border-bottom: var(--border);
+    padding: 10px 14px;
+  }
+  .vsep {
+    display: none;
+  }
+  .add-bar select {
+    flex: 1;
+    height: 44px;
+    text-align: left;
+    padding-left: 12px;
+  }
+  .add-btn {
+    height: 44px;
+    padding: 0 18px;
+  }
+  .today-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .cal-col {
+    height: 60vh;
+  }
+  .unsched-col {
+    height: 340px;
+    border-top: var(--border);
+    border-right: none;
+  }
+  .hab-pg-hdr, .all-pg-hdr {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .hab-day-cell {
+    min-height: 44px;
+  }
+  .all-wrap, .habits-wrap {
+    padding: 18px 12px;
+  }
 }
 
 /* ── QUICK-ADD POPUP ── */
@@ -2967,6 +3058,63 @@ function goThisWeek() {
 // ════════════════════════════════════════════════════════
 //  TASK ACTIONS
 // ════════════════════════════════════════════════════════
+//  TACTILE SOUND SYNTHESIS (Zero-dependency Web Audio API)
+// ════════════════════════════════════════════════════════
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (AudioContextClass) audioCtx = new AudioContextClass();
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+function playTone(freq, duration = 0.12, type = 'sine', gainVal = 0.15, startTimeOffset = 0) {
+  try {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const now = ctx.currentTime + startTimeOffset;
+    
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, now);
+    
+    gain.gain.setValueAtTime(gainVal, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.start(now);
+    osc.stop(now + duration);
+  } catch(e) {
+    // Audio fail silently
+  }
+}
+
+function playTaskCompleteSound() {
+  playTone(523.25, 0.08, 'triangle', 0.12, 0);      // C5
+  playTone(659.25, 0.14, 'triangle', 0.15, 0.07);  // E5
+  playTone(783.99, 0.22, 'sine', 0.18, 0.14);      // G5
+}
+
+function playHabitCheckSound() {
+  playTone(587.33, 0.06, 'triangle', 0.12, 0);     // D5
+  playTone(880.00, 0.12, 'sine', 0.15, 0.05);      // A5
+}
+
+function playCelebSound() {
+  const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+  notes.forEach((freq, idx) => {
+    playTone(freq, 0.25, 'triangle', 0.15, idx * 0.09);
+  });
+}
+
+// ════════════════════════════════════════════════════════
 async function handleAdd(e) {
   if (e && e.type === 'keydown' && e.key !== 'Enter') return;
   const name = document.getElementById('add-inp').value.trim();
@@ -2986,6 +3134,7 @@ async function toggleDone(e, id) {
   if (!t) return;
   t.done = !t.done;
   if (t.done) {
+    playTaskCompleteSound();
     const trigEl = e.currentTarget || e.target;
     setTimeout(() => burstGraffiti(trigEl), 60);
     toast('✅','Done!', esc(t.name.slice(0,28)), 'g');
@@ -3045,7 +3194,11 @@ async function toggleHab(hid, dateStr) {
   const idx = h.completions.indexOf(dateStr);
   const isChecking = idx < 0;
   if (!isChecking) h.completions.splice(idx, 1);
-  else { h.completions.push(dateStr); if (dateStr === todayStr()) toast('🔁','Habit logged!','Keep it up 🔥','g'); }
+  else { 
+    playHabitCheckSound();
+    h.completions.push(dateStr); 
+    if (dateStr === todayStr()) toast('🔁','Habit logged!','Keep it up 🔥','g'); 
+  }
   await saveToggleHabit(hid, dateStr, isChecking);
   render();
 }
@@ -3069,6 +3222,7 @@ function checkAllDone() {
 }
 
 function showCeleb() {
+  playCelebSound();
   const c = document.getElementById('celeb');
   if (c) c.classList.add('show');
   
