@@ -1750,6 +1750,9 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
       </div>
       <div class="auth-err" id="l-err"></div>
       <button class="auth-btn" onclick="doLogin()">SIGN IN →</button>
+      <div style="text-align: center; margin-top: 14px; padding-top: 14px; border-top: 1.5px dashed #ccc;">
+        <button type="button" class="auth-btn" onclick="loginAsDemo()" style="background: var(--yellow); color: var(--black); font-size: 12px; padding: 10px;">⚡ TRY DEMO MODE (OFFLINE) →</button>
+      </div>
     </div>
 
     <!-- REGISTER -->
@@ -1998,10 +2001,10 @@ async function doLogin() {
   } catch (e) {
     console.error('Login error:', e);
     let msg = e.message || 'Unknown error';
-    if (msg === 'Load failed' || msg === 'Failed to fetch') {
-      msg = 'Connection to Supabase blocked. Please check your internet connection or disable adblockers.';
+    if (msg === 'Load failed' || msg === 'Failed to fetch' || (typeof msg === 'string' && msg.includes('fetch'))) {
+      msg = 'Supabase database is paused/asleep. Unpause it in your Supabase Dashboard, or click "⚡ TRY DEMO MODE" below to test offline.';
     }
-    setErr('l-err', 'Network error — ' + msg);
+    setErr('l-err', msg);
   } finally {
     btn.textContent = 'SIGN IN →'; btn.disabled = false;
   }
@@ -2037,18 +2040,32 @@ async function doRegister() {
   } catch (e) {
     console.error('Registration error:', e);
     let msg = e.message || 'Unknown error';
-    if (msg === 'Load failed' || msg === 'Failed to fetch') {
-      msg = 'Connection to Supabase blocked. Please check your internet connection or disable adblockers.';
+    if (msg === 'Load failed' || msg === 'Failed to fetch' || (typeof msg === 'string' && msg.includes('fetch'))) {
+      msg = 'Supabase database is paused/asleep. Unpause it in your Supabase Dashboard, or click "⚡ TRY DEMO MODE" below to test offline.';
     }
-    setErr('r-err', 'Network error — ' + msg);
+    setErr('r-err', msg);
   } finally {
     btn.textContent = 'CREATE ACCOUNT →'; btn.disabled = false;
   }
 }
 
 async function doLogout() {
-  if (sb) await sb.auth.signOut();
+  if (curUser && curUser.isDemo) {
+    curUser = null;
+  } else if (sb) {
+    await sb.auth.signOut();
+  }
   showLoginScreen();
+}
+
+function loginAsDemo() {
+  const demoUser = {
+    id: 'demo-user-offline',
+    email: 'designer@questlog.demo',
+    isDemo: true,
+    user_metadata: { name: 'Demo Designer' }
+  };
+  loginAs(demoUser);
 }
 
 function loadRememberedUser() {
@@ -2090,17 +2107,33 @@ async function loginAs(user) {
   if (savedTab === 'habits') targetBtn = tabBtns[2];
   switchTab(savedTab, targetBtn);
   
-  toast('👋', 'Welcome back!', user.user_metadata?.name || user.email, 'y');
+  toast('👋', 'Welcome!', user.user_metadata?.name || user.email, 'y');
 }
 
-// ── SUPABASE DATA ─────────────────────────────────────────────────
+// ── DATA PERSISTENCE (Supabase + Offline Demo Fallback) ───────────
 async function loadAllData() {
   try { S.tasks = await loadTasks(); } catch (e) { console.error('loadTasks failed:', e); S.tasks = []; }
   try { S.habits = await loadHabits(); } catch (e) { console.error('loadHabits failed:', e); S.habits = []; }
 }
 
 async function loadTasks() {
-  if (!sb || !curUser) return [];
+  if (!curUser) return [];
+  if (curUser.isDemo) {
+    const saved = localStorage.getItem('ql_demo_tasks');
+    if (saved) {
+      try { return JSON.parse(saved); } catch(e) {}
+    }
+    const defaultTasks = [
+      { id: 'dt1', name: 'Tracking quality dashboard', cat: 'work', done: false, startMin: 540, durMin: 60, created: todayStr() },
+      { id: 'dt2', name: 'Design system review', cat: 'learn', done: false, startMin: 630, durMin: 90, created: todayStr() },
+      { id: 'dt3', name: 'Morning run 5k', cat: 'health', done: true, startMin: 420, durMin: 45, created: todayStr() },
+      { id: 'dt4', name: 'Review project budget', cat: 'finance', done: false, startMin: null, durMin: 60, created: todayStr() },
+      { id: 'dt5', name: 'Buy sketchbook & pens', cat: 'personal', done: false, startMin: null, durMin: 30, created: todayStr() }
+    ];
+    localStorage.setItem('ql_demo_tasks', JSON.stringify(defaultTasks));
+    return defaultTasks;
+  }
+  if (!sb) return [];
   const { data, error } = await sb.from('tasks').select('*').order('created_at');
   if (error) {
     console.error('loadTasks error:', error);
@@ -2118,7 +2151,14 @@ async function loadTasks() {
 }
 
 async function saveAddTask(task) {
-  if (!sb || !curUser) return task;
+  if (!curUser) return task;
+  if (curUser.isDemo) {
+    const tasks = await loadTasks();
+    tasks.push(task);
+    localStorage.setItem('ql_demo_tasks', JSON.stringify(tasks));
+    return task;
+  }
+  if (!sb) return task;
   const row = {
     name: task.name,
     cat: task.cat,
@@ -2145,7 +2185,14 @@ async function saveAddTask(task) {
 }
 
 async function saveToggleTask(id, done) {
-  if (!sb || !curUser) return;
+  if (!curUser) return;
+  if (curUser.isDemo) {
+    const tasks = await loadTasks();
+    const t = tasks.find(x => x.id === id);
+    if (t) { t.done = done; localStorage.setItem('ql_demo_tasks', JSON.stringify(tasks)); }
+    return;
+  }
+  if (!sb) return;
   const { error } = await sb.from('tasks').update({ done }).eq('id', id);
   if (error) {
     console.error('saveToggleTask error:', error);
@@ -2154,7 +2201,14 @@ async function saveToggleTask(id, done) {
 }
 
 async function saveUpdateTask(task) {
-  if (!sb || !curUser) return;
+  if (!curUser) return;
+  if (curUser.isDemo) {
+    const tasks = await loadTasks();
+    const idx = tasks.findIndex(x => x.id === task.id);
+    if (idx >= 0) { tasks[idx] = { ...tasks[idx], ...task }; localStorage.setItem('ql_demo_tasks', JSON.stringify(tasks)); }
+    return;
+  }
+  if (!sb) return;
   const { error } = await sb.from('tasks').update({
     sm: task.startMin ?? null,
     dm: task.durMin || 60,
@@ -2168,7 +2222,14 @@ async function saveUpdateTask(task) {
 }
 
 async function saveDeleteTask(id) {
-  if (!sb || !curUser) return;
+  if (!curUser) return;
+  if (curUser.isDemo) {
+    let tasks = await loadTasks();
+    tasks = tasks.filter(x => x.id !== id);
+    localStorage.setItem('ql_demo_tasks', JSON.stringify(tasks));
+    return;
+  }
+  if (!sb) return;
   const { error } = await sb.from('tasks').delete().eq('id', id);
   if (error) {
     console.error('saveDeleteTask error:', error);
@@ -2177,7 +2238,21 @@ async function saveDeleteTask(id) {
 }
 
 async function loadHabits() {
-  if (!sb || !curUser) return [];
+  if (!curUser) return [];
+  if (curUser.isDemo) {
+    const saved = localStorage.getItem('ql_demo_habits');
+    if (saved) {
+      try { return JSON.parse(saved); } catch(e) {}
+    }
+    const defaultHabits = [
+      { id: 'dh1', name: 'Morning meditation 10m', color: '#FFE135', completions: [todayStr()] },
+      { id: 'dh2', name: 'Drink 2L Water', color: '#00E5FF', completions: [] },
+      { id: 'dh3', name: 'Read design articles', color: '#FF3CAC', completions: [] }
+    ];
+    localStorage.setItem('ql_demo_habits', JSON.stringify(defaultHabits));
+    return defaultHabits;
+  }
+  if (!sb) return [];
   const { data: habits, error: he } = await sb.from('habits').select('*');
   const { data: checks, error: ce } = await sb.from('habit_checks').select('*');
   if (he) {
@@ -2197,7 +2272,15 @@ async function loadHabits() {
 }
 
 async function saveAddHabit(habit) {
-  if (!sb || !curUser) return null;
+  if (!curUser) return null;
+  if (curUser.isDemo) {
+    const habits = await loadHabits();
+    const newH = { ...habit, id: uid() };
+    habits.push(newH);
+    localStorage.setItem('ql_demo_habits', JSON.stringify(habits));
+    return newH;
+  }
+  if (!sb) return null;
   let { data, error } = await sb.from('habits').insert({
     name: habit.name,
     color: habit.color,
@@ -2223,7 +2306,14 @@ async function saveAddHabit(habit) {
 }
 
 async function saveDeleteHabit(id) {
-  if (!sb || !curUser) return;
+  if (!curUser) return;
+  if (curUser.isDemo) {
+    let habits = await loadHabits();
+    habits = habits.filter(x => x.id !== id);
+    localStorage.setItem('ql_demo_habits', JSON.stringify(habits));
+    return;
+  }
+  if (!sb) return;
   const { error: he } = await sb.from('habits').delete().eq('id', id);
   const { error: ce } = await sb.from('habit_checks').delete().eq('habit_id', id);
   if (he) {
@@ -2237,7 +2327,22 @@ async function saveDeleteHabit(id) {
 }
 
 async function saveToggleHabit(habitId, dateStr, isChecking) {
-  if (!sb || !curUser) return;
+  if (!curUser) return;
+  if (curUser.isDemo) {
+    const habits = await loadHabits();
+    const h = habits.find(x => x.id === habitId);
+    if (h) {
+      if (!h.completions) h.completions = [];
+      if (isChecking) {
+        if (!h.completions.includes(dateStr)) h.completions.push(dateStr);
+      } else {
+        h.completions = h.completions.filter(d => d !== dateStr);
+      }
+      localStorage.setItem('ql_demo_habits', JSON.stringify(habits));
+    }
+    return;
+  }
+  if (!sb) return;
   if (isChecking) {
     let { error } = await sb.from('habit_checks').insert({
       habit_id: habitId,
@@ -2258,6 +2363,15 @@ async function saveToggleHabit(habitId, dateStr, isChecking) {
     }
   } else {
     let { error } = await sb.from('habit_checks').delete().eq('habit_id', habitId).eq('checked_on', dateStr);
+    if (error && error.message && error.message.includes('checked_on')) {
+      const res = await sb.from('habit_checks').delete().eq('habit_id', habitId).eq('date', dateStr);
+      error = res.error;
+    }
+    if (error) {
+      console.error('saveToggleHabit delete error:', error);
+      toast('⚠️', 'Update Failed', error.message, 'p');
+    }
+  }
     if (error && error.message && error.message.includes('checked_on')) {
       const res = await sb.from('habit_checks').delete().eq('habit_id', habitId).eq('date', dateStr);
       error = res.error;
