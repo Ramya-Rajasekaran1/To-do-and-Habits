@@ -3321,6 +3321,7 @@ async function handleAdd(e) {
   t = await saveAddTask(t);
   S.tasks.push(t);
   render();
+  trackEvent('task_created', { category: cat, duration: 60, is_scheduled: false });
   toast('📝','Task added!','Drag onto the calendar','y');
 }
 
@@ -3335,6 +3336,7 @@ async function toggleDone(e, id) {
     setTimeout(() => burstGraffiti(trigEl), 60);
     toast('✅','Done!', esc(t.name.slice(0,28)), 'g');
   }
+  trackEvent('task_toggled', { task_id: id, category: t.cat, is_done: t.done });
   await saveToggleTask(id, t.done);
   render();
   checkAllDone();
@@ -3357,12 +3359,14 @@ function handleTaskClick(e, name) {
   }
   if (name && name.toLowerCase().trim() === 'tracking quality dashboard') {
     e.stopPropagation();
+    trackEvent('pitch_deck_clicked', { source: 'task_card' });
     window.open('https://pitch.com/v/tracking-quality-dashboard-gfpdq7', '_blank');
   }
 }
 
 async function delTask(e, id) {
   if (e) e.stopPropagation();
+  trackEvent('task_deleted', { task_id: id });
   S.tasks = S.tasks.filter(t => t.id !== id);
   await saveDeleteTask(id);
   render();
@@ -3379,6 +3383,7 @@ async function handleHabAdd(e) {
   if (saved) {
     S.habits.push(saved);
     render();
+    trackEvent('habit_created', { name: name, color: color });
     toast('🔁','Habit added!', name.slice(0,28), 'y');
   }
 }
@@ -3395,11 +3400,13 @@ async function toggleHab(hid, dateStr) {
     h.completions.push(dateStr); 
     if (dateStr === todayStr()) toast('🔁','Habit logged!','Keep it up 🔥','g'); 
   }
+  trackEvent('habit_toggled', { habit_id: hid, date: dateStr, is_checking: isChecking });
   await saveToggleHabit(hid, dateStr, isChecking);
   render();
 }
 
 async function delHab(id) {
+  trackEvent('habit_deleted', { habit_id: id });
   S.habits = S.habits.filter(h => h.id !== id);
   await saveDeleteHabit(id);
   render();
@@ -3419,6 +3426,7 @@ function checkAllDone() {
 
 function showCeleb() {
   playCelebSound();
+  trackEvent('daily_celebration_triggered');
   const c = document.getElementById('celeb');
   if (c) c.classList.add('show');
   
@@ -3462,11 +3470,12 @@ function switchTab(tab, el) {
   sessionStorage.setItem('ql_cur_tab', tab);
   closeCalendarDropdown();
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
+  if (el) el.classList.add('active');
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + tab).classList.add('active');
   // Hide add bar on habits page
   document.getElementById('add-bar-wrap').style.display = tab === 'habits' ? 'none' : '';
+  trackEvent('tab_switched', { tab: tab });
   render();
 }
 
