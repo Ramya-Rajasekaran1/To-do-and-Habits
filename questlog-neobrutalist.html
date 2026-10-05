@@ -302,9 +302,9 @@ body { font-family: var(--fb); background: var(--white); color: var(--black); mi
   box-shadow: var(--shadow);
   background: var(--white);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
-  padding: 7px 10px;
+  padding: 6px 10px;
   overflow: hidden;
   pointer-events: all;
   cursor: grab;
@@ -340,12 +340,15 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
   font-weight: 800;
   background: var(--yellow);
   color: var(--black);
-  padding: 2px 5px;
+  padding: 2px 6px;
   border: 1.5px solid var(--black);
   border-radius: 2px;
   flex-shrink: 0;
-  margin-left: auto;
   line-height: 1.2;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .cal-block.dur-15 .blk-dur-badge { background: #FEF08A; }
 .cal-block.dur-30 .blk-dur-badge { background: #BAE6FD; }
@@ -362,7 +365,6 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
   cursor: pointer;
   font-size: 11px;
   flex-shrink: 0;
-  margin-top: 1px;
   transition: all 0.1s;
 }
 .blk-check:hover { background: var(--yellow); }
@@ -377,13 +379,14 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
   width: 20px; height: 20px;
   cursor: pointer;
   font-size: 11px;
-  font-weight: bold;
+  font-weight: 800;
   color: var(--black);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
   opacity: 0;
   transition: all 0.1s;
-  margin-top: 1px;
+  padding: 0;
+  line-height: 1;
 }
 .cal-block:hover .blk-del { opacity: 1; }
 .blk-del:hover { background: var(--red); color: white; border-color: var(--red); }
@@ -2587,12 +2590,14 @@ function renderCalendar() {
         onclick="handleTaskClick(event, '${t.id}')">
         <div class="blk-check" role="checkbox" tabindex="0" aria-checked="${t.done}" aria-label="Mark task ${esc(t.name)} as ${t.done?'incomplete':'complete'}" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleDone(event,'${t.id}');}" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
         <div class="blk-body">
-          <div style="display:flex; align-items:center; gap:4px; width:100%;">
+          <div style="display:flex; align-items:center; gap:6px; width:100%;">
             <div class="blk-name" style="flex:1">${esc(t.name)}</div>
             <span class="blk-dur-badge">${durBadgeText}</span>
           </div>
-          <div class="blk-time">${fmtMinutes(t.startMin)} – ${fmtMinutes(t.startMin+dur)}</div>
-          <div class="blk-cat">${CEMOJI[t.cat]||''} ${CATS[t.cat]||''}</div>
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-top:2px;">
+            <div class="blk-time">${fmtMinutes(t.startMin)} – ${fmtMinutes(t.startMin+dur)}</div>
+            <div class="blk-cat">${CEMOJI[t.cat]||''} ${CATS[t.cat]||''}</div>
+          </div>
         </div>
         <button class="blk-del" aria-label="Delete task: ${esc(t.name)}" onclick="delTask(event,'${t.id}')">✕</button>
         <div class="blk-resize" role="separator" aria-label="Resize duration handle" onmousedown="resizeStart(event,'${t.id}')" title="Drag to minimize or expand duration"></div>
@@ -2828,7 +2833,10 @@ function renderUnscheduled() {
         <div class="us-name">${esc(t.name)}</div>
         <button class="us-del" aria-label="Delete task: ${esc(t.name)}" onclick="delTask(event,'${t.id}')">✕</button>
       </div>
-      <div class="us-meta">${CEMOJI[t.cat]||''} ${CATS[t.cat]||t.cat} · drag to schedule</div>
+      <div class="us-meta" style="display:flex; align-items:center; justify-content:space-between; margin-top:6px;">
+        <span>${CEMOJI[t.cat]||''} ${CATS[t.cat]||t.cat}</span>
+        <span style="opacity:0.75; font-size:10px;">drag to schedule ↗</span>
+      </div>
     </div>`).join('') + `<div class="drag-hint">↑ drag onto time slots</div>`;
 }
 
