@@ -133,7 +133,7 @@ body { font-family: var(--fb); background: var(--white); color: var(--black); mi
   background: rgba(0,0,0,0.25);
   color: var(--black);
   font-family: var(--fm);
-  font-size: 9px;
+  font-size: 10px;
   padding: 2px 6px;
   border-radius: 10px;
   font-weight: 700;
@@ -234,8 +234,8 @@ body { font-family: var(--fb); background: var(--white); color: var(--black); mi
   align-items: center;
   justify-content: space-between;
 }
-.cal-col-title { font-family: var(--fh); font-size: 15px; }
-.cal-col-sub { font-family: var(--fm); font-size: 9px; color: #aaa; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+.cal-col-title { font-family: var(--fh); font-size: 16px; }
+.cal-col-sub { font-family: var(--fm); font-size: 10px; color: #666; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 3px; }
 
 /* ── GRID ── */
 .time-grid {
@@ -244,7 +244,7 @@ body { font-family: var(--fb); background: var(--white); color: var(--black); mi
 }
 .grid-row {
   display: grid;
-  grid-template-columns: 52px 1fr;
+  grid-template-columns: 56px 1fr;
   height: var(--slot-h);
   border-bottom: 1.5px solid #ebebeb;
   position: relative;
@@ -256,10 +256,10 @@ body { font-family: var(--fb); background: var(--white); color: var(--black); mi
 .grid-row.drag-over { background: #FFF9C4 !important; }
 .hr-label {
   font-family: var(--fm);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  color: #777;
-  padding: 8px 8px 0 14px;
+  color: #666;
+  padding: 8px 8px 0 10px;
   text-align: right;
   user-select: none;
   line-height: 1;
@@ -273,7 +273,7 @@ body { font-family: var(--fb); background: var(--white); color: var(--black); mi
 /* NOW LINE */
 .now-line {
   position: absolute;
-  left: 52px; right: 0;
+  left: 56px; right: 0;
   height: 2.5px;
   background: var(--pink);
   z-index: 15;
@@ -292,7 +292,7 @@ body { font-family: var(--fb); background: var(--white); color: var(--black); mi
 /* ── POSITIONED BLOCKS (absolute on grid) ── */
 .blocks-layer {
   position: absolute;
-  top: 0; left: 52px; right: 0;
+  top: 0; left: 56px; right: 0;
   pointer-events: none; /* children handle events */
 }
 .cal-block {
@@ -304,13 +304,13 @@ body { font-family: var(--fb); background: var(--white); color: var(--black); mi
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  padding: 6px 9px;
+  padding: 7px 10px;
   overflow: hidden;
   pointer-events: all;
   cursor: grab;
   user-select: none;
   transition: box-shadow 0.1s;
-  min-height: 18px;
+  min-height: 38px;
   box-sizing: border-box;
 }
 .cal-block::before {
@@ -333,83 +333,14 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
 .cal-block.done-blk { background: #f0f0ea; }
 .cal-block.done-blk .blk-name { text-decoration: line-through; color: #888; }
 
-/* ── DURATION VISUAL PROFILES (15m, 30m, 45m, 1h+) ── */
-.cal-block.dur-15 {
-  padding: 0 6px !important;
-  align-items: center !important;
-  gap: 5px !important;
-  border-left-width: 6px;
-}
-.cal-block.dur-15 .blk-check {
-  width: 14px !important;
-  height: 14px !important;
-  font-size: 9px !important;
-  margin-top: 0 !important;
-  border-width: 1.5px !important;
-}
-.cal-block.dur-15 .blk-name {
-  font-size: 11px !important;
-  line-height: 1.1 !important;
-}
-.cal-block.dur-15 .blk-time,
-.cal-block.dur-15 .blk-cat {
-  display: none !important;
-}
-.cal-block.dur-15 .blk-del {
-  display: flex !important;
-  width: 14px !important;
-  height: 14px !important;
-  font-size: 8.5px !important;
-  border-width: 1.5px !important;
-  line-height: 1 !important;
-}
-
-.cal-block.dur-30 {
-  padding: 4px 8px !important;
-  align-items: center !important;
-  gap: 6px !important;
-  border-left-width: 6px;
-}
-.cal-block.dur-30 .blk-check {
-  width: 16px !important;
-  height: 16px !important;
-  font-size: 10px !important;
-  margin-top: 0 !important;
-}
-.cal-block.dur-30 .blk-del {
-  width: 16px !important;
-  height: 16px !important;
-  font-size: 9px !important;
-}
-.cal-block.dur-30 .blk-name {
-  font-size: 12px !important;
-}
-.cal-block.dur-30 .blk-cat {
-  display: none !important;
-}
-.cal-block.dur-30 .blk-time {
-  margin-top: 0 !important;
-  font-size: 9.5px !important;
-}
-
-.cal-block.dur-45 {
-  padding: 5px 8px !important;
-  border-left-width: 6px;
-}
-.cal-block.dur-60,
-.cal-block.dur-90,
-.cal-block.dur-120,
-.cal-block.dur-long {
-  border-left-width: 7px;
-}
-
+/* ── DURATION BADGES ── */
 .blk-dur-badge {
   font-family: var(--fm);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 800;
   background: var(--yellow);
   color: var(--black);
-  padding: 1.5px 5px;
+  padding: 2px 5px;
   border: 1.5px solid var(--black);
   border-radius: 2px;
   flex-shrink: 0;
@@ -437,15 +368,15 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
 .blk-check:hover { background: var(--yellow); }
 .cal-block.done-blk .blk-check { background: var(--green); border-color: var(--green); color: white; }
 .blk-body { flex: 1; min-width: 0; }
-.blk-name { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
-.blk-time { font-family: var(--fm); font-size: 10px; color: #444; font-weight: 700; margin-top: 2px; }
-.blk-cat  { font-family: var(--fm); font-size: 9px; color: #555; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.blk-name { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
+.blk-time { font-family: var(--fm); font-size: 11px; color: #444; font-weight: 700; margin-top: 2px; }
+.blk-cat  { font-family: var(--fm); font-size: 10px; color: #666; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 .blk-del {
   border: 1.5px solid #111;
   background: var(--white);
-  width: 18px; height: 18px;
+  width: 20px; height: 20px;
   cursor: pointer;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: bold;
   color: var(--black);
   display: flex; align-items: center; justify-content: center;
@@ -738,7 +669,7 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
   box-shadow: var(--shadow);
   background: var(--yellow);
   font-family: var(--fh);
-  font-size: 11px;
+  font-size: 12px;
   padding: 6px 14px;
   cursor: pointer;
   letter-spacing: 0.5px;
@@ -770,7 +701,7 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
   background: var(--yellow);
   box-shadow: 2px 2px 0 #111;
   font-family: var(--fm);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   padding: 3px 10px;
 }
@@ -779,7 +710,7 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
   background: var(--white);
   width: 26px; height: 26px;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: bold;
   color: var(--black);
   display: flex; align-items: center; justify-content: center;
@@ -847,7 +778,7 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
   overflow: hidden;
 }
 .hab-prog-fill { height: 100%; transition: width 0.4s; }
-.hab-prog-label { font-family: var(--fm); font-size: 9px; font-weight: 700; color: #aaa; white-space: nowrap; }
+.hab-prog-label { font-family: var(--fm); font-size: 10px; font-weight: 700; color: #aaa; white-space: nowrap; }
 
 /* ── EMPTY ── */
 .empty {
@@ -878,7 +809,7 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
 .t-p .t-sub { color: rgba(255,255,255,0.7); }
 .t-ico { font-size: 18px; flex-shrink: 0; }
 .t-title { font-family: var(--fh); font-size: 13px; }
-.t-sub { font-family: var(--fm); font-size: 9px; color: #666; margin-top: 1px; font-weight: 700; }
+.t-sub { font-family: var(--fm); font-size: 10px; color: #666; margin-top: 1px; font-weight: 700; }
 @keyframes tIn  { to { transform: translateX(0); } }
 @keyframes tOut { to { transform: translateX(120%); opacity: 0; } }
 
@@ -997,11 +928,11 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
 @keyframes qaIn { to { transform: scale(1) translateY(0); opacity: 1; } }
 .qa-hdr {
   background: var(--black); color: var(--yellow);
-  font-family: var(--fh); font-size: 11px; letter-spacing: 0.5px;
+  font-family: var(--fh); font-size: 12px; letter-spacing: 0.5px;
   padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
   border-bottom: var(--border);
 }
-.qa-time { font-family: var(--fm); font-size: 10px; font-weight: 700; color: var(--yellow); opacity: 0.8; }
+.qa-time { font-family: var(--fm); font-size: 10.5px; font-weight: 700; color: var(--yellow); opacity: 0.8; }
 .qa-close { border: none; background: none; cursor: pointer; font-size: 14px; color: #888; line-height: 1; padding: 0; }
 .qa-close:hover { color: var(--pink); }
 
@@ -1091,7 +1022,7 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
   border: none;
   outline: none;
   font-family: var(--fm);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   padding: 0 28px; /* Symmetric padding to ensure absolute vertical/horizontal centering of the text */
   background: transparent;
@@ -1189,7 +1120,7 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
 /* Specific styling for category dropdown options inside add-bar */
 .add-bar-select .custom-select-option {
   font-family: var(--fm);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.5px;
   color: #555;
@@ -1224,7 +1155,7 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
   box-shadow: var(--shadow);
   background: var(--white);
   font-family: var(--fm);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   height: 32px;
   display: flex;
@@ -1250,7 +1181,7 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
   box-shadow: var(--shadow);
   background: var(--white);
   font-family: var(--fh);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   height: 32px;
   padding: 0 14px;
@@ -1375,7 +1306,7 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
   align-items: center;
   justify-content: center;
   font-family: var(--fm);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   border: 1.5px solid transparent;
@@ -1413,7 +1344,7 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
   background: var(--black);
   color: var(--white);
   font-family: var(--fm);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   margin-left: 14px;
@@ -1461,7 +1392,7 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
 .auth-body.hidden { display: none; }
 .auth-field { display: flex; flex-direction: column; gap: 6px; }
 .auth-lbl {
-  font-family: var(--fm); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #888;
+  font-family: var(--fm); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #888;
 }
 .auth-inp {
   border: var(--border); background: var(--white); font-family: var(--fb); font-size: 15px; font-weight: 700; padding: 12px 14px; outline: none; width: 100%; color: var(--black);
@@ -1472,11 +1403,11 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
 }
 .auth-btn:hover { background: var(--yellow); color: var(--black); }
 .auth-err {
-  font-family: var(--fm); font-size: 11px; font-weight: 700; color: var(--pink); background: #FEF2F2; border: 1.5px solid #FECACA; padding: 10px 12px; letter-spacing: .2px; display: none;
+  font-family: var(--fm); font-size: 12px; font-weight: 700; color: var(--pink); background: #FEF2F2; border: 1.5px solid #FECACA; padding: 10px 12px; letter-spacing: .2px; display: none;
 }
 .auth-err.show { display: block; }
 .auth-success {
-  font-family: var(--fm); font-size: 11px; font-weight: 700; color: var(--green); background: #F0FDF4; border: 1.5px solid #BBF7D0; padding: 10px 12px; letter-spacing: .2px; display: none;
+  font-family: var(--fm); font-size: 12px; font-weight: 700; color: var(--green); background: #F0FDF4; border: 1.5px solid #BBF7D0; padding: 10px 12px; letter-spacing: .2px; display: none;
 }
 .auth-success.show { display: block; }
 
@@ -1695,13 +1626,13 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
         <option value="180">3 hrs</option>
       </select>
     </div>
-    <div id="edit-task-sched-info" style="font-family:var(--fm);font-size:11px;font-weight:700;color:#555;padding:4px 0;display:flex;align-items:center;justify-content:space-between;">
+    <div id="edit-task-sched-info" style="font-family:var(--fm);font-size:12px;font-weight:700;color:#555;padding:4px 0;display:flex;align-items:center;justify-content:space-between;">
       <span id="edit-task-time-lbl">⏰ 10:00 AM – 11:00 AM</span>
-      <button type="button" id="edit-task-toggle-sched-btn" onclick="toggleTaskScheduleFromModal()" style="background:none;border:1.5px solid var(--black);font-family:var(--fm);font-size:9px;font-weight:700;padding:4px 8px;cursor:pointer;text-transform:uppercase;">Unschedule</button>
+      <button type="button" id="edit-task-toggle-sched-btn" onclick="toggleTaskScheduleFromModal()" style="background:none;border:1.5px solid var(--black);font-family:var(--fm);font-size:10px;font-weight:700;padding:4px 8px;cursor:pointer;text-transform:uppercase;">Unschedule</button>
     </div>
     <div style="display:flex; gap:8px;">
       <button class="qa-submit" onclick="saveEditedTask()" aria-label="Save task changes" style="flex:2;">SAVE CHANGES ✓</button>
-      <button type="button" onclick="deleteTaskFromModal()" aria-label="Delete task" style="flex:1; background:var(--pink); color:var(--white); border:var(--border); box-shadow:var(--shadow); font-family:var(--fh); font-size:11px; font-weight:900; cursor:pointer; text-transform:uppercase; padding: 12px 6px;">DELETE</button>
+      <button type="button" onclick="deleteTaskFromModal()" aria-label="Delete task" style="flex:1; background:var(--pink); color:var(--white); border:var(--border); box-shadow:var(--shadow); font-family:var(--fh); font-size:12px; font-weight:900; cursor:pointer; text-transform:uppercase; padding: 12px 6px;">DELETE</button>
     </div>
   </div>
 </div>
@@ -1742,11 +1673,11 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
         <input class="auth-inp" id="l-pass" type="password" placeholder="••••••••" onkeydown="authKey(event,'login')">
       </div>
       <div style="display: flex; align-items: center; justify-content: space-between; margin-top: -4px; margin-bottom: 8px;">
-        <label style="display: flex; align-items: center; gap: 6px; font-family: var(--fm); font-size: 11px; font-weight: 700; color: var(--black); cursor: pointer; user-select: none;">
+        <label style="display: flex; align-items: center; gap: 6px; font-family: var(--fm); font-size: 12px; font-weight: 700; color: var(--black); cursor: pointer; user-select: none;">
           <input type="checkbox" id="remember-me" checked style="accent-color: var(--black); width: 14px; height: 14px; cursor: pointer;">
           Remember me
         </label>
-        <a href="#" onclick="showAuthTab('forgot', this); return false;" style="font-family: var(--fm); font-size: 11px; font-weight: 700; color: var(--blue); text-decoration: underline;">Forgot Password?</a>
+        <a href="#" onclick="showAuthTab('forgot', this); return false;" style="font-family: var(--fm); font-size: 12px; font-weight: 700; color: var(--blue); text-decoration: underline;">Forgot Password?</a>
       </div>
       <div class="auth-err" id="l-err" role="alert" aria-live="assertive"></div>
       <button class="auth-btn" onclick="doLogin()">SIGN IN →</button>
@@ -1784,7 +1715,7 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
       <div class="auth-success" id="f-success" role="status" aria-live="polite"></div>
       <button class="auth-btn" onclick="doResetPasswordRequest()">SEND RESET LINK →</button>
       <div style="text-align: center; margin-top: 8px;">
-        <a href="#" onclick="showAuthTab('login', this); return false;" style="font-family: var(--fm); font-size: 11px; font-weight: 700; color: var(--black); text-decoration: underline;">Back to Sign In</a>
+        <a href="#" onclick="showAuthTab('login', this); return false;" style="font-family: var(--fm); font-size: 12px; font-weight: 700; color: var(--black); text-decoration: underline;">Back to Sign In</a>
       </div>
     </div>
 
@@ -3169,7 +3100,7 @@ function renderAllTasks() {
   S.tasks.forEach(t => { (groups[t.cat] = groups[t.cat]||[]).push(t); });
   let html = '';
   Object.entries(groups).forEach(([cat, ts]) => {
-    html += `<div class="cat-grp-hdr">${CEMOJI[cat]||''} ${CATS[cat]||cat} <span style="font-family:var(--fm);font-size:9px;color:#ccc">${ts.length}</span></div>`;
+    html += `<div class="cat-grp-hdr">${CEMOJI[cat]||''} ${CATS[cat]||cat} <span style="font-family:var(--fm);font-size:10px;color:#888">${ts.length}</span></div>`;
     html += ts.map(t => {
       const taskDate = t.created || todayStr();
       const dateLabel = taskDate !== todayStr() ? formatDateShort(taskDate) + ' · ' : '';
