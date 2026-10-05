@@ -3,9 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QuestLog</title>
+<title>QuestLog — Daily Planner & Habit Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<!-- PostHog Analytics Suite (Autocapture, Heatmaps, Session Recording) -->
+<script>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    posthog.init('phc_EUk6nwB59FP7pwvDpERpBcH6OxHv9mx0PAQLWGsKZbJ', {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'identified_only',
+        autocapture: true,
+        capture_pageview: true,
+        session_recording: {
+            maskAllInputs: false,
+            maskInputOptions: {
+                password: true
+            }
+        }
+    });
+</script>
 <style>
 :root {
   --black: #111;
@@ -2128,6 +2144,7 @@ async function doLogout() {
   } else if (sb) {
     await sb.auth.signOut();
   }
+  if (window.posthog) posthog.reset();
   showLoginScreen();
 }
 
@@ -2170,6 +2187,15 @@ async function loginAs(user) {
     navLogoutBtn.setAttribute('title', `Signed in as ${nameStr}`);
   }
   
+  if (window.posthog && user && user.id) {
+    posthog.identify(user.id, {
+      email: user.email,
+      name: user.user_metadata?.name || 'User',
+      is_demo: !!user.isDemo
+    });
+  }
+  trackEvent('user_signed_in', { is_demo: !!user.isDemo });
+  
   await loadAllData();
   
   // Activate stored tab on load
@@ -2197,7 +2223,7 @@ async function loadTasks() {
       try { return JSON.parse(saved); } catch(e) {}
     }
     const defaultTasks = [
-      { id: 'dt1', name: 'Tracking quality dashboard', cat: 'work', done: false, startMin: 540, durMin: 60, created: todayStr() },
+      { id: 'dt1', name: 'Sprint planning & backlog review', cat: 'work', done: false, startMin: 540, durMin: 60, created: todayStr() },
       { id: 'dt2', name: 'Design system review', cat: 'learn', done: false, startMin: 630, durMin: 90, created: todayStr() },
       { id: 'dt3', name: 'Morning run 5k', cat: 'health', done: true, startMin: 420, durMin: 45, created: todayStr() },
       { id: 'dt4', name: 'Review project budget', cat: 'finance', done: false, startMin: null, durMin: 60, created: todayStr() },
@@ -3343,25 +3369,7 @@ async function toggleDone(e, id) {
 }
 
 function handleTaskClick(e, name) {
-  const target = e.target;
-  if (
-    target.closest('button') || 
-    target.closest('.us-check') || 
-    target.closest('.blk-check') || 
-    target.closest('.all-chk') || 
-    target.closest('.uchk') || 
-    target.closest('.achk') || 
-    target.closest('.bchk') ||
-    target.closest('.blk-resize') ||
-    target.closest('.brsz')
-  ) {
-    return;
-  }
-  if (name && name.toLowerCase().trim() === 'tracking quality dashboard') {
-    e.stopPropagation();
-    trackEvent('pitch_deck_clicked', { source: 'task_card' });
-    window.open('https://pitch.com/v/tracking-quality-dashboard-gfpdq7', '_blank');
-  }
+  // Reserved for task details / editing expansion in future updates
 }
 
 async function delTask(e, id) {
