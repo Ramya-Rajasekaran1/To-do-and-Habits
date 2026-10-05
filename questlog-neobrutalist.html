@@ -304,13 +304,14 @@ body { font-family: var(--fb); background: var(--white); color: var(--black); mi
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  padding: 7px 9px;
+  padding: 6px 9px;
   overflow: hidden;
   pointer-events: all;
   cursor: grab;
   user-select: none;
   transition: box-shadow 0.1s;
-  min-height: 38px;
+  min-height: 18px;
+  box-sizing: border-box;
 }
 .cal-block::before {
   content: '';
@@ -330,7 +331,85 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
 .cal-col-hdr.drag-over-hdr { background: #FFF9C4 !important; }
 .unsched-col.drag-over-col { background: #FFF9C4 !important; }
 .cal-block.done-blk { background: #f0f0ea; }
-.cal-block.done-blk .blk-name { text-decoration: line-through; }
+.cal-block.done-blk .blk-name { text-decoration: line-through; color: #888; }
+
+/* ── DURATION VISUAL PROFILES (15m, 30m, 45m, 1h+) ── */
+.cal-block.dur-15 {
+  padding: 0 6px !important;
+  align-items: center !important;
+  gap: 5px !important;
+  border-left-width: 6px;
+}
+.cal-block.dur-15 .blk-check {
+  width: 13px !important;
+  height: 13px !important;
+  font-size: 8px !important;
+  margin-top: 0 !important;
+  border-width: 1.5px !important;
+}
+.cal-block.dur-15 .blk-name {
+  font-size: 10px !important;
+  line-height: 1 !important;
+}
+.cal-block.dur-15 .blk-time,
+.cal-block.dur-15 .blk-cat,
+.cal-block.dur-15 .blk-del {
+  display: none !important;
+}
+
+.cal-block.dur-30 {
+  padding: 4px 8px !important;
+  align-items: center !important;
+  gap: 6px !important;
+  border-left-width: 6px;
+}
+.cal-block.dur-30 .blk-check {
+  width: 15px !important;
+  height: 15px !important;
+  font-size: 9px !important;
+  margin-top: 0 !important;
+}
+.cal-block.dur-30 .blk-name {
+  font-size: 11px !important;
+}
+.cal-block.dur-30 .blk-cat {
+  display: none !important;
+}
+.cal-block.dur-30 .blk-time {
+  margin-top: 0 !important;
+  font-size: 8px !important;
+}
+
+.cal-block.dur-45 {
+  padding: 5px 8px !important;
+  border-left-width: 6px;
+}
+.cal-block.dur-60,
+.cal-block.dur-90,
+.cal-block.dur-120,
+.cal-block.dur-long {
+  border-left-width: 7px;
+}
+
+.blk-dur-badge {
+  font-family: var(--fm);
+  font-size: 8px;
+  font-weight: 700;
+  background: var(--yellow);
+  color: var(--black);
+  padding: 1px 4px;
+  border: 1.5px solid var(--black);
+  border-radius: 2px;
+  flex-shrink: 0;
+  margin-left: auto;
+  line-height: 1.2;
+}
+.cal-block.dur-15 .blk-dur-badge { background: #FEF08A; }
+.cal-block.dur-30 .blk-dur-badge { background: #BAE6FD; }
+.cal-block.dur-45 .blk-dur-badge { background: #FED7AA; }
+.cal-block.dur-60 .blk-dur-badge { background: #BBF7D0; }
+.cal-block.dur-90 .blk-dur-badge { background: #DDD6FE; }
+.cal-block.dur-120 .blk-dur-badge { background: #FECDD3; }
 
 .blk-check {
   width: 18px; height: 18px;
@@ -347,15 +426,16 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
 .cal-block.done-blk .blk-check { background: var(--green); border-color: var(--green); color: white; }
 .blk-body { flex: 1; min-width: 0; }
 .blk-name { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
-.blk-time { font-family: var(--fm); font-size: 9px; color: #aaa; font-weight: 700; margin-top: 2px; }
-.blk-cat  { font-family: var(--fm); font-size: 8px; color: #bbb; font-weight: 700; text-transform: uppercase; }
+.blk-time { font-family: var(--fm); font-size: 9px; color: #555; font-weight: 700; margin-top: 2px; }
+.blk-cat  { font-family: var(--fm); font-size: 8px; color: #666; font-weight: 700; text-transform: uppercase; }
 .blk-del {
-  border: 1.5px solid #ddd;
-  background: none;
+  border: 1.5px solid #111;
+  background: var(--white);
   width: 18px; height: 18px;
   cursor: pointer;
   font-size: 9px;
-  color: #ccc;
+  font-weight: bold;
+  color: var(--black);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
   opacity: 0;
@@ -375,14 +455,19 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity 0.1s;
+  background: rgba(0,0,0,0.06);
+  border-top: 1px dashed rgba(0,0,0,0.25);
+  transition: opacity 0.1s, background 0.1s;
 }
 .cal-block:hover .blk-resize { opacity: 1; }
+.blk-resize:hover { background: var(--yellow); }
 .blk-resize::before {
-  content: '⋯';
-  font-size: 12px;
-  color: #bbb;
-  letter-spacing: 2px;
+  content: '▾';
+  font-size: 10px;
+  font-weight: 900;
+  color: var(--black);
+  line-height: 1;
+  margin-top: -3px;
 }
 
 /* RIGHT: unscheduled */
@@ -2244,18 +2329,10 @@ async function saveToggleHabit(habitId, dateStr, isChecking) {
       const res = await sb.from('habit_checks').delete().eq('habit_id', habitId).eq('date', dateStr);
       error = res.error;
     }
-    if (error) {
-      console.error('saveToggleHabit delete error:', error);
-      toast('⚠️', 'Update Failed', error.message, 'p');
-    }
-  }
-    if (error && error.message && error.message.includes('checked_on')) {
-      const res = await sb.from('habit_checks').delete().eq('habit_id', habitId).eq('date', dateStr);
-      error = res.error;
-    }
-    if (error) {
-      console.error('saveToggleHabit delete error:', error);
-      toast('⚠️', 'Update Failed', error.message, 'p');
+      if (error) {
+        console.error('saveToggleHabit delete error:', error);
+        toast('⚠️', 'Update Failed', error.message, 'p');
+      }
     }
   }
 function trackEvent(name, meta = {}) {
@@ -2485,30 +2562,44 @@ function renderCalendar() {
   
   let blocksHTML = scheduled.map(t => {
     const top    = (t.startMin - firstH * 60) / 60 * SLOT_H;
-    const dur    = t.durMin || 60;
-    const height = Math.max(36, dur / 60 * SLOT_H);
+    const dur    = Math.max(15, t.durMin || 60);
+    const height = Math.max(18, dur / 60 * SLOT_H);
+    
+    let durClass = 'dur-60';
+    if (dur <= 15) durClass = 'dur-15';
+    else if (dur <= 30) durClass = 'dur-30';
+    else if (dur <= 45) durClass = 'dur-45';
+    else if (dur <= 60) durClass = 'dur-60';
+    else if (dur <= 90) durClass = 'dur-90';
+    else if (dur <= 120) durClass = 'dur-120';
+    else durClass = 'dur-long';
+
+    const durBadgeText = dur >= 60 
+      ? (dur % 60 === 0 ? (dur / 60) + 'h' : Math.floor(dur / 60) + 'h ' + (dur % 60) + 'm')
+      : dur + 'm';
     
     return `
-      <div class="cal-block${t.done?' done-blk':''}"
+      <div class="cal-block ${durClass}${t.done?' done-blk':''}"
         data-cat="${t.cat}" data-id="${t.id}"
         style="top:${top}px;height:${height}px;"
         draggable="true"
         role="article"
-        aria-label="Scheduled task: ${esc(t.name)}, from ${fmtMinutes(t.startMin)} to ${fmtMinutes(t.startMin+dur)}"
+        aria-label="Scheduled task: ${esc(t.name)}, ${durBadgeText}, from ${fmtMinutes(t.startMin)} to ${fmtMinutes(t.startMin+dur)}"
         onmousedown="blkMouseDown(event,'${t.id}')"
         ondragstart="blkDragStart(event,'${t.id}')"
         ondragend="blkDragEnd(event)"
         onclick="handleTaskClick(event, '${esc(t.name)}')">
         <div class="blk-check" role="checkbox" tabindex="0" aria-checked="${t.done}" aria-label="Mark task ${esc(t.name)} as ${t.done?'incomplete':'complete'}" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleDone(event,'${t.id}');}" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
         <div class="blk-body">
-          <div style="display:flex; align-items:center; gap:4px;">
+          <div style="display:flex; align-items:center; gap:4px; width:100%;">
             <div class="blk-name" style="flex:1">${esc(t.name)}</div>
+            <span class="blk-dur-badge">${durBadgeText}</span>
           </div>
           <div class="blk-time">${fmtMinutes(t.startMin)} – ${fmtMinutes(t.startMin+dur)}</div>
           <div class="blk-cat">${CEMOJI[t.cat]||''} ${CATS[t.cat]||''}</div>
         </div>
         <button class="blk-del" aria-label="Delete task: ${esc(t.name)}" onclick="delTask(event,'${t.id}')">✕</button>
-        <div class="blk-resize" role="separator" aria-label="Resize duration handle" onmousedown="resizeStart(event,'${t.id}')"></div>
+        <div class="blk-resize" role="separator" aria-label="Resize duration handle" onmousedown="resizeStart(event,'${t.id}')" title="Drag to minimize or expand duration"></div>
       </div>`;
   }).join('');
 
@@ -2526,7 +2617,6 @@ function renderCalendar() {
     
     // 1. Check if there are scheduled tasks for this date
     if (scheduled.length > 0) {
-      // Find the earliest startMin of scheduled tasks
       const earliestStart = Math.min(...scheduled.map(t => t.startMin));
       targetTop = (earliestStart - firstH * 60) / 60 * SLOT_H;
     }
@@ -2544,6 +2634,62 @@ function renderCalendar() {
     }
   }
 }
+
+// ── COLLISION AVOIDANCE & MAGNETIC SNAPPING ──
+function findSnapSlot(startMin, durMin, excludeId, dateStr) {
+  const dStr = dateStr || viewDateStr();
+  const dayStart = HOURS[0] * 60;
+  const dayEnd = (HOURS[HOURS.length - 1] + 1) * 60;
+  const dur = Math.max(15, durMin || 60);
+  let curStart = Math.max(dayStart, Math.min(startMin, dayEnd - dur));
+
+  // Collect and sort all other scheduled tasks for this date
+  const otherTasks = S.tasks
+    .filter(t => t.id !== excludeId && t.startMin != null && (t.created || todayStr()) === dStr)
+    .map(t => ({
+      id: t.id,
+      start: t.startMin,
+      end: t.startMin + Math.max(15, t.durMin || 60)
+    }))
+    .sort((a, b) => a.start - b.start);
+
+  let changed = true;
+  let loops = 0;
+  while (changed && loops < 50) {
+    changed = false;
+    loops++;
+    for (const t of otherTasks) {
+      // If [curStart, curStart + dur) overlaps [t.start, t.end)
+      if (curStart < t.end && (curStart + dur) > t.start) {
+        // Snap immediately to after this task ends
+        curStart = t.end;
+        changed = true;
+        break;
+      }
+    }
+  }
+
+  // If pushed beyond end of day, look for earliest free gap from dayStart
+  if (curStart + dur > dayEnd) {
+    curStart = dayStart;
+    loops = 0;
+    changed = true;
+    while (changed && loops < 50) {
+      changed = false;
+      loops++;
+      for (const t of otherTasks) {
+        if (curStart < t.end && (curStart + dur) > t.start) {
+          curStart = t.end;
+          changed = true;
+          break;
+        }
+      }
+    }
+  }
+
+  return Math.max(dayStart, Math.min(curStart, dayEnd - dur));
+}
+
 function updateNowLine() {
   if (curTab !== 'today') return;
   const now = new Date();
@@ -2632,7 +2778,8 @@ async function commitQA() {
   const cat = document.getElementById('qa-cat').value;
   const dur = parseInt(document.getElementById('qa-dur').value) || 60;
   
-  let t = { id: uid(), name, cat, done: false, startMin: qa.sm, durMin: dur, created: viewDateStr() };
+  const snappedStart = findSnapSlot(qa.sm, dur, null, viewDateStr());
+  let t = { id: uid(), name, cat, done: false, startMin: snappedStart, durMin: dur, created: viewDateStr() };
   t = await saveAddTask(t);
   S.tasks.push(t);
   closeQA();
@@ -2761,7 +2908,6 @@ function gridDragOver(e) {
   e.preventDefault();
   e.dataTransfer.dropEffect = 'move';
   
-  // Find which row we are hovering over and highlight it
   const gridEl = document.getElementById('time-grid');
   if (gridEl) {
     const rect = gridEl.getBoundingClientRect();
@@ -2805,9 +2951,12 @@ function gridDrop(e) {
     // New schedule from unscheduled
     const t = S.tasks.find(t => t.id === dragId);
     if (!t) return;
-    t.startMin = finalHour * 60 + Math.min(extraMin, 45);
-    t.durMin   = t.durMin || 60;
+    const targetMin = finalHour * 60 + Math.min(extraMin, 45);
+    const dur = Math.max(15, t.durMin || 60);
+    t.startMin = findSnapSlot(targetMin, dur, t.id, viewDateStr());
+    t.durMin   = dur;
     t.created  = viewDateStr();
+    saveUpdateTask(t);
     toast('⏰','Scheduled!', fmtMinutes(t.startMin), 'y');
   } else if (dragBlkId) {
     // Move existing local block
@@ -2815,8 +2964,8 @@ function gridDrop(e) {
     if (!t) return;
     let newStart = finalHour * 60 + Math.min(extraMin, 45) - dragBlkOffsetMin;
     newStart = Math.round(newStart / 15) * 15;
-    newStart = Math.max(HOURS[0]*60, Math.min(newStart, HOURS[HOURS.length-1]*60));
-    t.startMin = newStart;
+    const dur = Math.max(15, t.durMin || 60);
+    t.startMin = findSnapSlot(newStart, dur, t.id, viewDateStr());
     saveUpdateTask(t);
   }
   dragId = null; dragBlkId = null;
@@ -2839,8 +2988,9 @@ function headerDrop(e) {
   if (dragId) {
     const t = S.tasks.find(t => t.id === dragId);
     if (t) {
-      t.startMin = firstHour * 60;
-      t.durMin   = t.durMin || 60;
+      const dur = Math.max(15, t.durMin || 60);
+      t.startMin = findSnapSlot(firstHour * 60, dur, t.id, viewDateStr());
+      t.durMin   = dur;
       t.created  = viewDateStr();
       saveUpdateTask(t);
       toast('⏰', 'Scheduled!', fmtMinutes(t.startMin), 'y');
@@ -2848,7 +2998,8 @@ function headerDrop(e) {
   } else if (dragBlkId) {
     const t = S.tasks.find(t => t.id === dragBlkId);
     if (t) {
-      t.startMin = firstHour * 60;
+      const dur = Math.max(15, t.durMin || 60);
+      t.startMin = findSnapSlot(firstHour * 60, dur, t.id, viewDateStr());
       saveUpdateTask(t);
     }
   }
@@ -2897,16 +3048,31 @@ function resizeMove(e) {
   if (!resizeId) return;
   const dy      = e.clientY - resizeStartY;
   const deltMin = Math.round(dy / SLOT_H * 60 / 15) * 15;
-  const newDur  = Math.max(15, resizeStartDur + deltMin);
+  const rawDur  = Math.max(15, resizeStartDur + deltMin);
   
   const t = S.tasks.find(t => t.id === resizeId);
   if (!t) return;
-  t.durMin = newDur;
+
+  // Prevent resize from overlapping into next scheduled task
+  const dStr = t.created || viewDateStr();
+  const nextTask = S.tasks
+    .filter(ot => ot.id !== resizeId && ot.startMin != null && (ot.created || todayStr()) === dStr && ot.startMin >= t.startMin)
+    .sort((a, b) => a.startMin - b.startMin)[0];
+  const maxAllowedDur = nextTask ? (nextTask.startMin - t.startMin) : (((HOURS[HOURS.length - 1] + 1) * 60) - t.startMin);
+  const clampedDur = Math.max(15, Math.min(rawDur, Math.max(15, maxAllowedDur)));
+
+  t.durMin = clampedDur;
   const blk = document.querySelector(`.cal-block[data-id="${resizeId}"]`);
   if (blk) {
-    blk.style.height = Math.max(36, t.durMin / 60 * SLOT_H) + 'px';
+    blk.style.height = Math.max(18, t.durMin / 60 * SLOT_H) + 'px';
     const timeEl = blk.querySelector('.blk-time');
     if (timeEl) timeEl.textContent = fmtMinutes(t.startMin) + ' – ' + fmtMinutes(t.startMin + t.durMin);
+    const badgeEl = blk.querySelector('.blk-dur-badge');
+    if (badgeEl) {
+      badgeEl.textContent = clampedDur >= 60 
+        ? (clampedDur % 60 === 0 ? (clampedDur/60)+'h' : Math.floor(clampedDur/60)+'h '+(clampedDur%60)+'m')
+        : clampedDur + 'm';
+    }
   }
 }
 function resizeEnd() {
@@ -2916,6 +3082,7 @@ function resizeEnd() {
       saveUpdateTask(t);
     }
     resizeId = null;
+    render();
   }
   document.removeEventListener('mousemove', resizeMove);
   document.removeEventListener('mouseup',   resizeEnd);
