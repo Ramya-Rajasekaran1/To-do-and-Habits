@@ -352,9 +352,16 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
   line-height: 1 !important;
 }
 .cal-block.dur-15 .blk-time,
-.cal-block.dur-15 .blk-cat,
-.cal-block.dur-15 .blk-del {
+.cal-block.dur-15 .blk-cat {
   display: none !important;
+}
+.cal-block.dur-15 .blk-del {
+  display: flex !important;
+  width: 13px !important;
+  height: 13px !important;
+  font-size: 8px !important;
+  border-width: 1.5px !important;
+  line-height: 1 !important;
 }
 
 .cal-block.dur-30 {
@@ -368,6 +375,11 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
   height: 15px !important;
   font-size: 9px !important;
   margin-top: 0 !important;
+}
+.cal-block.dur-30 .blk-del {
+  width: 15px !important;
+  height: 15px !important;
+  font-size: 8px !important;
 }
 .cal-block.dur-30 .blk-name {
   font-size: 11px !important;
