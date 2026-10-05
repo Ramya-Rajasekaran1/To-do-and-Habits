@@ -1004,8 +1004,19 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
 
 .qa-row { display: flex; gap: 8px; }
 
-#add-cat, #qa-cat, #qa-dur {
+#add-cat, #qa-cat, #qa-dur, #edit-task-cat, #edit-task-dur {
   display: none !important;
+}
+
+.edit-modal-box {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 320px;
+  max-width: 90vw;
+  z-index: 7000;
+  box-shadow: 8px 8px 0 var(--black);
 }
 
 /* Custom Select container */
@@ -1638,6 +1649,44 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
       </select>
     </div>
     <button class="qa-submit" onclick="commitQA()" aria-label="Add task to calendar">ADD TO CALENDAR ↗</button>
+  </div>
+</div>
+
+<!-- EDIT TASK MODAL -->
+<div class="qa-overlay" id="edit-overlay" onclick="closeEditModal()" style="display:none" aria-hidden="true"></div>
+<div class="qabox edit-modal-box" id="edit-modal" style="display:none" role="dialog" aria-labelledby="edit-modal-title">
+  <div class="qa-hdr" style="background:var(--black); color:var(--yellow);">
+    <span id="edit-modal-title">EDIT TASK</span>
+    <button class="qa-close" onclick="closeEditModal()" aria-label="Close dialog">✕</button>
+  </div>
+  <div class="qa-body">
+    <input class="qa-inp" id="edit-task-name" placeholder="Task name…" aria-label="Task name" onkeydown="editKey(event)">
+    <div class="qa-row">
+      <select class="qa-sel" id="edit-task-cat" aria-label="Task category">
+        <option value="personal">Personal</option>
+        <option value="work">Work</option>
+        <option value="health">Health</option>
+        <option value="learn">Learning</option>
+        <option value="finance">Finance</option>
+      </select>
+      <select class="qa-dur" id="edit-task-dur" aria-label="Task duration">
+        <option value="15">15 min</option>
+        <option value="30">30 min</option>
+        <option value="45">45 min</option>
+        <option value="60">1 hr</option>
+        <option value="90">1.5 hrs</option>
+        <option value="120">2 hrs</option>
+        <option value="180">3 hrs</option>
+      </select>
+    </div>
+    <div id="edit-task-sched-info" style="font-family:var(--fm);font-size:11px;font-weight:700;color:#555;padding:4px 0;display:flex;align-items:center;justify-content:space-between;">
+      <span id="edit-task-time-lbl">⏰ 10:00 AM – 11:00 AM</span>
+      <button type="button" id="edit-task-toggle-sched-btn" onclick="toggleTaskScheduleFromModal()" style="background:none;border:1.5px solid var(--black);font-family:var(--fm);font-size:9px;font-weight:700;padding:4px 8px;cursor:pointer;text-transform:uppercase;">Unschedule</button>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button class="qa-submit" onclick="saveEditedTask()" aria-label="Save task changes" style="flex:2;">SAVE CHANGES ✓</button>
+      <button type="button" onclick="deleteTaskFromModal()" aria-label="Delete task" style="flex:1; background:var(--pink); color:var(--white); border:var(--border); box-shadow:var(--shadow); font-family:var(--fh); font-size:11px; font-weight:900; cursor:pointer; text-transform:uppercase; padding: 12px 6px;">DELETE</button>
+    </div>
   </div>
 </div>
 
@@ -2588,7 +2637,7 @@ function renderCalendar() {
         onmousedown="blkMouseDown(event,'${t.id}')"
         ondragstart="blkDragStart(event,'${t.id}')"
         ondragend="blkDragEnd(event)"
-        onclick="handleTaskClick(event, '${esc(t.name)}')">
+        onclick="handleTaskClick(event, '${t.id}')">
         <div class="blk-check" role="checkbox" tabindex="0" aria-checked="${t.done}" aria-label="Mark task ${esc(t.name)} as ${t.done?'incomplete':'complete'}" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleDone(event,'${t.id}');}" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
         <div class="blk-body">
           <div style="display:flex; align-items:center; gap:4px; width:100%;">
@@ -2643,9 +2692,9 @@ function findSnapSlot(startMin, durMin, excludeId, dateStr) {
   const dur = Math.max(15, durMin || 60);
   let curStart = Math.max(dayStart, Math.min(startMin, dayEnd - dur));
 
-  // Collect and sort all other scheduled tasks for this date
+  // Collect and sort all other scheduled tasks for this date (type-safe exclusion)
   const otherTasks = S.tasks
-    .filter(t => t.id !== excludeId && t.startMin != null && (t.created || todayStr()) === dStr)
+    .filter(t => String(t.id) !== String(excludeId) && t.startMin != null && (t.created || todayStr()) === dStr)
     .map(t => ({
       id: t.id,
       start: t.startMin,
@@ -2653,15 +2702,20 @@ function findSnapSlot(startMin, durMin, excludeId, dateStr) {
     }))
     .sort((a, b) => a.start - b.start);
 
+  // If candidate slot does not collide with any task, place it directly
+  const hasCollision = otherTasks.some(t => curStart < t.end && (curStart + dur) > t.start);
+  if (!hasCollision) {
+    return curStart;
+  }
+
+  // Snap forward past colliding tasks
   let changed = true;
   let loops = 0;
   while (changed && loops < 50) {
     changed = false;
     loops++;
     for (const t of otherTasks) {
-      // If [curStart, curStart + dur) overlaps [t.start, t.end)
       if (curStart < t.end && (curStart + dur) > t.start) {
-        // Snap immediately to after this task ends
         curStart = t.end;
         changed = true;
         break;
@@ -2669,7 +2723,7 @@ function findSnapSlot(startMin, durMin, excludeId, dateStr) {
     }
   }
 
-  // If pushed beyond end of day, look for earliest free gap from dayStart
+  // If pushed beyond end of day, look for earliest available open gap from dayStart
   if (curStart + dur > dayEnd) {
     curStart = dayStart;
     loops = 0;
@@ -2821,7 +2875,7 @@ function renderUnscheduled() {
       onmousedown="usMouseDown(event)"
       ondragstart="usDragStart(event,'${t.id}')"
       ondragend="usDragEnd(event)"
-      onclick="handleTaskClick(event, '${esc(t.name)}')">
+      onclick="handleTaskClick(event, '${t.id}')">
       <div class="us-row">
         <div class="us-check" role="checkbox" tabindex="0" aria-checked="${t.done}" aria-label="Mark task ${esc(t.name)} as ${t.done?'incomplete':'complete'}" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleDone(event,'${t.id}');}" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
         <div class="us-name">${esc(t.name)}</div>
@@ -2866,8 +2920,7 @@ function blkDragEnd(e) {
 }
 function blkMouseDown(e, id) {
   // Only initiate drag if not clicking check, del, or resize handle
-  if (e.target.classList.contains('blk-check') || e.target.classList.contains('blk-del') || e.target.classList.contains('blk-resize')) {
-    e.stopPropagation();
+  if (e.target.closest('.blk-check') || e.target.closest('.blk-del') || e.target.closest('.blk-resize')) {
     return;
   }
   
@@ -2889,8 +2942,7 @@ function blkMouseDown(e, id) {
 
 function usMouseDown(e) {
   // Only initiate drag if not clicking check or del
-  if (e.target.classList.contains('us-check') || e.target.classList.contains('us-del')) {
-    e.stopPropagation();
+  if (e.target.closest('.us-check') || e.target.closest('.us-del')) {
     return;
   }
   // Blur any focused input/textarea to ensure browser doesn't lock focus instead of dragging
@@ -2949,7 +3001,7 @@ function gridDrop(e) {
 
   if (dragId) {
     // New schedule from unscheduled
-    const t = S.tasks.find(t => t.id === dragId);
+    const t = S.tasks.find(t => String(t.id) === String(dragId));
     if (!t) return;
     const targetMin = finalHour * 60 + Math.min(extraMin, 45);
     const dur = Math.max(15, t.durMin || 60);
@@ -2960,7 +3012,7 @@ function gridDrop(e) {
     toast('⏰','Scheduled!', fmtMinutes(t.startMin), 'y');
   } else if (dragBlkId) {
     // Move existing local block
-    const t = S.tasks.find(t => t.id === dragBlkId);
+    const t = S.tasks.find(t => String(t.id) === String(dragBlkId));
     if (!t) return;
     let newStart = finalHour * 60 + Math.min(extraMin, 45) - dragBlkOffsetMin;
     newStart = Math.round(newStart / 15) * 15;
@@ -2986,7 +3038,7 @@ function headerDrop(e) {
   document.querySelector('.cal-col-hdr').classList.remove('drag-over-hdr');
   const firstHour = HOURS[0];
   if (dragId) {
-    const t = S.tasks.find(t => t.id === dragId);
+    const t = S.tasks.find(t => String(t.id) === String(dragId));
     if (t) {
       const dur = Math.max(15, t.durMin || 60);
       t.startMin = findSnapSlot(firstHour * 60, dur, t.id, viewDateStr());
@@ -2996,7 +3048,7 @@ function headerDrop(e) {
       toast('⏰', 'Scheduled!', fmtMinutes(t.startMin), 'y');
     }
   } else if (dragBlkId) {
-    const t = S.tasks.find(t => t.id === dragBlkId);
+    const t = S.tasks.find(t => String(t.id) === String(dragBlkId));
     if (t) {
       const dur = Math.max(15, t.durMin || 60);
       t.startMin = findSnapSlot(firstHour * 60, dur, t.id, viewDateStr());
@@ -3020,7 +3072,7 @@ function unschedDrop(e) {
   e.preventDefault();
   document.querySelector('.unsched-col').classList.remove('drag-over-col');
   if (dragBlkId) {
-    const t = S.tasks.find(t => t.id === dragBlkId);
+    const t = S.tasks.find(t => String(t.id) === String(dragBlkId));
     if (t) {
       t.startMin = null;
       saveUpdateTask(t);
@@ -3106,7 +3158,7 @@ function renderAllTasks() {
       const taskDate = t.created || todayStr();
       const dateLabel = taskDate !== todayStr() ? formatDateShort(taskDate) + ' · ' : '';
       const timeTg = t.startMin != null ? `<span class="tag tg-time">⏰ ${dateLabel}${fmtMinutes(t.startMin)}</span>` : '';
-      return `<div class="all-task${t.done?' done-all':''}" role="listitem" data-cat="${t.cat}" onclick="handleTaskClick(event, '${esc(t.name)}')">
+      return `<div class="all-task${t.done?' done-all':''}" role="listitem" data-cat="${t.cat}" onclick="handleTaskClick(event, '${t.id}')">
         <div class="all-chk" role="checkbox" tabindex="0" aria-checked="${t.done}" aria-label="Mark task ${esc(t.name)} as ${t.done?'incomplete':'complete'}" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleDone(event,'${t.id}');}" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
         <div class="all-body">
           <div class="all-name">${esc(t.name)}</div>
@@ -3298,7 +3350,7 @@ async function handleAdd(e) {
 
 async function toggleDone(e, id) {
   e.stopPropagation();
-  const t = S.tasks.find(t => t.id === id);
+  const t = S.tasks.find(t => String(t.id) === String(id));
   if (!t) return;
   t.done = !t.done;
   if (t.done) {
@@ -3313,8 +3365,129 @@ async function toggleDone(e, id) {
   checkAllDone();
 }
 
-function handleTaskClick(e, name) {
-  // Reserved for task details / editing expansion in future updates
+// ════════════════════════════════════════════════════════
+//  TASK EDIT MODAL
+// ════════════════════════════════════════════════════════
+let editingTaskId = null;
+
+function handleTaskClick(e, id) {
+  if (e) {
+    if (e.target.closest('.blk-check') || e.target.closest('.blk-del') || e.target.closest('.blk-resize') || 
+        e.target.closest('.us-check') || e.target.closest('.us-del') || 
+        e.target.closest('.all-chk') || e.target.closest('.all-del')) {
+      return;
+    }
+  }
+  const t = S.tasks.find(t => String(t.id) === String(id));
+  if (!t) return;
+  
+  editingTaskId = t.id;
+  const nameInp = document.getElementById('edit-task-name');
+  const catSel = document.getElementById('edit-task-cat');
+  const durSel = document.getElementById('edit-task-dur');
+  
+  if (nameInp) nameInp.value = t.name;
+  if (catSel) catSel.value = t.cat || 'personal';
+  if (durSel) durSel.value = String(t.durMin || 60);
+
+  const schedLbl = document.getElementById('edit-task-time-lbl');
+  const toggleBtn = document.getElementById('edit-task-toggle-sched-btn');
+  
+  if (schedLbl && toggleBtn) {
+    if (t.startMin != null) {
+      const dur = t.durMin || 60;
+      schedLbl.textContent = `⏰ ${fmtMinutes(t.startMin)} – ${fmtMinutes(t.startMin + dur)}`;
+      toggleBtn.textContent = 'Unschedule';
+    } else {
+      schedLbl.textContent = '📥 Unscheduled (Backlog)';
+      toggleBtn.textContent = 'Schedule Today';
+    }
+  }
+
+  document.querySelectorAll('.custom-select-container').forEach(c => c.classList.remove('open'));
+  syncCustomSelects();
+
+  const modal = document.getElementById('edit-modal');
+  const overlay = document.getElementById('edit-overlay');
+  if (modal) modal.style.display = 'block';
+  if (overlay) overlay.style.display = 'block';
+  setTimeout(() => { if (nameInp) nameInp.focus(); }, 50);
+}
+
+function closeEditModal() {
+  const modal = document.getElementById('edit-modal');
+  const overlay = document.getElementById('edit-overlay');
+  if (modal) modal.style.display = 'none';
+  if (overlay) overlay.style.display = 'none';
+  document.querySelectorAll('.custom-select-container').forEach(c => c.classList.remove('open'));
+  editingTaskId = null;
+}
+
+function editKey(e) {
+  if (e.key === 'Enter') saveEditedTask();
+  if (e.key === 'Escape') closeEditModal();
+}
+
+async function saveEditedTask() {
+  if (!editingTaskId) return;
+  const t = S.tasks.find(t => String(t.id) === String(editingTaskId));
+  if (!t) return;
+
+  const nameInp = document.getElementById('edit-task-name');
+  const newName = nameInp ? nameInp.value.trim() : '';
+  if (!newName) return;
+
+  const catSel = document.getElementById('edit-task-cat');
+  const durSel = document.getElementById('edit-task-dur');
+  const newCat = catSel ? catSel.value : (t.cat || 'personal');
+  const newDur = durSel ? (parseInt(durSel.value) || 60) : (t.durMin || 60);
+
+  t.name = newName;
+  t.cat = newCat;
+  
+  // If duration changed and task is scheduled, ensure no collision
+  if (t.startMin != null && t.durMin !== newDur) {
+    t.durMin = newDur;
+    t.startMin = findSnapSlot(t.startMin, newDur, t.id, t.created || viewDateStr());
+  } else {
+    t.durMin = newDur;
+  }
+
+  await saveUpdateTask(t);
+  closeEditModal();
+  render();
+  toast('✨', 'Task updated!', esc(t.name.slice(0, 24)), 'y');
+}
+
+async function toggleTaskScheduleFromModal() {
+  if (!editingTaskId) return;
+  const t = S.tasks.find(t => String(t.id) === String(editingTaskId));
+  if (!t) return;
+
+  const durSel = document.getElementById('edit-task-dur');
+  const dur = durSel ? (parseInt(durSel.value) || t.durMin || 60) : (t.durMin || 60);
+  t.durMin = dur;
+
+  if (t.startMin != null) {
+    t.startMin = null;
+    toast('📥', 'Moved to backlog!', '', 'y');
+  } else {
+    const dStr = viewDateStr();
+    t.created = dStr;
+    t.startMin = findSnapSlot(8 * 60, dur, t.id, dStr);
+    toast('⏰', 'Scheduled!', fmtMinutes(t.startMin), 'y');
+  }
+
+  await saveUpdateTask(t);
+  closeEditModal();
+  render();
+}
+
+async function deleteTaskFromModal() {
+  if (!editingTaskId) return;
+  const id = editingTaskId;
+  closeEditModal();
+  await delTask(null, id);
 }
 
 async function delTask(e, id) {
@@ -3453,7 +3626,7 @@ function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 //  CUSTOM NEOBRUTALIST SELECTS
 // ════════════════════════════════════════════════════════
 function initCustomSelects() {
-  const selects = document.querySelectorAll('#add-cat, #qa-cat, #qa-dur');
+  const selects = document.querySelectorAll('#add-cat, #qa-cat, #qa-dur, #edit-task-cat, #edit-task-dur');
   selects.forEach(select => {
     if (select.nextElementSibling && select.nextElementSibling.classList.contains('custom-select-container')) {
       return;
@@ -3519,7 +3692,7 @@ function initCustomSelects() {
 }
 
 function syncCustomSelects() {
-  const selects = document.querySelectorAll('#add-cat, #qa-cat, #qa-dur');
+  const selects = document.querySelectorAll('#add-cat, #qa-cat, #qa-dur, #edit-task-cat, #edit-task-dur');
   selects.forEach(select => {
     const container = select.nextElementSibling;
     if (container && container.classList.contains('custom-select-container')) {
