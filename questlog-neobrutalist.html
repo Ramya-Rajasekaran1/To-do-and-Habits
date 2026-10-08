@@ -147,48 +147,43 @@ body { font-family: var(--fb); background: var(--white); color: var(--black); mi
   font-weight: 700;
 }
 
-/* ── ADD BAR ── */
-.add-bar-wrap {
-  background: var(--yellow);
-  border-bottom: var(--border);
-  padding: 12px 24px;
+/* ── ALL TASKS PAGE ADD BAR ── */
+.all-add-bar-wrap {
+  margin-bottom: 22px;
 }
-.add-bar {
+.all-add-bar {
   display: flex;
   border: var(--border);
   box-shadow: var(--shadow-lg);
   background: var(--white);
-  max-width: 900px;
+  height: 48px;
 }
-.add-bar input {
+.all-add-bar input {
   flex: 1;
   border: none;
   outline: none;
   font-family: var(--fb);
   font-size: 14px;
   font-weight: 700;
-  padding: 12px 18px;
+  padding: 0 16px;
   background: transparent;
   color: var(--black);
   min-width: 0;
 }
-.add-bar input::placeholder { color: #bbb; font-weight: 400; }
-.vsep { width: 2.5px; background: var(--black); flex-shrink: 0; }
-.add-bar select {
+.all-add-bar input::placeholder { color: #aaa; font-weight: 400; }
+.all-add-bar select {
   border: none;
   outline: none;
   font-family: var(--fm);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   padding: 0 14px;
   background: transparent;
   cursor: pointer;
   color: var(--black);
   text-transform: uppercase;
-  -webkit-appearance: none;
-  text-align: center;
-  min-width: 100px;
 }
+.vsep { width: 2.5px; background: var(--black); flex-shrink: 0; }
 .add-btn {
   border: none;
   background: var(--black);
@@ -208,18 +203,28 @@ body { font-family: var(--fb); background: var(--white); color: var(--black); mi
 .page.active { display: block; }
 
 /* ══════════════════════════════════════════════
-   TODAY PAGE — two-column layout
+   TODAY PAGE — two-column layout (Tasks Left, Calendar Right)
 ══════════════════════════════════════════════ */
 .today-layout {
   display: grid;
-  grid-template-columns: 1fr 300px;
-  height: calc(100vh - 58px - 54px);
+  grid-template-columns: 340px 1fr;
+  height: calc(100vh - 58px);
   overflow: hidden;
 }
 
-/* LEFT: calendar */
-.cal-col {
+/* LEFT: tasks backlog column */
+.unsched-col {
+  background: #F5F5EE;
   border-right: var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* RIGHT: calendar timeline */
+.cal-col {
+  border-right: none;
   overflow-y: auto;
   position: relative;
 }
@@ -469,9 +474,10 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
   margin-top: -3px;
 }
 
-/* RIGHT: unscheduled */
+/* LEFT: tasks backlog sidebar */
 .unsched-col {
   background: #F5F5EE;
+  border-right: var(--border);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -482,17 +488,249 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
   z-index: 20;
   background: var(--white);
   border-bottom: var(--border);
-  padding: 14px 16px 12px;
+  padding: 12px 14px 10px;
 }
-.unsched-title { font-family: var(--fh); font-size: 15px; }
-.unsched-sub { font-family: var(--fm); font-size: 10.5px; color: #666; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 3px; }
-.unsched-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 7px; }
+.side-hdr-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.unsched-title { font-family: var(--fh); font-size: 15px; letter-spacing: -0.3px; }
+.unsched-sub { font-family: var(--fm); font-size: 10px; color: #666; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; margin-top: 2px; }
+
+.side-drag-pill {
+  font-family: var(--fm);
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--black);
+  background: var(--yellow);
+  border: 1.5px solid var(--black);
+  box-shadow: 2px 2px 0 var(--black);
+  padding: 2px 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.5px;
+  user-select: none;
+  flex-shrink: 0;
+}
+.side-drag-pill-dots {
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* SIDEBAR FILTER TABS: UNSCHEDULED VS ALL TASKS */
+.side-filter-tabs {
+  display: flex;
+  border: 1.5px solid var(--black);
+  background: #E5E5DC;
+  margin-top: 10px;
+  box-shadow: 2px 2px 0 var(--black);
+}
+.side-filter-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #555;
+  font-family: var(--fh);
+  font-size: 11px;
+  padding: 7px 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all 0.1s;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.side-filter-btn:first-child {
+  border-right: 1.5px solid var(--black);
+}
+.side-filter-btn:hover {
+  background: #DCDCCF;
+  color: var(--black);
+}
+.side-filter-btn.active {
+  background: var(--white);
+  color: var(--black);
+  font-weight: 900;
+}
+.side-pill-count {
+  font-family: var(--fm);
+  font-size: 9.5px;
+  font-weight: 800;
+  background: #D8D8CC;
+  color: var(--black);
+  padding: 1px 5px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.2);
+}
+.side-filter-btn.active .side-pill-count {
+  background: var(--yellow);
+  border-color: var(--black);
+}
+
+/* EMBEDDED ADD TASK BAR INSIDE VIEW */
+.side-add-wrap {
+  padding: 10px 12px 6px;
+}
+.side-add-box {
+  display: flex;
+  border: var(--border);
+  box-shadow: var(--shadow);
+  background: var(--white);
+  transition: box-shadow 0.1s, transform 0.1s;
+  height: 38px;
+}
+.side-add-box:focus-within {
+  box-shadow: 4px 4px 0 var(--black);
+  transform: translate(-1px, -1px);
+}
+.side-add-box input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: var(--fb);
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 0 10px;
+  background: transparent;
+  color: var(--black);
+  min-width: 0;
+}
+.side-add-box input::placeholder {
+  color: #999;
+  font-weight: 400;
+}
+.side-add-vsep {
+  width: 2px;
+  background: var(--black);
+  flex-shrink: 0;
+}
+.side-cat-wrap {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  min-width: 95px;
+  max-width: 105px;
+  flex-shrink: 0;
+}
+.side-cat-wrap select {
+  border: none;
+  outline: none;
+  font-family: var(--fm);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 0 8px;
+  background: transparent;
+  cursor: pointer;
+  color: var(--black);
+  text-transform: uppercase;
+  width: 100%;
+}
+.side-cat-wrap .custom-select-container {
+  min-width: 95px;
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+}
+.side-cat-wrap .custom-select-trigger {
+  border: none;
+  outline: none;
+  font-family: var(--fm);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 0 20px 0 8px;
+  background: transparent;
+  cursor: pointer;
+  color: #444;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  letter-spacing: 0.3px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%23444' stroke-width='2' fill='none' stroke-linecap='square'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+}
+.side-cat-wrap .custom-select-options {
+  top: calc(100% + 4px);
+  left: 0;
+  width: 125px;
+}
+.side-add-btn {
+  border: none;
+  background: var(--black);
+  color: var(--yellow);
+  font-family: var(--fh);
+  font-size: 16px;
+  width: 38px;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.side-add-btn:hover {
+  background: var(--pink);
+  color: var(--white);
+}
+
+/* DRAG & DROP CUE BANNER */
+.drag-cue-banner {
+  background: var(--yellow);
+  border: var(--border);
+  box-shadow: 3px 3px 0 var(--black);
+  margin: 4px 12px 8px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+  cursor: default;
+}
+.drag-cue-icon {
+  font-size: 15px;
+  line-height: 1;
+  font-weight: 900;
+  color: var(--black);
+}
+.drag-cue-text {
+  flex: 1;
+  font-family: var(--fm);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--black);
+  line-height: 1.35;
+}
+.drag-cue-text strong {
+  font-family: var(--fh);
+  font-weight: 900;
+  letter-spacing: 0.4px;
+}
+.drag-cue-arrow {
+  font-family: var(--fh);
+  font-size: 14px;
+  color: var(--black);
+  animation: cue-nudge-right 1.4s infinite ease-in-out;
+}
+@keyframes cue-nudge-right {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
+}
+
+.unsched-body { padding: 4px 12px 16px; display: flex; flex-direction: column; gap: 7px; }
 
 .us-card {
   border: var(--border);
   background: var(--white);
   box-shadow: var(--shadow);
-  padding: 10px 12px;
+  padding: 9px 11px;
   position: relative;
   overflow: hidden;
   cursor: grab;
@@ -512,9 +750,36 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
 .us-card[data-cat="personal"]::before { background: var(--orange); }
 .us-card[data-cat="finance"]::before  { background: var(--teal); }
 .us-card:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 #111; }
-.us-card.done-us .us-name { text-decoration: line-through; }
-.us-card.dragging { cursor: grabbing; }
-.us-row { display: flex; align-items: center; gap: 8px; }
+.us-card.done-us { background: #F3F3ED; }
+.us-card.done-us .us-name { text-decoration: line-through; color: #888; }
+.us-card.dragging { cursor: grabbing; opacity: 0.5; }
+
+/* TACTILE 6-DOT DRAG GRIP */
+.card-drag-grip {
+  display: grid;
+  grid-template-columns: repeat(2, 3px);
+  grid-gap: 2.5px;
+  cursor: grab;
+  padding: 3px 2px;
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: opacity 0.1s, transform 0.1s;
+}
+.card-drag-grip span {
+  width: 3px;
+  height: 3px;
+  background: var(--black);
+  border-radius: 0.5px;
+}
+.us-card:hover .card-drag-grip {
+  opacity: 1;
+  transform: scale(1.15);
+}
+.us-card.dragging .card-drag-grip {
+  cursor: grabbing;
+}
+
+.us-row { display: flex; align-items: center; gap: 7px; }
 .us-check {
   width: 18px; height: 18px;
   border: 2px solid var(--black);
@@ -527,7 +792,7 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
 }
 .us-check:hover { background: var(--yellow); }
 .us-card.done-us .us-check { background: var(--green); border-color: var(--green); color: white; }
-.us-name { font-size: 13.5px; font-weight: 700; flex: 1; }
+.us-name { font-size: 13.5px; font-weight: 700; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .us-del {
   border: 1.5px solid #111;
   background: var(--white);
@@ -539,11 +804,79 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
   display: flex; align-items: center; justify-content: center;
   opacity: 0;
   transition: all 0.1s;
+  flex-shrink: 0;
 }
 .us-card:hover .us-del { opacity: 1; }
 .us-del:hover { background: var(--red); color: white; border-color: var(--red); }
 .us-meta { font-family: var(--fm); font-size: 10px; color: #555; font-weight: 700; text-transform: uppercase; margin-top: 5px; letter-spacing: 0.5px; }
-.drag-hint { font-family: var(--fm); font-size: 10.5px; color: #666; text-align: center; padding: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+.card-drag-cue {
+  font-family: var(--fm);
+  font-size: 9.5px;
+  font-weight: 800;
+  color: var(--black);
+  background: #FFFBEB;
+  border: 1px solid #111;
+  border-radius: 2px;
+  padding: 1.5px 6px;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  box-shadow: 1px 1px 0 #111;
+  transition: all 0.1s;
+}
+.us-card:hover .card-drag-cue {
+  background: var(--yellow);
+  box-shadow: 2px 2px 0 #111;
+  transform: translateX(1px);
+}
+
+.drag-hint { font-family: var(--fm); font-size: 10.5px; color: #666; text-align: center; padding: 8px 10px 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; }
+
+/* DRAG AFFORDANCE HIGHLIGHTS ON CALENDAR */
+body.drag-active .cal-col {
+  outline: 2px dashed rgba(0,0,0,0.35);
+  outline-offset: -3px;
+}
+body.drag-active .grid-row {
+  cursor: copy;
+}
+.grid-row.drag-over {
+  background: #FEF08A !important;
+  outline: 2.5px dashed #111 !important;
+  outline-offset: -2.5px;
+  position: relative;
+  z-index: 10;
+}
+.grid-row.drag-over::after {
+  content: '⚡ DROP TO SNAP HERE (15M)';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--fm);
+  font-size: 11px;
+  font-weight: 900;
+  color: #111;
+  background: var(--white);
+  border: 1.5px solid #111;
+  box-shadow: 2px 2px 0 #111;
+  padding: 3px 9px;
+  pointer-events: none;
+  z-index: 50;
+  letter-spacing: 0.5px;
+  animation: pulse-drop-badge 0.8s infinite alternate ease-in-out;
+}
+@keyframes pulse-drop-badge {
+  0% { transform: translateY(-50%) scale(1); }
+  100% { transform: translateY(-50%) scale(1.04); }
+}
+.unsched-col.drag-over-col {
+  background: #FEF08A !important;
+  outline: 2.5px dashed #111 !important;
+  outline-offset: -2.5px;
+}
 
 /* ══════════════════════════════════════════════
    ALL TASKS PAGE
@@ -897,10 +1230,7 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
 /* ── RESPONSIVE BREAKPOINTS ── */
 @media (max-width: 900px) {
   .today-layout {
-    grid-template-columns: 1fr 280px;
-  }
-  .add-bar {
-    max-width: 100%;
+    grid-template-columns: 300px 1fr;
   }
 }
 
@@ -920,42 +1250,17 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
   .nav-date {
     display: none;
   }
-  .add-bar-wrap {
-    padding: 10px 12px;
-  }
-  .add-bar {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-  .add-bar input {
-    width: 100%;
-    border-bottom: var(--border);
-    padding: 10px 14px;
-  }
-  .vsep {
-    display: none;
-  }
-  .add-bar select {
-    flex: 1;
-    height: 44px;
-    text-align: left;
-    padding-left: 12px;
-  }
-  .add-btn {
-    height: 44px;
-    padding: 0 18px;
-  }
   .today-layout {
     grid-template-columns: 1fr;
     height: auto;
   }
-  .cal-col {
-    height: 60vh;
-  }
   .unsched-col {
-    height: 340px;
-    border-top: var(--border);
+    height: 420px;
     border-right: none;
+    border-bottom: var(--border);
+  }
+  .cal-col {
+    height: 65vh;
   }
   .hab-pg-hdr, .all-pg-hdr {
     flex-direction: column;
@@ -1007,7 +1312,7 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
 
 .qa-row { display: flex; gap: 8px; }
 
-#add-cat, #qa-cat, #qa-dur, #edit-task-cat, #edit-task-dur {
+#add-cat, #qa-cat, #qa-dur, #edit-task-cat, #edit-task-dur, #all-add-cat {
   display: none !important;
 }
 
@@ -1508,26 +1813,71 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
 <!-- MAIN CONTENT LANDMARK -->
 <main id="main-content" role="main">
 
-<!-- ADD BAR (hidden on habits) -->
-<div class="add-bar-wrap" id="add-bar-wrap">
-  <div class="add-bar">
-    <input type="text" id="add-inp" placeholder="Add a task… press Enter" aria-label="New task name" onkeydown="handleAdd(event)">
-    <div class="vsep" aria-hidden="true"></div>
-    <select id="add-cat" aria-label="Select task category">
-      <option value="personal">Personal</option>
-      <option value="work">Work</option>
-      <option value="health">Health</option>
-      <option value="learn">Learning</option>
-      <option value="finance">Finance</option>
-    </select>
-    <div class="vsep" aria-hidden="true"></div>
-    <button class="add-btn" onclick="handleAdd()" aria-label="Add task to list">ADD ↗</button>
-  </div>
-</div>
-
 <!-- ── TODAY PAGE ── -->
 <div class="page active" id="page-today" role="tabpanel" aria-labelledby="tc-today">
   <div class="today-layout">
+    <!-- LEFT: Tasks Backlog (Unscheduled / All Tasks + Embedded Add Feature) -->
+    <section class="unsched-col"
+      role="region"
+      aria-labelledby="unsched-heading"
+      ondragover="unschedDragOver(event)"
+      ondragenter="unschedDragOver(event)"
+      ondragleave="unschedDragLeave(event)"
+      ondrop="unschedDrop(event)">
+      <div class="unsched-hdr">
+        <div class="side-hdr-title-row">
+          <div>
+            <h2 class="unsched-title" id="unsched-heading">TASKS BACKLOG</h2>
+            <div class="unsched-sub">Drag onto calendar to schedule</div>
+          </div>
+          <div class="side-drag-pill" title="Drag tasks to schedule on calendar">
+            <span class="side-drag-pill-dots">⠿</span> DRAG READY
+          </div>
+        </div>
+        <!-- Segmented Filter Tabs: Unscheduled vs All Tasks -->
+        <div class="side-filter-tabs" role="tablist" aria-label="Task backlog filter">
+          <button type="button" class="side-filter-btn active" id="side-tab-unsched" onclick="setTaskSideFilter('unsched')" role="tab" aria-selected="true">
+            ⚡ UNSCHEDULED <span class="side-pill-count" id="count-unsched">0</span>
+          </button>
+          <button type="button" class="side-filter-btn" id="side-tab-all" onclick="setTaskSideFilter('all')" role="tab" aria-selected="false">
+            📋 ALL TASKS <span class="side-pill-count" id="count-side-all">0</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- EMBEDDED ADD TASK BAR -->
+      <div class="side-add-wrap">
+        <div class="side-add-box">
+          <input type="text" id="add-inp" placeholder="Add task… press Enter" aria-label="New task name" onkeydown="handleAdd(event)">
+          <div class="side-add-vsep" aria-hidden="true"></div>
+          <div class="side-cat-wrap">
+            <select id="add-cat" aria-label="Select task category">
+              <option value="personal">Personal</option>
+              <option value="work">Work</option>
+              <option value="health">Health</option>
+              <option value="learn">Learning</option>
+              <option value="finance">Finance</option>
+            </select>
+          </div>
+          <div class="side-add-vsep" aria-hidden="true"></div>
+          <button class="side-add-btn" onclick="handleAdd()" aria-label="Add task to list" title="Add task">＋</button>
+        </div>
+      </div>
+
+      <!-- DRAG & DROP VISUAL CUE BANNER -->
+      <div class="drag-cue-banner" role="note" aria-label="Drag and drop guide">
+        <div class="drag-cue-icon" aria-hidden="true">⠿</div>
+        <div class="drag-cue-text">
+          <strong>DRAG &amp; DROP:</strong> Pull card to calendar to schedule
+        </div>
+        <div class="drag-cue-arrow" aria-hidden="true">➔</div>
+      </div>
+
+      <!-- Task cards list -->
+      <div class="unsched-body" id="unsched-body"></div>
+    </section>
+
+    <!-- RIGHT: Time Blocks Calendar -->
     <section class="cal-col" id="cal-col" aria-labelledby="cal-col-heading">
       <div class="cal-col-hdr"
         ondragover="headerDragOver(event)"
@@ -1536,7 +1886,7 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
         ondragleave="headerDragLeave(event)">
         <div>
           <h2 class="cal-col-title" id="cal-col-heading">Time Blocks</h2>
-          <div class="cal-col-sub">Drag to move · resize from bottom edge</div>
+          <div class="cal-col-sub">Drag from left panel to schedule · 15m snap</div>
         </div>
         <div class="date-nav-wrap">
           <button class="date-nav-btn" onclick="shiftDate(-1)" aria-label="Previous day">←</button>
@@ -1567,19 +1917,6 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
         <!-- rows + blocks rendered by JS -->
       </div>
     </section>
-    <section class="unsched-col"
-      role="region"
-      aria-labelledby="unsched-heading"
-      ondragover="unschedDragOver(event)"
-      ondragenter="unschedDragOver(event)"
-      ondragleave="unschedDragLeave(event)"
-      ondrop="unschedDrop(event)">
-      <div class="unsched-hdr">
-        <h2 class="unsched-title" id="unsched-heading">Unscheduled</h2>
-        <div class="unsched-sub">Drag onto a time slot</div>
-      </div>
-      <div class="unsched-body" id="unsched-body"></div>
-    </section>
   </div>
 </div>
 
@@ -1589,6 +1926,22 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
     <div class="all-pg-hdr">
       <h1 class="all-pg-title">ALL TASKS</h1>
       <div class="badge" id="all-badge" aria-live="polite">0 TASKS</div>
+    </div>
+    <!-- Inside-view Add Bar for All Tasks -->
+    <div class="all-add-bar-wrap">
+      <div class="all-add-bar">
+        <input type="text" id="all-add-inp" placeholder="Add a task… press Enter" aria-label="New task name" onkeydown="handleAllAdd(event)">
+        <div class="vsep" aria-hidden="true"></div>
+        <select id="all-add-cat" aria-label="Select task category">
+          <option value="personal">Personal</option>
+          <option value="work">Work</option>
+          <option value="health">Health</option>
+          <option value="learn">Learning</option>
+          <option value="finance">Finance</option>
+        </select>
+        <div class="vsep" aria-hidden="true"></div>
+        <button class="add-btn" onclick="handleAllAdd()" aria-label="Add task to list">ADD ↗</button>
+      </div>
     </div>
     <div class="all-list" id="all-list" role="list"></div>
   </div>
@@ -2611,6 +2964,12 @@ function renderCounts() {
   document.getElementById('tc-hab').textContent   = S.habits.length;
   document.getElementById('all-badge').textContent = S.tasks.length + ' TASKS';
   document.getElementById('hab-badge').textContent = S.habits.length + ' HABITS';
+
+  const unschedCount = S.tasks.filter(t => t.startMin == null && !t.done).length;
+  const countUnschedEl = document.getElementById('count-unsched');
+  if (countUnschedEl) countUnschedEl.textContent = unschedCount;
+  const countSideAllEl = document.getElementById('count-side-all');
+  if (countSideAllEl) countSideAllEl.textContent = S.tasks.length;
 }
 
 // ════════════════════════════════════════════════════════
@@ -2914,43 +3273,83 @@ function fmtHour(h) {
   return h < 12 ? h+' AM' : (h-12)+' PM';
 }
 
-// ── DRAG: unscheduled → calendar ──────────────────────────────────────────
+// ── DRAG: tasks backlog → calendar ──────────────────────────────────────────
+let taskSideFilter = 'unsched'; // 'unsched' or 'all'
+
+function setTaskSideFilter(filter) {
+  taskSideFilter = filter;
+  const btnUnsched = document.getElementById('side-tab-unsched');
+  const btnAll = document.getElementById('side-tab-all');
+  if (btnUnsched) {
+    btnUnsched.classList.toggle('active', filter === 'unsched');
+    btnUnsched.setAttribute('aria-selected', filter === 'unsched');
+  }
+  if (btnAll) {
+    btnAll.classList.toggle('active', filter === 'all');
+    btnAll.setAttribute('aria-selected', filter === 'all');
+  }
+  renderUnscheduled();
+}
+
 function renderUnscheduled() {
   const el = document.getElementById('unsched-body');
-  const tasks = S.tasks.filter(t => t.startMin == null);
+  if (!el) return;
+
+  const isAll = taskSideFilter === 'all';
+  const tasks = isAll ? S.tasks : S.tasks.filter(t => t.startMin == null);
+
   if (!tasks.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-ico" aria-hidden="true">🎯</div><div class="empty-txt">All tasks<br>are scheduled!</div></div>`;
+    if (isAll) {
+      el.innerHTML = `<div class="empty"><div class="empty-ico" aria-hidden="true">📝</div><div class="empty-txt">No tasks yet.<br>Add one above!</div></div>`;
+    } else {
+      el.innerHTML = `<div class="empty"><div class="empty-ico" aria-hidden="true">🎯</div><div class="empty-txt">All tasks<br>are scheduled!</div><div class="empty-sub" style="font-family:var(--fm);font-size:10px;color:#777;margin-top:6px;text-align:center;text-transform:uppercase;font-weight:700;">Switch to ALL TASKS to view all</div></div>`;
+    }
     return;
   }
+
   el.innerHTML = tasks.map(t => {
     const dur = Math.max(15, t.durMin || 60);
     const durBadgeText = dur >= 60 
       ? (dur % 60 === 0 ? (dur / 60) + 'h' : Math.floor(dur / 60) + 'h ' + (dur % 60) + 'm')
       : dur + 'm';
+    const isScheduled = t.startMin != null;
+    const taskDate = t.created || todayStr();
+    const dateLabel = taskDate !== todayStr() ? formatDateShort(taskDate) + ' · ' : '';
+    const timeBadgeHtml = isScheduled
+      ? `<span class="blk-time-badge" style="font-size:9.5px;padding:1.5px 5px;" title="Scheduled at ${fmtMinutes(t.startMin)}">⏰ ${dateLabel}${fmtMinutes(t.startMin)}</span>`
+      : '';
+    const dragCueLabel = isScheduled ? 'DRAG TO RESCHEDULE ➔' : 'DRAG TO SCHEDULE ➔';
+
     return `
-    <div class="us-card${t.done?' done-us':''}" data-cat="${t.cat}" data-id="${t.id}"
+    <div class="us-card${t.done?' done-us':''}${isScheduled?' is-scheduled':''}" data-cat="${t.cat}" data-id="${t.id}"
       draggable="true"
       role="article"
-      aria-label="Unscheduled task: ${esc(t.name)}, ${durBadgeText}"
+      aria-label="${isScheduled?'Scheduled':'Unscheduled'} task: ${esc(t.name)}, ${durBadgeText}"
       onmousedown="usMouseDown(event)"
       ondragstart="usDragStart(event,'${t.id}')"
       ondragend="usDragEnd(event)"
       onclick="handleTaskClick(event, '${t.id}')">
-      <div class="us-row" style="display:flex; align-items:center; gap:6px; width:100%; min-width:0;">
+      <div class="us-row" style="display:flex; align-items:center; gap:7px; width:100%; min-width:0;">
+        <div class="card-drag-grip" title="Drag onto calendar to schedule" aria-hidden="true">
+          <span></span><span></span>
+          <span></span><span></span>
+          <span></span><span></span>
+        </div>
         <div class="us-check" role="checkbox" tabindex="0" aria-checked="${t.done}" aria-label="Mark task ${esc(t.name)} as ${t.done?'incomplete':'complete'}" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleDone(event,'${t.id}');}" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
         <div class="us-name" style="flex:1; min-width:0;" title="${esc(t.name)}">${esc(t.name)}</div>
+        ${timeBadgeHtml}
         <span class="blk-dur-badge">${durBadgeText}</span>
         <button class="us-del" aria-label="Delete task: ${esc(t.name)}" onclick="delTask(event,'${t.id}')">✕</button>
       </div>
       <div class="us-meta" style="display:flex; align-items:center; justify-content:space-between; margin-top:6px;">
         <span>${CEMOJI[t.cat]||''} ${CATS[t.cat]||t.cat}</span>
-        <span style="opacity:0.75; font-size:10px;">drag to schedule ↗</span>
+        <span class="card-drag-cue">⠿ ${dragCueLabel}</span>
       </div>
     </div>`;
-  }).join('') + `<div class="drag-hint">↑ drag onto time slots</div>`;
+  }).join('') + `<div class="drag-hint">⠿ Drag card to calendar grid to schedule ➔</div>`;
 }
 
-// Drag from unscheduled list
+// Drag from tasks backlog
 function usDragStart(e, id) {
   dragId = id;
   dragBlkId = null;
@@ -2960,11 +3359,18 @@ function usDragStart(e, id) {
   const el = e.currentTarget;
   el.classList.add('dragging');
   document.body.classList.add('drag-active');
+  const cal = document.getElementById('cal-col');
+  if (cal) cal.classList.add('drag-ready');
 }
 function usDragEnd(e) {
   dragId = null;
   document.body.classList.remove('drag-active');
+  const cal = document.getElementById('cal-col');
+  if (cal) cal.classList.remove('drag-ready');
   document.querySelectorAll('.us-card').forEach(c => c.classList.remove('dragging'));
+  document.querySelectorAll('.grid-row').forEach(row => row.classList.remove('drag-over'));
+  const calHdr = document.querySelector('.cal-col-hdr');
+  if (calHdr) calHdr.classList.remove('drag-over-hdr');
 }
 
 // Drag existing block within calendar
@@ -2977,11 +3383,18 @@ function blkDragStart(e, id) {
   const el = e.currentTarget;
   el.classList.add('dragging');
   document.body.classList.add('drag-active');
+  const cal = document.getElementById('cal-col');
+  if (cal) cal.classList.add('drag-ready');
 }
 function blkDragEnd(e) {
   dragBlkId = null;
   document.body.classList.remove('drag-active');
+  const cal = document.getElementById('cal-col');
+  if (cal) cal.classList.remove('drag-ready');
   document.querySelectorAll('.cal-block').forEach(b => b.classList.remove('dragging'));
+  document.querySelectorAll('.grid-row').forEach(row => row.classList.remove('drag-over'));
+  const calHdr = document.querySelector('.cal-col-hdr');
+  if (calHdr) calHdr.classList.remove('drag-over-hdr');
 }
 function blkMouseDown(e, id) {
   // Only initiate drag if not clicking check, del, or resize handle
@@ -3424,6 +3837,21 @@ async function handleAdd(e) {
   toast('📝','Task added!','Drag onto the calendar','y');
 }
 
+async function handleAllAdd(e) {
+  if (e && e.type === 'keydown' && e.key !== 'Enter') return;
+  const inp = document.getElementById('all-add-inp');
+  const name = inp ? inp.value.trim() : '';
+  if (!name) return;
+  const catEl = document.getElementById('all-add-cat');
+  const cat = catEl ? catEl.value : 'personal';
+  let t = { id:uid(), name, cat, done:false, startMin:null, durMin:60, created:todayStr() };
+  if (inp) inp.value = '';
+  await saveAddTask(t);
+  render();
+  trackEvent('task_created', { category: cat, duration: 60, is_scheduled: false });
+  toast('📝','Task added!','Drag onto the calendar','y');
+}
+
 async function toggleDone(e, id) {
   e.stopPropagation();
   const t = S.tasks.find(t => String(t.id) === String(id));
@@ -3675,8 +4103,8 @@ function switchTab(tab, el) {
   if (el) el.classList.add('active');
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + tab).classList.add('active');
-  // Hide add bar on habits page
-  document.getElementById('add-bar-wrap').style.display = tab === 'habits' ? 'none' : '';
+  const addBar = document.getElementById('add-bar-wrap');
+  if (addBar) addBar.style.display = tab === 'habits' ? 'none' : '';
   trackEvent('tab_switched', { tab: tab });
   render();
 }
@@ -3702,7 +4130,7 @@ function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 //  CUSTOM NEOBRUTALIST SELECTS
 // ════════════════════════════════════════════════════════
 function initCustomSelects() {
-  const selects = document.querySelectorAll('#add-cat, #qa-cat, #qa-dur, #edit-task-cat, #edit-task-dur');
+  const selects = document.querySelectorAll('#add-cat, #qa-cat, #qa-dur, #edit-task-cat, #edit-task-dur, #all-add-cat');
   selects.forEach(select => {
     if (select.nextElementSibling && select.nextElementSibling.classList.contains('custom-select-container')) {
       return;
@@ -3710,7 +4138,7 @@ function initCustomSelects() {
     
     const container = document.createElement('div');
     container.className = 'custom-select-container';
-    if (select.id === 'add-cat') {
+    if (select.id === 'add-cat' || select.id === 'all-add-cat') {
       container.classList.add('add-bar-select');
     } else {
       container.classList.add('qa-field-select');
@@ -3768,7 +4196,7 @@ function initCustomSelects() {
 }
 
 function syncCustomSelects() {
-  const selects = document.querySelectorAll('#add-cat, #qa-cat, #qa-dur, #edit-task-cat, #edit-task-dur');
+  const selects = document.querySelectorAll('#add-cat, #qa-cat, #qa-dur, #edit-task-cat, #edit-task-dur, #all-add-cat');
   selects.forEach(select => {
     const container = select.nextElementSibling;
     if (container && container.classList.contains('custom-select-container')) {
