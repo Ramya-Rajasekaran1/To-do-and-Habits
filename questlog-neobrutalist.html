@@ -349,13 +349,66 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 1px 1px 0 var(--black);
+  white-space: nowrap;
 }
 .cal-block.dur-15 .blk-dur-badge { background: #FEF08A; }
 .cal-block.dur-30 .blk-dur-badge { background: #BAE6FD; }
 .cal-block.dur-45 .blk-dur-badge { background: #FED7AA; }
 .cal-block.dur-60 .blk-dur-badge { background: #BBF7D0; }
 .cal-block.dur-90 .blk-dur-badge { background: #DDD6FE; }
-.cal-block.dur-120 .blk-dur-badge { background: #FECDD3; }
+.cal-block.dur-120 .blk-dur-badge,
+.cal-block.dur-long .blk-dur-badge { background: #FECDD3; }
+
+/* ── TIME RANGE BADGES ── */
+.blk-time-badge {
+  font-family: var(--fm);
+  font-size: 10px;
+  font-weight: 800;
+  background: #FFFFFF;
+  color: var(--black);
+  padding: 1.5px 6px;
+  border: 1.5px solid var(--black);
+  border-radius: 2px;
+  flex-shrink: 0;
+  line-height: 1.2;
+  letter-spacing: 0.2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  box-shadow: 1px 1px 0 var(--black);
+  white-space: nowrap;
+}
+.cal-block.done-blk .blk-time-badge {
+  background: #e5e5e0;
+  color: #666;
+  border-color: #888;
+  box-shadow: none;
+}
+.cal-block.done-blk .blk-dur-badge {
+  background: #e5e5e0;
+  color: #666;
+  border-color: #888;
+  box-shadow: none;
+}
+
+/* Compact visual profile for 15m and 30m strips */
+.cal-block.dur-15,
+.cal-block.dur-30 {
+  padding: 4px 8px;
+  gap: 6px;
+}
+.cal-block.dur-15 .blk-name,
+.cal-block.dur-30 .blk-name {
+  font-size: 12.5px;
+}
+.cal-block.dur-15 .blk-dur-badge,
+.cal-block.dur-30 .blk-dur-badge,
+.cal-block.dur-15 .blk-time-badge,
+.cal-block.dur-30 .blk-time-badge {
+  font-size: 9.5px;
+  padding: 1px 4.5px;
+}
 
 .blk-check {
   width: 18px; height: 18px;
@@ -370,7 +423,7 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
 .blk-check:hover { background: var(--yellow); }
 .cal-block.done-blk .blk-check { background: var(--green); border-color: var(--green); color: white; }
 .blk-body { flex: 1; min-width: 0; }
-.blk-name { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
+.blk-name { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; min-width: 0; }
 .blk-time { font-family: var(--fm); font-size: 11px; color: #444; font-weight: 700; margin-top: 2px; }
 .blk-cat  { font-family: var(--fm); font-size: 10px; color: #666; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 .blk-del {
@@ -576,6 +629,7 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
 .tg-personal { background: #FEF3C7; color: #B45309; border-color: #FCD34D; }
 .tg-finance  { background: #CFFAFE; color: #0E7490; border-color: #67E8F9; }
 .tg-time     { background: var(--yellow); color: var(--black); border-color: var(--black); }
+.tg-unsched  { background: #FEF08A; color: var(--black); border-color: var(--black); }
 .all-del {
   border: 1.5px solid #111;
   background: var(--white);
@@ -2001,23 +2055,23 @@ async function doRegister() {
 }
 
 async function doLogout() {
-  if (curUser && curUser.isDemo) {
-    curUser = null;
-  } else if (sb) {
-    await sb.auth.signOut();
+  localStorage.removeItem('ql_active_user');
+  curUser = null;
+  if (sb) {
+    try { await sb.auth.signOut(); } catch (e) {}
   }
   if (window.posthog) posthog.reset();
   showLoginScreen();
 }
 
-function loginAsDemo() {
+async function loginAsDemo() {
   const demoUser = {
     id: 'demo-user-offline',
     email: 'designer@questlog.demo',
     isDemo: true,
     user_metadata: { name: 'Demo Designer' }
   };
-  loginAs(demoUser);
+  return await loginAs(demoUser);
 }
 
 function loadRememberedUser() {
@@ -2039,6 +2093,12 @@ function showLoginScreen() {
 
 async function loginAs(user) {
   curUser = user;
+  try {
+    localStorage.setItem('ql_active_user', JSON.stringify(user));
+  } catch (e) {
+    console.error('Failed to store active user in localStorage:', e);
+  }
+  
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   initialScrollDone = false;
@@ -2071,7 +2131,23 @@ async function loginAs(user) {
   toast('👋', 'Welcome!', user.user_metadata?.name || user.email, 'y');
 }
 
-// ── DATA PERSISTENCE (Supabase + Offline Demo Fallback) ───────────
+// ── DATA PERSISTENCE (Supabase + Offline Fallback) ───────────
+function saveTasksToStorage() {
+  try {
+    localStorage.setItem('ql_demo_tasks', JSON.stringify(S.tasks));
+  } catch (e) {
+    console.error('saveTasksToStorage failed:', e);
+  }
+}
+
+function saveHabitsToStorage() {
+  try {
+    localStorage.setItem('ql_demo_habits', JSON.stringify(S.habits));
+  } catch (e) {
+    console.error('saveHabitsToStorage failed:', e);
+  }
+}
+
 async function loadAllData() {
   try { S.tasks = await loadTasks(); } catch (e) { console.error('loadTasks failed:', e); S.tasks = []; }
   try { S.habits = await loadHabits(); } catch (e) { console.error('loadHabits failed:', e); S.habits = []; }
@@ -2079,10 +2155,22 @@ async function loadAllData() {
 
 async function loadTasks() {
   if (!curUser) return [];
-  if (curUser.isDemo) {
-    const saved = localStorage.getItem('ql_demo_tasks');
-    if (saved) {
-      try { return JSON.parse(saved); } catch(e) {}
+  let localData = null;
+  const saved = localStorage.getItem('ql_demo_tasks');
+  if (saved) {
+    try { localData = JSON.parse(saved); } catch(e) {}
+  }
+
+  if (curUser.isDemo || !sb) {
+    if (localData && Array.isArray(localData) && localData.length > 0) {
+      const today = todayStr();
+      localData.forEach(t => {
+        if (t.id && String(t.id).startsWith('dt') && t.startMin != null && t.created !== today) {
+          t.created = today;
+        }
+      });
+      localStorage.setItem('ql_demo_tasks', JSON.stringify(localData));
+      return localData;
     }
     const defaultTasks = [
       { id: 'dt1', name: 'Sprint planning & backlog review', cat: 'work', done: false, startMin: 540, durMin: 60, created: todayStr() },
@@ -2094,117 +2182,120 @@ async function loadTasks() {
     localStorage.setItem('ql_demo_tasks', JSON.stringify(defaultTasks));
     return defaultTasks;
   }
-  if (!sb) return [];
-  const { data, error } = await sb.from('tasks').select('*').order('created_at');
-  if (error) {
-    console.error('loadTasks error:', error);
-    toast('⚠️', 'Load Failed', error.message, 'p');
+
+  try {
+    const { data, error } = await sb.from('tasks').select('*').order('created_at');
+    if (!error && data && data.length > 0) {
+      const mapped = data.map(t => ({
+        id: t.id,
+        name: t.name,
+        cat: t.cat,
+        done: t.done,
+        startMin: t.sm,
+        durMin: t.dm,
+        created: t.created_for
+      }));
+      localStorage.setItem('ql_demo_tasks', JSON.stringify(mapped));
+      return mapped;
+    }
+  } catch (e) {
+    console.warn('loadTasks remote error, using local fallback:', e);
   }
-  return (data || []).map(t => ({
-    id: t.id,
-    name: t.name,
-    cat: t.cat,
-    done: t.done,
-    startMin: t.sm,
-    durMin: t.dm,
-    created: t.created_for
-  }));
+
+  if (localData && Array.isArray(localData)) return localData;
+  return [];
 }
 
 async function saveAddTask(task) {
   if (!curUser) return task;
-  if (curUser.isDemo) {
-    const tasks = await loadTasks();
-    tasks.push(task);
-    localStorage.setItem('ql_demo_tasks', JSON.stringify(tasks));
-    return task;
+  const existingIdx = S.tasks.findIndex(x => String(x.id) === String(task.id));
+  if (existingIdx >= 0) {
+    S.tasks[existingIdx] = { ...S.tasks[existingIdx], ...task };
+  } else {
+    S.tasks.push(task);
   }
-  if (!sb) return task;
-  const row = {
-    name: task.name,
-    cat: task.cat,
-    done: false,
-    sm: task.startMin ?? null,
-    dm: task.durMin || 60,
-    created_for: task.created,
-    user_id: curUser.id
-  };
-  const { data, error } = await sb.from('tasks').insert(row).select().single();
-  if (error) {
-    console.error('saveAddTask error:', error);
-    toast('⚠️', 'Save Failed', error.message, 'p');
+  saveTasksToStorage();
+
+  if (curUser.isDemo || !sb) return task;
+  try {
+    const row = {
+      name: task.name,
+      cat: task.cat,
+      done: false,
+      sm: task.startMin ?? null,
+      dm: task.durMin || 60,
+      created_for: task.created,
+      user_id: curUser.id
+    };
+    const { data, error } = await sb.from('tasks').insert(row).select().single();
+    if (!error && data) {
+      task.id = data.id;
+      saveTasksToStorage();
+    }
+  } catch (e) {
+    console.warn('saveAddTask remote error (persisted locally):', e);
   }
-  return data ? {
-    id: data.id,
-    name: data.name,
-    cat: data.cat,
-    done: data.done,
-    startMin: data.sm,
-    durMin: data.dm,
-    created: data.created_for
-  } : task;
+  return task;
 }
 
 async function saveToggleTask(id, done) {
-  if (!curUser) return;
-  if (curUser.isDemo) {
-    const tasks = await loadTasks();
-    const t = tasks.find(x => x.id === id);
-    if (t) { t.done = done; localStorage.setItem('ql_demo_tasks', JSON.stringify(tasks)); }
-    return;
+  const t = S.tasks.find(x => String(x.id) === String(id));
+  if (t) {
+    t.done = done;
+    saveTasksToStorage();
   }
-  if (!sb) return;
-  const { error } = await sb.from('tasks').update({ done }).eq('id', id);
-  if (error) {
-    console.error('saveToggleTask error:', error);
-    toast('⚠️', 'Update Failed', error.message, 'p');
+  if (!curUser || curUser.isDemo || !sb) return;
+  try {
+    await sb.from('tasks').update({ done }).eq('id', id);
+  } catch (e) {
+    console.warn('saveToggleTask remote error (persisted locally):', e);
   }
 }
 
 async function saveUpdateTask(task) {
-  if (!curUser) return;
-  if (curUser.isDemo) {
-    const tasks = await loadTasks();
-    const idx = tasks.findIndex(x => x.id === task.id);
-    if (idx >= 0) { tasks[idx] = { ...tasks[idx], ...task }; localStorage.setItem('ql_demo_tasks', JSON.stringify(tasks)); }
-    return;
+  const idx = S.tasks.findIndex(x => String(x.id) === String(task.id));
+  if (idx >= 0) {
+    S.tasks[idx] = { ...S.tasks[idx], ...task };
+  } else {
+    S.tasks.push(task);
   }
-  if (!sb) return;
-  const { error } = await sb.from('tasks').update({
-    sm: task.startMin ?? null,
-    dm: task.durMin || 60,
-    created_for: task.created,
-    done: task.done
-  }).eq('id', task.id);
-  if (error) {
-    console.error('saveUpdateTask error:', error);
-    toast('⚠️', 'Update Failed', error.message, 'p');
+  saveTasksToStorage();
+
+  if (!curUser || curUser.isDemo || !sb) return;
+  try {
+    await sb.from('tasks').update({
+      sm: task.startMin ?? null,
+      dm: task.durMin || 60,
+      created_for: task.created,
+      done: task.done
+    }).eq('id', task.id);
+  } catch (e) {
+    console.warn('saveUpdateTask remote error (persisted locally):', e);
   }
 }
 
 async function saveDeleteTask(id) {
-  if (!curUser) return;
-  if (curUser.isDemo) {
-    let tasks = await loadTasks();
-    tasks = tasks.filter(x => x.id !== id);
-    localStorage.setItem('ql_demo_tasks', JSON.stringify(tasks));
-    return;
-  }
-  if (!sb) return;
-  const { error } = await sb.from('tasks').delete().eq('id', id);
-  if (error) {
-    console.error('saveDeleteTask error:', error);
-    toast('⚠️', 'Delete Failed', error.message, 'p');
+  S.tasks = S.tasks.filter(x => String(x.id) !== String(id));
+  saveTasksToStorage();
+
+  if (!curUser || curUser.isDemo || !sb) return;
+  try {
+    await sb.from('tasks').delete().eq('id', id);
+  } catch (e) {
+    console.warn('saveDeleteTask remote error (persisted locally):', e);
   }
 }
 
 async function loadHabits() {
   if (!curUser) return [];
-  if (curUser.isDemo) {
-    const saved = localStorage.getItem('ql_demo_habits');
-    if (saved) {
-      try { return JSON.parse(saved); } catch(e) {}
-    }
+  let localData = null;
+  const saved = localStorage.getItem('ql_demo_habits');
+  if (saved) {
+    try { localData = JSON.parse(saved); } catch(e) {}
+  }
+
+  if (curUser.isDemo || !sb) {
+    if (localData && Array.isArray(localData) && localData.length > 0) return localData;
     const defaultHabits = [
       { id: 'dh1', name: 'Morning meditation 10m', color: '#FFE135', completions: [todayStr()] },
       { id: 'dh2', name: 'Drink 2L Water', color: '#00E5FF', completions: [] },
@@ -2213,127 +2304,114 @@ async function loadHabits() {
     localStorage.setItem('ql_demo_habits', JSON.stringify(defaultHabits));
     return defaultHabits;
   }
-  if (!sb) return [];
-  const { data: habits, error: he } = await sb.from('habits').select('*');
-  const { data: checks, error: ce } = await sb.from('habit_checks').select('*');
-  if (he) {
-    console.error('loadHabits query error:', he);
-    toast('⚠️', 'Load Failed', he.message, 'p');
+
+  try {
+    const { data: habits, error: he } = await sb.from('habits').select('*');
+    const { data: checks, error: ce } = await sb.from('habit_checks').select('*');
+    if (!he && habits) {
+      const mapped = habits.map(h => ({
+        id: h.id,
+        name: h.name,
+        color: h.color || h.col || '#FFE135',
+        completions: (checks || []).filter(c => c.habit_id === h.id).map(c => c.checked_on || c.date || c.created_for)
+      }));
+      localStorage.setItem('ql_demo_habits', JSON.stringify(mapped));
+      return mapped;
+    }
+  } catch (e) {
+    console.warn('loadHabits remote error, using local fallback:', e);
   }
-  if (ce) {
-    console.error('loadHabits checks error:', ce);
-    toast('⚠️', 'Load Failed', ce.message, 'p');
-  }
-  return (habits || []).map(h => ({
-    id: h.id,
-    name: h.name,
-    color: h.color || h.col || '#FFE135',
-    completions: (checks || []).filter(c => c.habit_id === h.id).map(c => c.checked_on || c.date || c.created_for)
-  }));
+
+  if (localData && Array.isArray(localData)) return localData;
+  return [];
 }
 
 async function saveAddHabit(habit) {
-  if (!curUser) return null;
-  if (curUser.isDemo) {
-    const habits = await loadHabits();
-    const newH = { ...habit, id: uid() };
-    habits.push(newH);
-    localStorage.setItem('ql_demo_habits', JSON.stringify(habits));
-    return newH;
+  const newH = { ...habit, id: habit.id || uid() };
+  const existingIdx = S.habits.findIndex(x => String(x.id) === String(newH.id));
+  if (existingIdx >= 0) {
+    S.habits[existingIdx] = { ...S.habits[existingIdx], ...newH };
+  } else {
+    S.habits.push(newH);
   }
-  if (!sb) return null;
-  let { data, error } = await sb.from('habits').insert({
-    name: habit.name,
-    color: habit.color,
-    user_id: curUser.id
-  }).select().single();
-  
-  if (error && error.message && error.message.includes('color')) {
-    const res = await sb.from('habits').insert({
+  saveHabitsToStorage();
+
+  if (!curUser || curUser.isDemo || !sb) return newH;
+  try {
+    let { data, error } = await sb.from('habits').insert({
       name: habit.name,
-      col: habit.color,
+      color: habit.color,
       user_id: curUser.id
     }).select().single();
-    data = res.data;
-    error = res.error;
+    if (error && error.message && error.message.includes('color')) {
+      const res = await sb.from('habits').insert({
+        name: habit.name,
+        col: habit.color,
+        user_id: curUser.id
+      }).select().single();
+      data = res.data;
+    }
+    if (data) {
+      newH.id = data.id;
+      saveHabitsToStorage();
+    }
+  } catch (e) {
+    console.warn('saveAddHabit remote error (persisted locally):', e);
   }
-
-  if (error) {
-    console.error('saveAddHabit error:', error);
-    toast('⚠️', 'Save Failed', error.message, 'p');
-    return null;
-  }
-  return data ? { ...habit, id: data.id, color: data.color || data.col || habit.color } : null;
+  return newH;
 }
 
 async function saveDeleteHabit(id) {
-  if (!curUser) return;
-  if (curUser.isDemo) {
-    let habits = await loadHabits();
-    habits = habits.filter(x => x.id !== id);
-    localStorage.setItem('ql_demo_habits', JSON.stringify(habits));
-    return;
-  }
-  if (!sb) return;
-  const { error: he } = await sb.from('habits').delete().eq('id', id);
-  const { error: ce } = await sb.from('habit_checks').delete().eq('habit_id', id);
-  if (he) {
-    console.error('saveDeleteHabit habits error:', he);
-    toast('⚠️', 'Delete Failed', he.message, 'p');
-  }
-  if (ce) {
-    console.error('saveDeleteHabit checks error:', ce);
-    toast('⚠️', 'Delete Failed', ce.message, 'p');
+  S.habits = S.habits.filter(x => String(x.id) !== String(id));
+  saveHabitsToStorage();
+
+  if (!curUser || curUser.isDemo || !sb) return;
+  try {
+    await sb.from('habits').delete().eq('id', id);
+    await sb.from('habit_checks').delete().eq('habit_id', id);
+  } catch (e) {
+    console.warn('saveDeleteHabit remote error (persisted locally):', e);
   }
 }
 
 async function saveToggleHabit(habitId, dateStr, isChecking) {
-  if (!curUser) return;
-  if (curUser.isDemo) {
-    const habits = await loadHabits();
-    const h = habits.find(x => x.id === habitId);
-    if (h) {
-      if (!h.completions) h.completions = [];
-      if (isChecking) {
-        if (!h.completions.includes(dateStr)) h.completions.push(dateStr);
-      } else {
-        h.completions = h.completions.filter(d => d !== dateStr);
-      }
-      localStorage.setItem('ql_demo_habits', JSON.stringify(habits));
+  const h = S.habits.find(x => String(x.id) === String(habitId));
+  if (h) {
+    if (!h.completions) h.completions = [];
+    if (isChecking) {
+      if (!h.completions.includes(dateStr)) h.completions.push(dateStr);
+    } else {
+      h.completions = h.completions.filter(d => d !== dateStr);
     }
-    return;
+    saveHabitsToStorage();
   }
-  if (!sb) return;
-  if (isChecking) {
-    let { error } = await sb.from('habit_checks').insert({
-      habit_id: habitId,
-      user_id: curUser.id,
-      checked_on: dateStr
-    });
-    if (error && error.message && error.message.includes('checked_on')) {
-      const res = await sb.from('habit_checks').insert({
+
+  if (!curUser || curUser.isDemo || !sb) return;
+  try {
+    if (isChecking) {
+      let { error } = await sb.from('habit_checks').insert({
         habit_id: habitId,
         user_id: curUser.id,
-        date: dateStr
+        checked_on: dateStr
       });
-      error = res.error;
-    }
-    if (error) {
-      console.error('saveToggleHabit insert error:', error);
-      toast('⚠️', 'Update Failed', error.message, 'p');
-    }
-  } else {
-    let { error } = await sb.from('habit_checks').delete().eq('habit_id', habitId).eq('checked_on', dateStr);
-    if (error && error.message && error.message.includes('checked_on')) {
-      const res = await sb.from('habit_checks').delete().eq('habit_id', habitId).eq('date', dateStr);
-      error = res.error;
-    }
-      if (error) {
-        console.error('saveToggleHabit delete error:', error);
-        toast('⚠️', 'Update Failed', error.message, 'p');
+      if (error && error.message && error.message.includes('checked_on')) {
+        await sb.from('habit_checks').insert({
+          habit_id: habitId,
+          user_id: curUser.id,
+          date: dateStr
+        });
+      }
+    } else {
+      let { error } = await sb.from('habit_checks').delete().eq('habit_id', habitId).eq('checked_on', dateStr);
+      if (error && error.message && error.message.includes('checked_on')) {
+        await sb.from('habit_checks').delete().eq('habit_id', habitId).eq('date', dateStr);
       }
     }
+  } catch (e) {
+    console.warn('saveToggleHabit remote error (persisted locally):', e);
   }
+}
+
 function trackEvent(name, meta = {}) {
   if (window.posthog && typeof window.posthog.capture === 'function') {
     window.posthog.capture(name, meta);
@@ -2346,8 +2424,23 @@ function localDateStr(d) {
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
 
+function parseLocalDate(str) {
+  if (!str) return new Date();
+  if (typeof str === 'string' && str.includes('-')) {
+    const parts = str.split('T')[0].split('-');
+    if (parts.length === 3) {
+      const y = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10) - 1;
+      const d = parseInt(parts[2], 10);
+      return new Date(y, m, d, 12, 0, 0);
+    }
+  }
+  const parsed = new Date(str);
+  return isNaN(parsed.getTime()) ? new Date() : parsed;
+}
+
 const savedDateStr = sessionStorage.getItem('ql_view_date');
-let viewDate = savedDateStr ? new Date(savedDateStr) : new Date();
+let viewDate = savedDateStr ? parseLocalDate(savedDateStr) : new Date();
 let pickerDate = new Date(viewDate.getTime());
 function viewDateStr() { return localDateStr(viewDate); }
 
@@ -2430,9 +2523,10 @@ function nextMonth(e) {
 }
 
 function selectPickerDate(year, month, day) {
-  viewDate = new Date(year, month, day);
+  viewDate = new Date(year, month, day, 12, 0, 0);
   initialScrollDone = false; // allow scroll snap once when direct selecting date
   closeCalendarDropdown();
+  updateDateDisplay();
   render();
 }
 
@@ -2487,7 +2581,7 @@ function updateDateDisplay() {
   }
   
   // Store the viewed date in sessionStorage so it persists on reload
-  sessionStorage.setItem('ql_view_date', viewDate.toISOString());
+  sessionStorage.setItem('ql_view_date', localDateStr(viewDate));
   
   // If custom date picker is open, re-render it to update current selection highlight
   const wrapper = document.getElementById('cal-date-picker-wrapper');
@@ -2576,6 +2670,25 @@ function renderCalendar() {
     const durBadgeText = dur >= 60 
       ? (dur % 60 === 0 ? (dur / 60) + 'h' : Math.floor(dur / 60) + 'h ' + (dur % 60) + 'm')
       : dur + 'm';
+
+    const isCompact = dur <= 30;
+
+    const bodyContent = isCompact ? `
+      <div class="blk-body" style="display:flex; align-items:center; gap:6px; min-width:0; flex:1;">
+        <div class="blk-name" style="flex:1; min-width:0;" title="${esc(t.name)}">${esc(t.name)}</div>
+        <span class="blk-time-badge" title="${fmtMinutes(t.startMin)} – ${fmtMinutes(t.startMin+dur)}">⏰ ${fmtMinutes(t.startMin)}</span>
+        <span class="blk-dur-badge">${durBadgeText}</span>
+      </div>` : `
+      <div class="blk-body" style="min-width:0; flex:1;">
+        <div style="display:flex; align-items:center; gap:6px; width:100%; min-width:0;">
+          <div class="blk-name" style="flex:1; min-width:0;" title="${esc(t.name)}">${esc(t.name)}</div>
+          <span class="blk-dur-badge">${durBadgeText}</span>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-top:3px; min-width:0;">
+          <div class="blk-time-badge">⏰ ${fmtMinutes(t.startMin)} – ${fmtMinutes(t.startMin+dur)}</div>
+          <div class="blk-cat">${CEMOJI[t.cat]||''} ${CATS[t.cat]||''}</div>
+        </div>
+      </div>`;
     
     return `
       <div class="cal-block ${durClass}${t.done?' done-blk':''}"
@@ -2589,16 +2702,7 @@ function renderCalendar() {
         ondragend="blkDragEnd(event)"
         onclick="handleTaskClick(event, '${t.id}')">
         <div class="blk-check" role="checkbox" tabindex="0" aria-checked="${t.done}" aria-label="Mark task ${esc(t.name)} as ${t.done?'incomplete':'complete'}" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleDone(event,'${t.id}');}" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
-        <div class="blk-body">
-          <div style="display:flex; align-items:center; gap:6px; width:100%;">
-            <div class="blk-name" style="flex:1">${esc(t.name)}</div>
-            <span class="blk-dur-badge">${durBadgeText}</span>
-          </div>
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-top:2px;">
-            <div class="blk-time">${fmtMinutes(t.startMin)} – ${fmtMinutes(t.startMin+dur)}</div>
-            <div class="blk-cat">${CEMOJI[t.cat]||''} ${CATS[t.cat]||''}</div>
-          </div>
-        </div>
+        ${bodyContent}
         <button class="blk-del" aria-label="Delete task: ${esc(t.name)}" onclick="delTask(event,'${t.id}')">✕</button>
         <div class="blk-resize" role="separator" aria-label="Resize duration handle" onmousedown="resizeStart(event,'${t.id}')" title="Drag to minimize or expand duration"></div>
       </div>`;
@@ -2786,8 +2890,7 @@ async function commitQA() {
   
   const snappedStart = findSnapSlot(qa.sm, dur, null, viewDateStr());
   let t = { id: uid(), name, cat, done: false, startMin: snappedStart, durMin: dur, created: viewDateStr() };
-  t = await saveAddTask(t);
-  S.tasks.push(t);
+  await saveAddTask(t);
   closeQA();
   render();
   toast('⏰', 'Scheduled!', fmtMinutes(t.startMin), 'y');
@@ -2819,25 +2922,32 @@ function renderUnscheduled() {
     el.innerHTML = `<div class="empty"><div class="empty-ico" aria-hidden="true">🎯</div><div class="empty-txt">All tasks<br>are scheduled!</div></div>`;
     return;
   }
-  el.innerHTML = tasks.map(t => `
+  el.innerHTML = tasks.map(t => {
+    const dur = Math.max(15, t.durMin || 60);
+    const durBadgeText = dur >= 60 
+      ? (dur % 60 === 0 ? (dur / 60) + 'h' : Math.floor(dur / 60) + 'h ' + (dur % 60) + 'm')
+      : dur + 'm';
+    return `
     <div class="us-card${t.done?' done-us':''}" data-cat="${t.cat}" data-id="${t.id}"
       draggable="true"
       role="article"
-      aria-label="Unscheduled task: ${esc(t.name)}"
+      aria-label="Unscheduled task: ${esc(t.name)}, ${durBadgeText}"
       onmousedown="usMouseDown(event)"
       ondragstart="usDragStart(event,'${t.id}')"
       ondragend="usDragEnd(event)"
       onclick="handleTaskClick(event, '${t.id}')">
-      <div class="us-row">
+      <div class="us-row" style="display:flex; align-items:center; gap:6px; width:100%; min-width:0;">
         <div class="us-check" role="checkbox" tabindex="0" aria-checked="${t.done}" aria-label="Mark task ${esc(t.name)} as ${t.done?'incomplete':'complete'}" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleDone(event,'${t.id}');}" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
-        <div class="us-name">${esc(t.name)}</div>
+        <div class="us-name" style="flex:1; min-width:0;" title="${esc(t.name)}">${esc(t.name)}</div>
+        <span class="blk-dur-badge">${durBadgeText}</span>
         <button class="us-del" aria-label="Delete task: ${esc(t.name)}" onclick="delTask(event,'${t.id}')">✕</button>
       </div>
       <div class="us-meta" style="display:flex; align-items:center; justify-content:space-between; margin-top:6px;">
         <span>${CEMOJI[t.cat]||''} ${CATS[t.cat]||t.cat}</span>
         <span style="opacity:0.75; font-size:10px;">drag to schedule ↗</span>
       </div>
-    </div>`).join('') + `<div class="drag-hint">↑ drag onto time slots</div>`;
+    </div>`;
+  }).join('') + `<div class="drag-hint">↑ drag onto time slots</div>`;
 }
 
 // Drag from unscheduled list
@@ -3072,8 +3182,14 @@ function resizeMove(e) {
   const blk = document.querySelector(`.cal-block[data-id="${resizeId}"]`);
   if (blk) {
     blk.style.height = Math.max(18, t.durMin / 60 * SLOT_H) + 'px';
-    const timeEl = blk.querySelector('.blk-time');
-    if (timeEl) timeEl.textContent = fmtMinutes(t.startMin) + ' – ' + fmtMinutes(t.startMin + t.durMin);
+    const timeEl = blk.querySelector('.blk-time-badge') || blk.querySelector('.blk-time');
+    if (timeEl) {
+      if (clampedDur <= 30) {
+        timeEl.textContent = '⏰ ' + fmtMinutes(t.startMin);
+      } else {
+        timeEl.textContent = '⏰ ' + fmtMinutes(t.startMin) + ' – ' + fmtMinutes(t.startMin + t.durMin);
+      }
+    }
     const badgeEl = blk.querySelector('.blk-dur-badge');
     if (badgeEl) {
       badgeEl.textContent = clampedDur >= 60 
@@ -3112,12 +3228,18 @@ function renderAllTasks() {
     html += ts.map(t => {
       const taskDate = t.created || todayStr();
       const dateLabel = taskDate !== todayStr() ? formatDateShort(taskDate) + ' · ' : '';
-      const timeTg = t.startMin != null ? `<span class="tag tg-time">⏰ ${dateLabel}${fmtMinutes(t.startMin)}</span>` : '';
+      const dur = Math.max(15, t.durMin || 60);
+      const durBadgeText = dur >= 60 
+        ? (dur % 60 === 0 ? (dur / 60) + 'h' : Math.floor(dur / 60) + 'h ' + (dur % 60) + 'm')
+        : dur + 'm';
+      const timeTg = t.startMin != null 
+        ? `<span class="tag tg-time">⏰ ${dateLabel}${fmtMinutes(t.startMin)} – ${fmtMinutes(t.startMin+dur)}</span><span class="blk-dur-badge" style="font-size:9.5px;padding:1px 5px;">${durBadgeText}</span>` 
+        : `<span class="tag tg-unsched">⏱ ${durBadgeText} · Unscheduled</span>`;
       return `<div class="all-task${t.done?' done-all':''}" role="listitem" data-cat="${t.cat}" onclick="handleTaskClick(event, '${t.id}')">
         <div class="all-chk" role="checkbox" tabindex="0" aria-checked="${t.done}" aria-label="Mark task ${esc(t.name)} as ${t.done?'incomplete':'complete'}" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleDone(event,'${t.id}');}" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
         <div class="all-body">
           <div class="all-name">${esc(t.name)}</div>
-          <div class="all-tags">
+          <div class="all-tags" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:5px;">
             <span class="tag tg-${t.cat}">${CEMOJI[t.cat]||''} ${CATS[t.cat]||t.cat}</span>
             ${timeTg}
           </div>
@@ -3296,8 +3418,7 @@ async function handleAdd(e) {
   const cat = document.getElementById('add-cat').value;
   let t = { id:uid(), name, cat, done:false, startMin:null, durMin:60, created:todayStr() };
   document.getElementById('add-inp').value = '';
-  t = await saveAddTask(t);
-  S.tasks.push(t);
+  await saveAddTask(t);
   render();
   trackEvent('task_created', { category: cat, duration: 60, is_scheduled: false });
   toast('📝','Task added!','Drag onto the calendar','y');
@@ -3695,42 +3816,54 @@ document.addEventListener('keydown', (e) => {
 loadRememberedUser();
 initCustomSelects();
 async function init() {
+  // Check if there is an active local user session
+  let savedUser = null;
+  const savedUserStr = localStorage.getItem('ql_active_user');
+  if (savedUserStr) {
+    try { savedUser = JSON.parse(savedUserStr); } catch(e) {}
+  }
+
   if (sb) {
     try {
       const { data: { session } } = await sb.auth.getSession();
       const hash = window.location.hash || '';
       if (session && !hash.includes('type=recovery')) {
         await loginAs(session.user);
+        return;
       } else if (hash.includes('type=recovery')) {
         showLoginScreen();
         showAuthTab('recovery');
-      } else {
-        showLoginScreen();
+        return;
       }
     } catch(e) {
-      console.error('Session init failed:', e);
-      showLoginScreen();
+      console.warn('Session init failed:', e);
     }
     sb.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN') {
-        // Only log in if not in password recovery mode to prevent auto-close
-        const { data: { session: curS } } = await sb.auth.getSession();
         const hash = window.location.hash || '';
         if (hash.includes('type=recovery')) {
           document.getElementById('auth-screen').style.display = 'flex';
           document.getElementById('app').style.display = 'none';
           showAuthTab('recovery');
-        } else {
+        } else if (session && session.user) {
           loginAs(session.user);
         }
       }
-      if (event === 'SIGNED_OUT') showLoginScreen();
+      if (event === 'SIGNED_OUT') {
+        localStorage.removeItem('ql_active_user');
+        showLoginScreen();
+      }
       if (event === 'PASSWORD_RECOVERY') {
         document.getElementById('auth-screen').style.display = 'flex';
         document.getElementById('app').style.display = 'none';
         showAuthTab('recovery');
       }
     });
+  }
+
+  // Restore active user session from localStorage
+  if (savedUser) {
+    await loginAs(savedUser);
   } else {
     showLoginScreen();
   }
