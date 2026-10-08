@@ -210,6 +210,10 @@ body { font-family: var(--fb); background: var(--white); color: var(--black); mi
   grid-template-columns: 340px 1fr;
   height: calc(100vh - 58px);
   overflow: hidden;
+  transition: grid-template-columns 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.today-layout.sidebar-collapsed {
+  grid-template-columns: 0px 1fr;
 }
 
 /* LEFT: tasks backlog column */
@@ -217,9 +221,20 @@ body { font-family: var(--fb); background: var(--white); color: var(--black); mi
   background: #F5F5EE;
   border-right: var(--border);
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   position: relative;
+  width: 340px;
+  min-width: 340px;
+  box-sizing: border-box;
+  transition: opacity 0.2s ease, transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.today-layout.sidebar-collapsed .unsched-col {
+  transform: translateX(-100%);
+  border-right: none;
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* RIGHT: calendar timeline */
@@ -227,20 +242,176 @@ body { font-family: var(--fb); background: var(--white); color: var(--black); mi
   border-right: none;
   overflow-y: auto;
   position: relative;
+  min-width: 0;
 }
-.cal-col-hdr {
+.cal-sticky-header {
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 25;
   background: var(--white);
   border-bottom: var(--border);
-  padding: 14px 20px 12px;
+}
+.cal-col-hdr {
+  background: var(--white);
+  padding: 10px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1.5px solid #EBEBEB;
+}
+.cal-hdr-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sidebar-toggle-btn {
+  border: var(--border);
+  background: var(--yellow);
+  color: var(--black);
+  box-shadow: 2px 2px 0 var(--black);
+  font-family: var(--fh);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  padding: 6px 11px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.12s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.sidebar-toggle-btn:hover {
+  background: var(--black);
+  color: var(--yellow);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--yellow);
+}
+.sidebar-toggle-btn.collapsed {
+  background: var(--white);
+  color: var(--black);
+  box-shadow: 2px 2px 0 var(--black);
+}
+.sidebar-toggle-btn.collapsed:hover {
+  background: var(--yellow);
+  color: var(--black);
+}
+.sidebar-toggle-btn .toggle-icon {
+  font-size: 10px;
+  line-height: 1;
+}
+.sidebar-toggle-btn .toggle-badge {
+  background: var(--black);
+  color: var(--yellow);
+  font-family: var(--fm);
+  font-size: 9.5px;
+  font-weight: 900;
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+.sidebar-toggle-btn.collapsed .toggle-badge {
+  background: var(--black);
+  color: var(--white);
 }
 .cal-col-title { font-family: var(--fh); font-size: 16px; }
-.cal-col-sub { font-family: var(--fm); font-size: 10px; color: #666; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 3px; }
+.cal-col-sub { font-family: var(--fm); font-size: 10px; color: #666; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; }
+
+/* INSIDE CALENDAR ON TOP: ADD BAR */
+.cal-add-bar-wrap {
+  background: #FFFDF0;
+  padding: 8px 18px 10px;
+}
+.cal-add-bar {
+  display: flex;
+  border: var(--border);
+  box-shadow: 2px 2px 0 var(--black);
+  background: var(--white);
+  height: 40px;
+  align-items: stretch;
+}
+.cal-add-bar input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: var(--fb);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 0 12px;
+  background: transparent;
+  color: var(--black);
+  min-width: 0;
+}
+.cal-add-bar input::placeholder { color: #888; font-weight: 400; }
+.cal-cat-wrap {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  min-width: 110px;
+  flex-shrink: 0;
+}
+.cal-cat-wrap select {
+  border: none;
+  outline: none;
+  font-family: var(--fm);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 0 10px;
+  background: transparent;
+  cursor: pointer;
+  color: var(--black);
+  text-transform: uppercase;
+}
+.cal-cat-wrap .custom-select-container {
+  min-width: 110px;
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+}
+.cal-cat-wrap .custom-select-trigger {
+  border: none;
+  outline: none;
+  font-family: var(--fm);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 0 24px 0 12px;
+  background: transparent;
+  cursor: pointer;
+  color: #444;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  letter-spacing: 0.3px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%23444' stroke-width='2' fill='none' stroke-linecap='square'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+.cal-cat-wrap .custom-select-options {
+  top: calc(100% + 4px);
+  left: 0;
+  width: 130px;
+}
+.cal-add-btn {
+  border: none;
+  border-left: var(--border);
+  background: var(--yellow);
+  color: var(--black);
+  font-family: var(--fh);
+  font-size: 11px;
+  font-weight: 900;
+  padding: 0 16px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.1s, color 0.1s;
+  flex-shrink: 0;
+}
+.cal-add-btn:hover {
+  background: var(--black);
+  color: var(--yellow);
+}
 
 /* ── GRID ── */
 .time-grid {
@@ -520,223 +691,62 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
   line-height: 1;
 }
 
-/* SIDEBAR FILTER TABS: UNSCHEDULED VS ALL TASKS */
-.side-filter-tabs {
-  display: flex;
+.side-collapse-btn {
   border: 1.5px solid var(--black);
-  background: #E5E5DC;
-  margin-top: 10px;
-  box-shadow: 2px 2px 0 var(--black);
-}
-.side-filter-btn {
-  flex: 1;
-  border: none;
-  background: transparent;
-  color: #555;
-  font-family: var(--fh);
-  font-size: 11px;
-  padding: 7px 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  transition: all 0.1s;
-  letter-spacing: 0.3px;
-  white-space: nowrap;
-}
-.side-filter-btn:first-child {
-  border-right: 1.5px solid var(--black);
-}
-.side-filter-btn:hover {
-  background: #DCDCCF;
-  color: var(--black);
-}
-.side-filter-btn.active {
   background: var(--white);
   color: var(--black);
+  box-shadow: 1.5px 1.5px 0 var(--black);
+  font-family: var(--fh);
+  font-size: 10px;
   font-weight: 900;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.1s;
+}
+.side-collapse-btn:hover {
+  background: var(--yellow);
+  transform: translate(-1px, -1px);
+  box-shadow: 2.5px 2.5px 0 var(--black);
 }
 .side-pill-count {
   font-family: var(--fm);
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 800;
   background: #D8D8CC;
   color: var(--black);
-  padding: 1px 5px;
+  padding: 2px 7px;
   border-radius: 8px;
   border: 1px solid rgba(0,0,0,0.2);
 }
-.side-filter-btn.active .side-pill-count {
-  background: var(--yellow);
-  border-color: var(--black);
-}
 
-/* EMBEDDED ADD TASK BAR INSIDE VIEW */
-.side-add-wrap {
-  padding: 10px 12px 6px;
-}
-.side-add-box {
+.unsched-body {
+  padding: 8px 12px 16px;
   display: flex;
-  border: var(--border);
-  box-shadow: var(--shadow);
-  background: var(--white);
-  transition: box-shadow 0.1s, transform 0.1s;
-  height: 38px;
+  flex-direction: column;
+  gap: 6px;
 }
-.side-add-box:focus-within {
-  box-shadow: 4px 4px 0 var(--black);
-  transform: translate(-1px, -1px);
-}
-.side-add-box input {
-  flex: 1;
-  border: none;
-  outline: none;
-  font-family: var(--fb);
-  font-size: 12.5px;
-  font-weight: 700;
-  padding: 0 10px;
-  background: transparent;
-  color: var(--black);
-  min-width: 0;
-}
-.side-add-box input::placeholder {
-  color: #999;
-  font-weight: 400;
-}
-.side-add-vsep {
-  width: 2px;
-  background: var(--black);
-  flex-shrink: 0;
-}
-.side-cat-wrap {
-  position: relative;
-  display: flex;
-  align-items: stretch;
-  min-width: 95px;
-  max-width: 105px;
-  flex-shrink: 0;
-}
-.side-cat-wrap select {
-  border: none;
-  outline: none;
-  font-family: var(--fm);
-  font-size: 10.5px;
-  font-weight: 700;
-  padding: 0 8px;
-  background: transparent;
-  cursor: pointer;
-  color: var(--black);
-  text-transform: uppercase;
-  width: 100%;
-}
-.side-cat-wrap .custom-select-container {
-  min-width: 95px;
-  width: 100%;
-  display: flex;
-  align-items: stretch;
-}
-.side-cat-wrap .custom-select-trigger {
-  border: none;
-  outline: none;
-  font-family: var(--fm);
-  font-size: 11px;
-  font-weight: 700;
-  padding: 0 20px 0 8px;
-  background: transparent;
-  cursor: pointer;
-  color: #444;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  letter-spacing: 0.3px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%23444' stroke-width='2' fill='none' stroke-linecap='square'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 6px center;
-}
-.side-cat-wrap .custom-select-options {
-  top: calc(100% + 4px);
-  left: 0;
-  width: 125px;
-}
-.side-add-btn {
-  border: none;
-  background: var(--black);
-  color: var(--yellow);
-  font-family: var(--fh);
-  font-size: 16px;
-  width: 38px;
-  cursor: pointer;
-  transition: background 0.1s, color 0.1s;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-.side-add-btn:hover {
-  background: var(--pink);
-  color: var(--white);
-}
-
-/* DRAG & DROP CUE BANNER */
-.drag-cue-banner {
-  background: var(--yellow);
-  border: var(--border);
-  box-shadow: 3px 3px 0 var(--black);
-  margin: 4px 12px 8px;
-  padding: 8px 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  user-select: none;
-  cursor: default;
-}
-.drag-cue-icon {
-  font-size: 15px;
-  line-height: 1;
-  font-weight: 900;
-  color: var(--black);
-}
-.drag-cue-text {
-  flex: 1;
-  font-family: var(--fm);
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--black);
-  line-height: 1.35;
-}
-.drag-cue-text strong {
-  font-family: var(--fh);
-  font-weight: 900;
-  letter-spacing: 0.4px;
-}
-.drag-cue-arrow {
-  font-family: var(--fh);
-  font-size: 14px;
-  color: var(--black);
-  animation: cue-nudge-right 1.4s infinite ease-in-out;
-}
-@keyframes cue-nudge-right {
-  0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(5px); }
-}
-
-.unsched-body { padding: 4px 12px 16px; display: flex; flex-direction: column; gap: 7px; }
 
 .us-card {
   border: var(--border);
   background: var(--white);
-  box-shadow: var(--shadow);
-  padding: 9px 11px;
+  box-shadow: 2px 2px 0 var(--black);
+  padding: 8px 10px;
   position: relative;
   overflow: hidden;
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
   transition: transform 0.1s, box-shadow 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  box-sizing: border-box;
 }
 .us-card::before {
   content: '';
@@ -749,7 +759,10 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
 .us-card[data-cat="learn"]::before    { background: var(--purple); }
 .us-card[data-cat="personal"]::before { background: var(--orange); }
 .us-card[data-cat="finance"]::before  { background: var(--teal); }
-.us-card:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 #111; }
+.us-card:hover {
+  transform: translate(-1px,-1px);
+  box-shadow: 3.5px 3.5px 0 #111;
+}
 .us-card.done-us { background: #F3F3ED; }
 .us-card.done-us .us-name { text-decoration: line-through; color: #888; }
 .us-card.dragging { cursor: grabbing; opacity: 0.5; }
@@ -762,7 +775,7 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
   cursor: grab;
   padding: 3px 2px;
   flex-shrink: 0;
-  opacity: 0.5;
+  opacity: 0.45;
   transition: opacity 0.1s, transform 0.1s;
 }
 .card-drag-grip span {
@@ -779,7 +792,6 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
   cursor: grabbing;
 }
 
-.us-row { display: flex; align-items: center; gap: 7px; }
 .us-check {
   width: 18px; height: 18px;
   border: 2px solid var(--black);
@@ -787,52 +799,46 @@ body.drag-active .us-card:not(.dragging) { pointer-events: none !important; }
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   font-size: 11px;
+  font-weight: 900;
   flex-shrink: 0;
   transition: all 0.1s;
 }
 .us-check:hover { background: var(--yellow); }
 .us-card.done-us .us-check { background: var(--green); border-color: var(--green); color: white; }
-.us-name { font-size: 13.5px; font-weight: 700; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.us-name {
+  font-size: 13px;
+  font-weight: 700;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
 .us-del {
-  border: 1.5px solid #111;
+  border: 1.5px solid var(--black);
   background: var(--white);
-  width: 20px; height: 20px;
+  width: 22px; height: 22px;
   cursor: pointer;
-  font-size: 10px;
-  font-weight: bold;
+  font-size: 11px;
+  font-weight: 900;
   color: var(--black);
   display: flex; align-items: center; justify-content: center;
-  opacity: 0;
+  opacity: 1;
   transition: all 0.1s;
   flex-shrink: 0;
+  box-shadow: 1px 1px 0 var(--black);
+  padding: 0;
+  line-height: 1;
 }
-.us-card:hover .us-del { opacity: 1; }
-.us-del:hover { background: var(--red); color: white; border-color: var(--red); }
-.us-meta { font-family: var(--fm); font-size: 10px; color: #555; font-weight: 700; text-transform: uppercase; margin-top: 5px; letter-spacing: 0.5px; }
-
-.card-drag-cue {
-  font-family: var(--fm);
-  font-size: 9.5px;
-  font-weight: 800;
-  color: var(--black);
-  background: #FFFBEB;
-  border: 1px solid #111;
-  border-radius: 2px;
-  padding: 1.5px 6px;
-  letter-spacing: 0.3px;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  box-shadow: 1px 1px 0 #111;
-  transition: all 0.1s;
+.us-del:hover {
+  background: var(--red);
+  color: white;
+  border-color: var(--black);
+  transform: scale(1.08);
 }
-.us-card:hover .card-drag-cue {
-  background: var(--yellow);
-  box-shadow: 2px 2px 0 #111;
-  transform: translateX(1px);
-}
-
-.drag-hint { font-family: var(--fm); font-size: 10.5px; color: #666; text-align: center; padding: 8px 10px 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; }
 
 /* DRAG AFFORDANCE HIGHLIGHTS ON CALENDAR */
 body.drag-active .cal-col {
@@ -850,7 +856,7 @@ body.drag-active .grid-row {
   z-index: 10;
 }
 .grid-row.drag-over::after {
-  content: '⚡ DROP TO SNAP HERE (15M)';
+  content: 'DROP TO SNAP HERE (15M)';
   position: absolute;
   right: 14px;
   top: 50%;
@@ -1802,9 +1808,9 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
 <header role="banner">
   <nav class="topnav" aria-label="Main Navigation">
     <div class="logo"><div class="logo-sq" aria-hidden="true"></div>QUESTLOG</div>
-    <button class="tab-btn active" onclick="switchTab('today',this)" aria-controls="page-today" aria-selected="true" role="tab">⚡ TODAY <span class="tab-count" id="tc-today">0</span></button>
-    <button class="tab-btn" onclick="switchTab('all',this)" aria-controls="page-all" aria-selected="false" role="tab">📋 ALL <span class="tab-count" id="tc-all">0</span></button>
-    <button class="tab-btn" onclick="switchTab('habits',this)" aria-controls="page-habits" aria-selected="false" role="tab">🔁 HABITS <span class="tab-count" id="tc-hab">0</span></button>
+    <button class="tab-btn active" onclick="switchTab('today',this)" aria-controls="page-today" aria-selected="true" role="tab">TODAY <span class="tab-count" id="tc-today">0</span></button>
+    <button class="tab-btn" onclick="switchTab('all',this)" aria-controls="page-all" aria-selected="false" role="tab">ALL <span class="tab-count" id="tc-all">0</span></button>
+    <button class="tab-btn" onclick="switchTab('habits',this)" aria-controls="page-habits" aria-selected="false" role="tab">HABITS <span class="tab-count" id="tc-hab">0</span></button>
     <span class="nav-date" id="nav-date" aria-label="Current date"></span>
     <button class="gcal-nav-btn" id="nav-logout-btn" onclick="doLogout()" aria-label="Sign out of account">Sign Out</button>
   </nav>
@@ -1816,7 +1822,7 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
 <!-- ── TODAY PAGE ── -->
 <div class="page active" id="page-today" role="tabpanel" aria-labelledby="tc-today">
   <div class="today-layout">
-    <!-- LEFT: Tasks Backlog (Unscheduled / All Tasks + Embedded Add Feature) -->
+    <!-- LEFT: Tasks Backlog -->
     <section class="unsched-col"
       role="region"
       aria-labelledby="unsched-heading"
@@ -1827,50 +1833,14 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
       <div class="unsched-hdr">
         <div class="side-hdr-title-row">
           <div>
-            <h2 class="unsched-title" id="unsched-heading">TASKS BACKLOG</h2>
-            <div class="unsched-sub">Drag onto calendar to schedule</div>
+            <h2 class="unsched-title" id="unsched-heading">TASKS</h2>
+            <div class="unsched-sub">Backlog</div>
           </div>
-          <div class="side-drag-pill" title="Drag tasks to schedule on calendar">
-            <span class="side-drag-pill-dots">⠿</span> DRAG READY
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="side-pill-count" id="count-side-total" title="Total tasks">0</span>
+            <button type="button" class="side-collapse-btn" onclick="toggleSidebar()" aria-label="Collapse task panel" title="Collapse sidebar">◀</button>
           </div>
         </div>
-        <!-- Segmented Filter Tabs: Unscheduled vs All Tasks -->
-        <div class="side-filter-tabs" role="tablist" aria-label="Task backlog filter">
-          <button type="button" class="side-filter-btn active" id="side-tab-unsched" onclick="setTaskSideFilter('unsched')" role="tab" aria-selected="true">
-            ⚡ UNSCHEDULED <span class="side-pill-count" id="count-unsched">0</span>
-          </button>
-          <button type="button" class="side-filter-btn" id="side-tab-all" onclick="setTaskSideFilter('all')" role="tab" aria-selected="false">
-            📋 ALL TASKS <span class="side-pill-count" id="count-side-all">0</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- EMBEDDED ADD TASK BAR -->
-      <div class="side-add-wrap">
-        <div class="side-add-box">
-          <input type="text" id="add-inp" placeholder="Add task… press Enter" aria-label="New task name" onkeydown="handleAdd(event)">
-          <div class="side-add-vsep" aria-hidden="true"></div>
-          <div class="side-cat-wrap">
-            <select id="add-cat" aria-label="Select task category">
-              <option value="personal">Personal</option>
-              <option value="work">Work</option>
-              <option value="health">Health</option>
-              <option value="learn">Learning</option>
-              <option value="finance">Finance</option>
-            </select>
-          </div>
-          <div class="side-add-vsep" aria-hidden="true"></div>
-          <button class="side-add-btn" onclick="handleAdd()" aria-label="Add task to list" title="Add task">＋</button>
-        </div>
-      </div>
-
-      <!-- DRAG & DROP VISUAL CUE BANNER -->
-      <div class="drag-cue-banner" role="note" aria-label="Drag and drop guide">
-        <div class="drag-cue-icon" aria-hidden="true">⠿</div>
-        <div class="drag-cue-text">
-          <strong>DRAG &amp; DROP:</strong> Pull card to calendar to schedule
-        </div>
-        <div class="drag-cue-arrow" aria-hidden="true">➔</div>
       </div>
 
       <!-- Task cards list -->
@@ -1879,33 +1849,60 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
 
     <!-- RIGHT: Time Blocks Calendar -->
     <section class="cal-col" id="cal-col" aria-labelledby="cal-col-heading">
-      <div class="cal-col-hdr"
-        ondragover="headerDragOver(event)"
-        ondragenter="headerDragOver(event)"
-        ondrop="headerDrop(event)"
-        ondragleave="headerDragLeave(event)">
-        <div>
-          <h2 class="cal-col-title" id="cal-col-heading">Time Blocks</h2>
-          <div class="cal-col-sub">Drag from left panel to schedule · 15m snap</div>
-        </div>
-        <div class="date-nav-wrap">
-          <button class="date-nav-btn" onclick="shiftDate(-1)" aria-label="Previous day">←</button>
-          <div class="date-picker-wrapper" id="cal-date-picker-wrapper">
-            <button class="date-display-btn" id="cal-date-lbl" onclick="toggleCalendarDropdown(event)" aria-label="Select calendar date" aria-haspopup="dialog">Loading...</button>
-            <div class="cal-dropdown" id="cal-dropdown" role="dialog" aria-label="Calendar date selector">
-              <div class="cal-dropdown-hdr">
-                <button class="cal-drop-btn" onclick="prevMonth(event)" aria-label="Previous month">←</button>
-                <div class="cal-drop-month" id="cal-drop-month">Loading...</div>
-                <button class="cal-drop-btn" onclick="nextMonth(event)" aria-label="Next month">→</button>
-              </div>
-              <div class="cal-dropdown-weekdays" aria-hidden="true">
-                <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
-              </div>
-              <div class="cal-dropdown-days" id="cal-dropdown-days" role="grid"></div>
+      <div class="cal-sticky-header">
+        <div class="cal-col-hdr"
+          ondragover="headerDragOver(event)"
+          ondragenter="headerDragOver(event)"
+          ondrop="headerDrop(event)"
+          ondragleave="headerDragLeave(event)">
+          <div class="cal-hdr-left">
+            <button type="button" class="sidebar-toggle-btn" id="sidebar-toggle-btn" onclick="toggleSidebar()" aria-label="Toggle task list panel" title="Toggle tasks sidebar">
+              <span class="toggle-icon">◀</span>
+              <span class="toggle-text">HIDE TASKS</span>
+            </button>
+            <div>
+              <h2 class="cal-col-title" id="cal-col-heading">Time Blocks</h2>
+              <div class="cal-col-sub">15m magnetic snap · Collision-free</div>
             </div>
           </div>
-          <button class="date-nav-btn" onclick="shiftDate(1)" aria-label="Next day">→</button>
-          <button class="date-today-btn" id="cal-today-btn" onclick="goToday()" aria-label="Go to today">Today</button>
+          <div class="date-nav-wrap">
+            <button class="date-nav-btn" onclick="shiftDate(-1)" aria-label="Previous day">←</button>
+            <div class="date-picker-wrapper" id="cal-date-picker-wrapper">
+              <button class="date-display-btn" id="cal-date-lbl" onclick="toggleCalendarDropdown(event)" aria-label="Select calendar date" aria-haspopup="dialog">Loading...</button>
+              <div class="cal-dropdown" id="cal-dropdown" role="dialog" aria-label="Calendar date selector">
+                <div class="cal-dropdown-hdr">
+                  <button class="cal-drop-btn" onclick="prevMonth(event)" aria-label="Previous month">←</button>
+                  <div class="cal-drop-month" id="cal-drop-month">Loading...</div>
+                  <button class="cal-drop-btn" onclick="nextMonth(event)" aria-label="Next month">→</button>
+                </div>
+                <div class="cal-dropdown-weekdays" aria-hidden="true">
+                  <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                </div>
+                <div class="cal-dropdown-days" id="cal-dropdown-days" role="grid"></div>
+              </div>
+            </div>
+            <button class="date-nav-btn" onclick="shiftDate(1)" aria-label="Next day">→</button>
+            <button class="date-today-btn" id="cal-today-btn" onclick="goToday()" aria-label="Go to today">Today</button>
+          </div>
+        </div>
+
+        <!-- ADD TASK BAR INSIDE CALENDAR ON TOP -->
+        <div class="cal-add-bar-wrap">
+          <div class="cal-add-bar">
+            <input type="text" id="add-inp" placeholder="Add task… press Enter" aria-label="New task name" onkeydown="handleAdd(event)">
+            <div class="side-add-vsep" aria-hidden="true"></div>
+            <div class="cal-cat-wrap">
+              <select id="add-cat" aria-label="Select task category">
+                <option value="personal">Personal</option>
+                <option value="work">Work</option>
+                <option value="health">Health</option>
+                <option value="learn">Learning</option>
+                <option value="finance">Finance</option>
+              </select>
+            </div>
+            <div class="side-add-vsep" aria-hidden="true"></div>
+            <button class="cal-add-btn" onclick="handleAdd()" aria-label="Add task" title="Add task">＋ ADD</button>
+          </div>
         </div>
       </div>
       <div class="time-grid" id="time-grid"
@@ -2037,7 +2034,7 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
       </select>
     </div>
     <div id="edit-task-sched-info" style="font-family:var(--fm);font-size:12px;font-weight:700;color:#555;padding:4px 0;display:flex;align-items:center;justify-content:space-between;">
-      <span id="edit-task-time-lbl">⏰ 10:00 AM – 11:00 AM</span>
+      <span id="edit-task-time-lbl">10:00 AM – 11:00 AM</span>
       <button type="button" id="edit-task-toggle-sched-btn" onclick="toggleTaskScheduleFromModal()" style="background:none;border:1.5px solid var(--black);font-family:var(--fm);font-size:10px;font-weight:700;padding:4px 8px;cursor:pointer;text-transform:uppercase;">Unschedule</button>
     </div>
     <div style="display:flex; gap:8px;">
@@ -2056,9 +2053,9 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
 <div class="celeb" id="celeb" role="dialog" aria-modal="true" aria-labelledby="celeb-title">
   <div class="celeb-bg" onclick="closeCeleb()" aria-hidden="true"></div>
   <div class="celeb-card">
-    <div style="font-size:52px;margin-bottom:10px" aria-hidden="true">🏆</div>
+    <div style="font-family:var(--fh);font-size:44px;font-weight:900;margin-bottom:10px;letter-spacing:-1px" aria-hidden="true">[ 100% ]</div>
     <h2 class="celeb-title" id="celeb-title">GREAT JOB!</h2>
-    <div class="celeb-sub">You crushed every single task today.<br>That's the energy of a true champion! 🔥<br>Take a moment — you earned it.</div>
+    <div class="celeb-sub">You crushed every single task today.<br>That's the discipline of a true champion!<br>Take a moment — you earned it.</div>
     <button class="celeb-close" onclick="closeCeleb()" aria-label="Dismiss celebration">KEEP GOING →</button>
   </div>
 </div>
@@ -2092,7 +2089,7 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
       <div class="auth-err" id="l-err" role="alert" aria-live="assertive"></div>
       <button class="auth-btn" onclick="doLogin()">SIGN IN →</button>
       <div style="text-align: center; margin-top: 14px; padding-top: 14px; border-top: 1.5px dashed #ccc;">
-        <button type="button" class="auth-btn" onclick="loginAsDemo()" style="background: var(--yellow); color: var(--black); font-size: 12px; padding: 10px;">⚡ TRY DEMO MODE (OFFLINE) →</button>
+        <button type="button" class="auth-btn" onclick="loginAsDemo()" style="background: var(--yellow); color: var(--black); font-size: 12px; padding: 10px;">TRY DEMO MODE (OFFLINE) →</button>
       </div>
     </div>
 
@@ -2151,8 +2148,8 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
 //  DATA
 // ════════════════════════════════════════════════════════
 const CATS   = { work:'Work', health:'Health', learn:'Learning', personal:'Personal', finance:'Finance' };
-const CEMOJI = { work:'💼', health:'🏃', learn:'📚', personal:'⭐', finance:'💰' };
-const HOURS  = [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
+const CEMOJI = { work:'', health:'', learn:'', personal:'', finance:'' };
+const HOURS  = [9,10,11,12,13,14,15,16,17,18,19,20,21,22];
 const SLOT_H = 72; // must match --slot-h
 const CAT_COLORS = { work:'#2563EB', health:'#16A34A', learn:'#7C3AED', personal:'#EA580C', finance:'#0891B2' };
 
@@ -2196,7 +2193,7 @@ function resizeGC() {
 resizeGC();
 window.addEventListener('resize', resizeGC);
 
-const G_WORDS = ['DONE!', 'NAILED IT', '✓ YEP', 'KILLED IT', 'BOOM', 'LFG!', 'YES!!', 'SMASHED', 'CHAMP', '🔥🔥', 'BEAST MODE', 'GET IT', 'W!', 'SLAY'];
+const G_WORDS = ['DONE!', 'NAILED IT', 'YEP', 'KILLED IT', 'BOOM', 'LFG!', 'YES!!', 'SMASHED', 'CHAMP', 'BEAST MODE', 'GET IT', 'W!', 'SLAY'];
 const G_COLORS = ['#FF3CAC', '#FFE135', '#2563EB', '#16A34A', '#EA580C', '#7C3AED', '#00E5FF', '#FF6B35', '#ADFF2F'];
 const G_OUTLINES = ['#111', '#111', '#111', '#111', '#fff', '#fff', '#111', '#111', '#111'];
 
@@ -2323,7 +2320,7 @@ async function doUpdatePassword() {
     const { error } = await sb.auth.updateUser({ password: pw });
     if (error) { setErr('rec-err', error.message); return; }
     
-    toast('✅', 'Success', 'Password updated successfully!', 'g');
+    toast('', 'Success', 'Password updated successfully!', 'g');
     const { data: { session } } = await sb.auth.getSession();
     if (session) {
       loginAs(session.user);
@@ -2360,7 +2357,7 @@ async function doLogin() {
     console.error('Login error:', e);
     let msg = e.message || 'Unknown error';
     if (msg === 'Load failed' || msg === 'Failed to fetch' || (typeof msg === 'string' && msg.includes('fetch'))) {
-      msg = 'Supabase database is paused/asleep. Unpause it in your Supabase Dashboard, or click "⚡ TRY DEMO MODE" below to test offline.';
+      msg = 'Supabase database is paused/asleep. Unpause it in your Supabase Dashboard, or click "TRY DEMO MODE" below to test offline.';
     }
     setErr('l-err', msg);
   } finally {
@@ -2399,7 +2396,7 @@ async function doRegister() {
     console.error('Registration error:', e);
     let msg = e.message || 'Unknown error';
     if (msg === 'Load failed' || msg === 'Failed to fetch' || (typeof msg === 'string' && msg.includes('fetch'))) {
-      msg = 'Supabase database is paused/asleep. Unpause it in your Supabase Dashboard, or click "⚡ TRY DEMO MODE" below to test offline.';
+      msg = 'Supabase database is paused/asleep. Unpause it in your Supabase Dashboard, or click "TRY DEMO MODE" below to test offline.';
     }
     setErr('r-err', msg);
   } finally {
@@ -2481,7 +2478,7 @@ async function loginAs(user) {
   if (savedTab === 'habits') targetBtn = tabBtns[2];
   switchTab(savedTab, targetBtn);
   
-  toast('👋', 'Welcome!', user.user_metadata?.name || user.email, 'y');
+  toast('', 'Welcome!', user.user_metadata?.name || user.email, 'y');
 }
 
 // ── DATA PERSISTENCE (Supabase + Offline Fallback) ───────────
@@ -2521,6 +2518,9 @@ async function loadTasks() {
         if (t.id && String(t.id).startsWith('dt') && t.startMin != null && t.created !== today) {
           t.created = today;
         }
+        if (t.startMin != null && t.startMin < HOURS[0] * 60) {
+          t.startMin = null;
+        }
       });
       localStorage.setItem('ql_demo_tasks', JSON.stringify(localData));
       return localData;
@@ -2528,7 +2528,7 @@ async function loadTasks() {
     const defaultTasks = [
       { id: 'dt1', name: 'Sprint planning & backlog review', cat: 'work', done: false, startMin: 540, durMin: 60, created: todayStr() },
       { id: 'dt2', name: 'Design system review', cat: 'learn', done: false, startMin: 630, durMin: 90, created: todayStr() },
-      { id: 'dt3', name: 'Morning run 5k', cat: 'health', done: true, startMin: 420, durMin: 45, created: todayStr() },
+      { id: 'dt3', name: 'Morning run 5k', cat: 'health', done: true, startMin: null, durMin: 45, created: todayStr() },
       { id: 'dt4', name: 'Review project budget', cat: 'finance', done: false, startMin: null, durMin: 60, created: todayStr() },
       { id: 'dt5', name: 'Buy sketchbook & pens', cat: 'personal', done: false, startMin: null, durMin: 30, created: todayStr() }
     ];
@@ -3035,7 +3035,7 @@ function renderCalendar() {
     const bodyContent = isCompact ? `
       <div class="blk-body" style="display:flex; align-items:center; gap:6px; min-width:0; flex:1;">
         <div class="blk-name" style="flex:1; min-width:0;" title="${esc(t.name)}">${esc(t.name)}</div>
-        <span class="blk-time-badge" title="${fmtMinutes(t.startMin)} – ${fmtMinutes(t.startMin+dur)}">⏰ ${fmtMinutes(t.startMin)}</span>
+        <span class="blk-time-badge" title="${fmtMinutes(t.startMin)} – ${fmtMinutes(t.startMin+dur)}">${fmtMinutes(t.startMin)}</span>
         <span class="blk-dur-badge">${durBadgeText}</span>
       </div>` : `
       <div class="blk-body" style="min-width:0; flex:1;">
@@ -3044,8 +3044,8 @@ function renderCalendar() {
           <span class="blk-dur-badge">${durBadgeText}</span>
         </div>
         <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-top:3px; min-width:0;">
-          <div class="blk-time-badge">⏰ ${fmtMinutes(t.startMin)} – ${fmtMinutes(t.startMin+dur)}</div>
-          <div class="blk-cat">${CEMOJI[t.cat]||''} ${CATS[t.cat]||''}</div>
+          <div class="blk-time-badge">${fmtMinutes(t.startMin)} – ${fmtMinutes(t.startMin+dur)}</div>
+          <div class="blk-cat">${CATS[t.cat]||''}</div>
         </div>
       </div>`;
     
@@ -3073,7 +3073,7 @@ function renderCalendar() {
     `<div class="blocks-layer" style="height:${gridH}px">${blocksHTML}</div>` +
     (showNow ? `<div class="now-line" id="now-line-el" style="top:${nowTop}px" aria-label="Current time indicator"></div>` : '');
 
-  // Scroll to either the first scheduled item, current time, or default to 8 AM (only once on load/tab switch)
+  // Scroll to either the first scheduled item, current time, or default to 9 AM (only once on load/tab switch)
   const cal = document.getElementById('cal-col');
   if (!initialScrollDone) {
     initialScrollDone = true;
@@ -3088,9 +3088,9 @@ function renderCalendar() {
     else if (showNow) {
       targetTop = nowTop;
     }
-    // 3. Otherwise, default to 8 AM
+    // 3. Otherwise, default to 9 AM (top of grid)
     else {
-      targetTop = (8 - firstH) * SLOT_H;
+      targetTop = 0;
     }
     
     if (targetTop >= 0) {
@@ -3252,7 +3252,7 @@ async function commitQA() {
   await saveAddTask(t);
   closeQA();
   render();
-  toast('⏰', 'Scheduled!', fmtMinutes(t.startMin), 'y');
+  toast('', 'Scheduled!', fmtMinutes(t.startMin), 'y');
 }
 function qaKey(e) {
   if (e.key === 'Enter') commitQA();
@@ -3273,37 +3273,50 @@ function fmtHour(h) {
   return h < 12 ? h+' AM' : (h-12)+' PM';
 }
 
-// ── DRAG: tasks backlog → calendar ──────────────────────────────────────────
-let taskSideFilter = 'unsched'; // 'unsched' or 'all'
-
-function setTaskSideFilter(filter) {
-  taskSideFilter = filter;
-  const btnUnsched = document.getElementById('side-tab-unsched');
-  const btnAll = document.getElementById('side-tab-all');
-  if (btnUnsched) {
-    btnUnsched.classList.toggle('active', filter === 'unsched');
-    btnUnsched.setAttribute('aria-selected', filter === 'unsched');
-  }
-  if (btnAll) {
-    btnAll.classList.toggle('active', filter === 'all');
-    btnAll.setAttribute('aria-selected', filter === 'all');
-  }
-  renderUnscheduled();
+// ── SIDEBAR COLLAPSIBLE TOGGLE ──
+function toggleSidebar() {
+  const layout = document.querySelector('.today-layout');
+  if (!layout) return;
+  const isCollapsed = layout.classList.toggle('sidebar-collapsed');
+  try {
+    localStorage.setItem('ql_sidebar_collapsed', isCollapsed ? '1' : '0');
+  } catch (err) {}
+  updateSidebarUI();
 }
 
+function updateSidebarUI() {
+  const layout = document.querySelector('.today-layout');
+  const btn = document.getElementById('sidebar-toggle-btn');
+  const isCollapsed = layout ? layout.classList.contains('sidebar-collapsed') : false;
+  const taskCount = S.tasks ? S.tasks.length : 0;
+  
+  if (btn) {
+    if (isCollapsed) {
+      btn.innerHTML = `<span class="toggle-icon">▶</span> <span class="toggle-text">TASKS</span> <span class="toggle-badge">${taskCount}</span>`;
+      btn.setAttribute('title', 'Show tasks panel');
+      btn.setAttribute('aria-expanded', 'false');
+      btn.classList.add('collapsed');
+    } else {
+      btn.innerHTML = `<span class="toggle-icon">◀</span> <span class="toggle-text">HIDE TASKS</span>`;
+      btn.setAttribute('title', 'Hide tasks panel');
+      btn.setAttribute('aria-expanded', 'true');
+      btn.classList.remove('collapsed');
+    }
+  }
+  const countEl = document.getElementById('count-side-total');
+  if (countEl) countEl.textContent = taskCount;
+}
+
+// ── DRAG: tasks backlog → calendar ──────────────────────────────────────────
 function renderUnscheduled() {
   const el = document.getElementById('unsched-body');
   if (!el) return;
 
-  const isAll = taskSideFilter === 'all';
-  const tasks = isAll ? S.tasks : S.tasks.filter(t => t.startMin == null);
+  const tasks = S.tasks || [];
+  updateSidebarUI();
 
   if (!tasks.length) {
-    if (isAll) {
-      el.innerHTML = `<div class="empty"><div class="empty-ico" aria-hidden="true">📝</div><div class="empty-txt">No tasks yet.<br>Add one above!</div></div>`;
-    } else {
-      el.innerHTML = `<div class="empty"><div class="empty-ico" aria-hidden="true">🎯</div><div class="empty-txt">All tasks<br>are scheduled!</div><div class="empty-sub" style="font-family:var(--fm);font-size:10px;color:#777;margin-top:6px;text-align:center;text-transform:uppercase;font-weight:700;">Switch to ALL TASKS to view all</div></div>`;
-    }
+    el.innerHTML = `<div class="empty"><div class="empty-ico" aria-hidden="true">[ 0 ]</div><div class="empty-txt">No tasks yet.<br>Add one on top of the calendar!</div></div>`;
     return;
   }
 
@@ -3312,41 +3325,27 @@ function renderUnscheduled() {
     const durBadgeText = dur >= 60 
       ? (dur % 60 === 0 ? (dur / 60) + 'h' : Math.floor(dur / 60) + 'h ' + (dur % 60) + 'm')
       : dur + 'm';
-    const isScheduled = t.startMin != null;
-    const taskDate = t.created || todayStr();
-    const dateLabel = taskDate !== todayStr() ? formatDateShort(taskDate) + ' · ' : '';
-    const timeBadgeHtml = isScheduled
-      ? `<span class="blk-time-badge" style="font-size:9.5px;padding:1.5px 5px;" title="Scheduled at ${fmtMinutes(t.startMin)}">⏰ ${dateLabel}${fmtMinutes(t.startMin)}</span>`
-      : '';
-    const dragCueLabel = isScheduled ? 'DRAG TO RESCHEDULE ➔' : 'DRAG TO SCHEDULE ➔';
 
     return `
-    <div class="us-card${t.done?' done-us':''}${isScheduled?' is-scheduled':''}" data-cat="${t.cat}" data-id="${t.id}"
+    <div class="us-card${t.done?' done-us':''}" data-cat="${t.cat}" data-id="${t.id}"
       draggable="true"
       role="article"
-      aria-label="${isScheduled?'Scheduled':'Unscheduled'} task: ${esc(t.name)}, ${durBadgeText}"
+      aria-label="${esc(t.name)}, ${durBadgeText}"
       onmousedown="usMouseDown(event)"
       ondragstart="usDragStart(event,'${t.id}')"
       ondragend="usDragEnd(event)"
       onclick="handleTaskClick(event, '${t.id}')">
-      <div class="us-row" style="display:flex; align-items:center; gap:7px; width:100%; min-width:0;">
-        <div class="card-drag-grip" title="Drag onto calendar to schedule" aria-hidden="true">
-          <span></span><span></span>
-          <span></span><span></span>
-          <span></span><span></span>
-        </div>
-        <div class="us-check" role="checkbox" tabindex="0" aria-checked="${t.done}" aria-label="Mark task ${esc(t.name)} as ${t.done?'incomplete':'complete'}" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleDone(event,'${t.id}');}" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
-        <div class="us-name" style="flex:1; min-width:0;" title="${esc(t.name)}">${esc(t.name)}</div>
-        ${timeBadgeHtml}
-        <span class="blk-dur-badge">${durBadgeText}</span>
-        <button class="us-del" aria-label="Delete task: ${esc(t.name)}" onclick="delTask(event,'${t.id}')">✕</button>
+      <div class="card-drag-grip" title="Drag onto calendar to schedule" aria-hidden="true">
+        <span></span><span></span>
+        <span></span><span></span>
+        <span></span><span></span>
       </div>
-      <div class="us-meta" style="display:flex; align-items:center; justify-content:space-between; margin-top:6px;">
-        <span>${CEMOJI[t.cat]||''} ${CATS[t.cat]||t.cat}</span>
-        <span class="card-drag-cue">⠿ ${dragCueLabel}</span>
-      </div>
+      <div class="us-check" role="checkbox" tabindex="0" aria-checked="${t.done}" aria-label="Mark task ${esc(t.name)} as ${t.done?'incomplete':'complete'}" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleDone(event,'${t.id}');}" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
+      <div class="us-name" title="${esc(t.name)}">${esc(t.name)}</div>
+      <span class="blk-dur-badge">${durBadgeText}</span>
+      <button class="us-del" aria-label="Delete task: ${esc(t.name)}" onclick="delTask(event,'${t.id}')" title="Delete task">✕</button>
     </div>`;
-  }).join('') + `<div class="drag-hint">⠿ Drag card to calendar grid to schedule ➔</div>`;
+  }).join('');
 }
 
 // Drag from tasks backlog
@@ -3487,7 +3486,7 @@ function gridDrop(e) {
     t.durMin   = dur;
     t.created  = viewDateStr();
     saveUpdateTask(t);
-    toast('⏰','Scheduled!', fmtMinutes(t.startMin), 'y');
+    toast('', 'Scheduled!', fmtMinutes(t.startMin), 'y');
   } else if (dragBlkId) {
     // Move existing local block
     const t = S.tasks.find(t => String(t.id) === String(dragBlkId));
@@ -3523,7 +3522,7 @@ function headerDrop(e) {
       t.durMin   = dur;
       t.created  = viewDateStr();
       saveUpdateTask(t);
-      toast('⏰', 'Scheduled!', fmtMinutes(t.startMin), 'y');
+      toast('', 'Scheduled!', fmtMinutes(t.startMin), 'y');
     }
   } else if (dragBlkId) {
     const t = S.tasks.find(t => String(t.id) === String(dragBlkId));
@@ -3554,7 +3553,7 @@ function unschedDrop(e) {
     if (t) {
       t.startMin = null;
       saveUpdateTask(t);
-      toast('📥', 'Unscheduled!', esc(t.name.slice(0, 24)), 'y');
+      toast('', 'Unscheduled!', esc(t.name.slice(0, 24)), 'y');
     }
   }
   dragId = null; dragBlkId = null;
@@ -3598,9 +3597,9 @@ function resizeMove(e) {
     const timeEl = blk.querySelector('.blk-time-badge') || blk.querySelector('.blk-time');
     if (timeEl) {
       if (clampedDur <= 30) {
-        timeEl.textContent = '⏰ ' + fmtMinutes(t.startMin);
+        timeEl.textContent = fmtMinutes(t.startMin);
       } else {
-        timeEl.textContent = '⏰ ' + fmtMinutes(t.startMin) + ' – ' + fmtMinutes(t.startMin + t.durMin);
+        timeEl.textContent = fmtMinutes(t.startMin) + ' – ' + fmtMinutes(t.startMin + t.durMin);
       }
     }
     const badgeEl = blk.querySelector('.blk-dur-badge');
@@ -3630,14 +3629,14 @@ function resizeEnd() {
 function renderAllTasks() {
   const el = document.getElementById('all-list');
   if (!S.tasks.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-ico" aria-hidden="true">🎯</div><div class="empty-txt">No tasks yet.<br>Add one above!</div></div>`;
+    el.innerHTML = `<div class="empty"><div class="empty-ico" aria-hidden="true">[ 0 ]</div><div class="empty-txt">No tasks yet.<br>Add one above!</div></div>`;
     return;
   }
   const groups = {};
   S.tasks.forEach(t => { (groups[t.cat] = groups[t.cat]||[]).push(t); });
   let html = '';
   Object.entries(groups).forEach(([cat, ts]) => {
-    html += `<div class="cat-grp-hdr">${CEMOJI[cat]||''} ${CATS[cat]||cat} <span style="font-family:var(--fm);font-size:10px;color:#888">${ts.length}</span></div>`;
+    html += `<div class="cat-grp-hdr">${CATS[cat]||cat} <span style="font-family:var(--fm);font-size:10px;color:#888">${ts.length}</span></div>`;
     html += ts.map(t => {
       const taskDate = t.created || todayStr();
       const dateLabel = taskDate !== todayStr() ? formatDateShort(taskDate) + ' · ' : '';
@@ -3646,14 +3645,14 @@ function renderAllTasks() {
         ? (dur % 60 === 0 ? (dur / 60) + 'h' : Math.floor(dur / 60) + 'h ' + (dur % 60) + 'm')
         : dur + 'm';
       const timeTg = t.startMin != null 
-        ? `<span class="tag tg-time">⏰ ${dateLabel}${fmtMinutes(t.startMin)} – ${fmtMinutes(t.startMin+dur)}</span><span class="blk-dur-badge" style="font-size:9.5px;padding:1px 5px;">${durBadgeText}</span>` 
-        : `<span class="tag tg-unsched">⏱ ${durBadgeText} · Unscheduled</span>`;
+        ? `<span class="tag tg-time">${dateLabel}${fmtMinutes(t.startMin)} – ${fmtMinutes(t.startMin+dur)}</span><span class="blk-dur-badge" style="font-size:9.5px;padding:1px 5px;">${durBadgeText}</span>` 
+        : `<span class="tag tg-unsched">${durBadgeText} · Backlog</span>`;
       return `<div class="all-task${t.done?' done-all':''}" role="listitem" data-cat="${t.cat}" onclick="handleTaskClick(event, '${t.id}')">
         <div class="all-chk" role="checkbox" tabindex="0" aria-checked="${t.done}" aria-label="Mark task ${esc(t.name)} as ${t.done?'incomplete':'complete'}" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleDone(event,'${t.id}');}" onclick="toggleDone(event,'${t.id}')">${t.done?'✓':''}</div>
         <div class="all-body">
           <div class="all-name">${esc(t.name)}</div>
           <div class="all-tags" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:5px;">
-            <span class="tag tg-${t.cat}">${CEMOJI[t.cat]||''} ${CATS[t.cat]||t.cat}</span>
+            <span class="tag tg-${t.cat}">${CATS[t.cat]||t.cat}</span>
             ${timeTg}
           </div>
         </div>
@@ -3692,7 +3691,7 @@ function renderHabits() {
 
   const el = document.getElementById('hab-list');
   if (!S.habits.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-ico" aria-hidden="true">🔁</div><div class="empty-txt">No habits yet.<br>Add one above!</div></div>`;
+    el.innerHTML = `<div class="empty"><div class="empty-ico" aria-hidden="true">[ 0 ]</div><div class="empty-txt">No habits yet.<br>Add one above!</div></div>`;
     return;
   }
 
@@ -3725,7 +3724,7 @@ function renderHabits() {
         <div class="hab-card-hdr">
           <div class="hab-swatch" style="background:${h.color}" aria-hidden="true"></div>
           <div class="hab-name-txt">${esc(h.name)}</div>
-          <div class="hab-streak" aria-label="Current streak: ${streak} days">🔥 ${streak} DAY${streak!==1?'S':''}</div>
+          <div class="hab-streak" aria-label="Current streak: ${streak} days">STREAK: ${streak} DAY${streak!==1?'S':''}</div>
           <button class="hab-del" aria-label="Delete habit: ${esc(h.name)}" onclick="delHab('${h.id}')">✕</button>
         </div>
         <div class="hab-week-grid" role="group" aria-label="Weekly completion grid">${cellsHTML}</div>
@@ -3834,7 +3833,7 @@ async function handleAdd(e) {
   await saveAddTask(t);
   render();
   trackEvent('task_created', { category: cat, duration: 60, is_scheduled: false });
-  toast('📝','Task added!','Drag onto the calendar','y');
+  toast('','Task added!','Drag onto the calendar','y');
 }
 
 async function handleAllAdd(e) {
@@ -3849,7 +3848,7 @@ async function handleAllAdd(e) {
   await saveAddTask(t);
   render();
   trackEvent('task_created', { category: cat, duration: 60, is_scheduled: false });
-  toast('📝','Task added!','Drag onto the calendar','y');
+  toast('','Task added!','Drag onto the calendar','y');
 }
 
 async function toggleDone(e, id) {
@@ -3861,7 +3860,7 @@ async function toggleDone(e, id) {
     playTaskCompleteSound();
     const trigEl = e.currentTarget || e.target;
     setTimeout(() => burstGraffiti(trigEl), 60);
-    toast('✅','Done!', esc(t.name.slice(0,28)), 'g');
+    toast('','Done!', esc(t.name.slice(0,28)), 'g');
   }
   trackEvent('task_toggled', { task_id: id, category: t.cat, is_done: t.done });
   await saveToggleTask(id, t.done);
@@ -3900,10 +3899,10 @@ function handleTaskClick(e, id) {
   if (schedLbl && toggleBtn) {
     if (t.startMin != null) {
       const dur = t.durMin || 60;
-      schedLbl.textContent = `⏰ ${fmtMinutes(t.startMin)} – ${fmtMinutes(t.startMin + dur)}`;
+      schedLbl.textContent = `${fmtMinutes(t.startMin)} – ${fmtMinutes(t.startMin + dur)}`;
       toggleBtn.textContent = 'Unschedule';
     } else {
-      schedLbl.textContent = '📥 Unscheduled (Backlog)';
+      schedLbl.textContent = 'Backlog (Unscheduled)';
       toggleBtn.textContent = 'Schedule Today';
     }
   }
@@ -3960,7 +3959,7 @@ async function saveEditedTask() {
   await saveUpdateTask(t);
   closeEditModal();
   render();
-  toast('✨', 'Task updated!', esc(t.name.slice(0, 24)), 'y');
+  toast('', 'Task updated!', esc(t.name.slice(0, 24)), 'y');
 }
 
 async function toggleTaskScheduleFromModal() {
@@ -3974,12 +3973,12 @@ async function toggleTaskScheduleFromModal() {
 
   if (t.startMin != null) {
     t.startMin = null;
-    toast('📥', 'Moved to backlog!', '', 'y');
+    toast('', 'Moved to backlog!', '', 'y');
   } else {
     const dStr = viewDateStr();
     t.created = dStr;
-    t.startMin = findSnapSlot(8 * 60, dur, t.id, dStr);
-    toast('⏰', 'Scheduled!', fmtMinutes(t.startMin), 'y');
+    t.startMin = findSnapSlot(HOURS[0] * 60, dur, t.id, dStr);
+    toast('', 'Scheduled!', fmtMinutes(t.startMin), 'y');
   }
 
   await saveUpdateTask(t);
@@ -4014,7 +4013,7 @@ async function handleHabAdd(e) {
     S.habits.push(saved);
     render();
     trackEvent('habit_created', { name: name, color: color });
-    toast('🔁','Habit added!', name.slice(0,28), 'y');
+    toast('','Habit added!', name.slice(0,28), 'y');
   }
 }
 
@@ -4028,7 +4027,7 @@ async function toggleHab(hid, dateStr) {
   else { 
     playHabitCheckSound();
     h.completions.push(dateStr); 
-    if (dateStr === todayStr()) toast('🔁','Habit logged!','Keep it up 🔥','g'); 
+    if (dateStr === todayStr()) toast('','Habit logged!','Keep it up!','g'); 
   }
   trackEvent('habit_toggled', { habit_id: hid, date: dateStr, is_checking: isChecking });
   await saveToggleHabit(hid, dateStr, isChecking);
@@ -4116,7 +4115,7 @@ function toast(ico, title, sub, style) {
   const wrap = document.getElementById('toasts');
   const el = document.createElement('div');
   el.className = 'toast' + (style ? ' t-'+style : '');
-  el.innerHTML = `<span class="t-ico">${ico}</span><div><div class="t-title">${title}</div><div class="t-sub">${sub||''}</div></div>`;
+  el.innerHTML = `${ico ? '<span class="t-ico">' + ico + '</span>' : ''}<div><div class="t-title">${title}</div><div class="t-sub">${sub||''}</div></div>`;
   wrap.appendChild(el);
   setTimeout(() => el.remove(), 3200);
 }
@@ -4244,6 +4243,20 @@ document.addEventListener('keydown', (e) => {
 loadRememberedUser();
 initCustomSelects();
 async function init() {
+  // Restore sidebar collapsed state from localStorage
+  try {
+    if (localStorage.getItem('ql_sidebar_collapsed') === '1') {
+      const layout = document.querySelector('.today-layout');
+      if (layout) layout.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+  updateSidebarUI();
+
+  if (window.location.search.includes('demo=1')) {
+    await loginAsDemo();
+    return;
+  }
+
   // Check if there is an active local user session
   let savedUser = null;
   const savedUserStr = localStorage.getItem('ql_active_user');
