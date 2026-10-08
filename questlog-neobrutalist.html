@@ -2470,6 +2470,23 @@ async function loginAs(user) {
   
   await loadAllData();
   
+  // Realtime Live Sync with Supabase (e.g. for WhatsApp tasks)
+  if (sb && user && user.id && !user.isDemo) {
+    try {
+      sb.channel(`realtime-tasks-${user.id}`)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks', filter: `user_id=eq.${user.id}` }, async (payload) => {
+          S.tasks = await loadTasks();
+          render();
+          if (payload.eventType === 'INSERT') {
+            toast('', 'WhatsApp Sync', `New task: "${payload.new.name}"`, 'y');
+          }
+        })
+        .subscribe();
+    } catch(err) {
+      console.warn('Realtime subscription error:', err);
+    }
+  }
+  
   // Activate stored tab on load
   const savedTab = sessionStorage.getItem('ql_cur_tab') || 'today';
   const tabBtns = document.querySelectorAll('.tab-btn');
