@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuestLog Tech Deck — Visual Flashcards for Designers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F4F0EA;
+      --card-bg: #FFFFFF;
+      --black: #121212;
+      --yellow: #FFE135;
+      --pink: #FF6B8B;
+      --blue: #4D96FF;
+      --green: #6BCB77;
+      --purple: #9D4EDD;
+      --orange: #FF9F45;
+      --border: 3px solid #121212;
+      --shadow: 6px 6px 0px #121212;
+      --shadow-sm: 3px 3px 0px #121212;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: radial-gradient(var(--black) 1px, transparent 1px);
+      background-size: 24px 24px;
+      color: var(--black);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 20px;
+    }
+
+    /* HEADER */
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+      max-width: 650px;
+    }
+
+    .pill-badge {
+      display: inline-block;
+      background: var(--yellow);
+      border: var(--border);
+      box-shadow: var(--shadow-sm);
+      font-weight: 800;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+
+    p.subtitle {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #555;
+    }
+
+    /* FLASHCARD CONTAINER */
+    .flashcard-wrapper {
+      perspective: 1200px;
+      width: 100%;
+      max-width: 580px;
+      height: 440px;
+      margin-bottom: 25px;
+      cursor: pointer;
+    }
+
+    .flashcard {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 12px;
+    }
+
+    .flashcard.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border: var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 35px 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: var(--card-bg);
+    }
+
+    /* FRONT FACE */
+    .card-front {
+      background: #FFFFFF;
+    }
+
+    .card-num {
+      font-family: 'Space Grotesk', monospace;
+      font-weight: 700;
+      font-size: 0.9rem;
+      background: var(--black);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 4px;
+      display: inline-block;
+      align-self: flex-start;
+    }
+
+    .front-center {
+      text-align: center;
+      margin: auto 0;
+    }
+
+    .card-icon {
+      font-size: 3.5rem;
+      margin-bottom: 15px;
+      display: inline-block;
+    }
+
+    .card-term {
+      font-size: 2.1rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+
+    .card-tagline {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #444;
+      background: rgba(0,0,0,0.05);
+      padding: 6px 14px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    .front-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #777;
+      text-transform: uppercase;
+      border-top: 2px dashed #DDD;
+      padding-top: 15px;
+    }
+
+    /* BACK FACE */
+    .card-back {
+      transform: rotateY(180deg);
+      background: #FFFFFF;
+      overflow-y: auto;
+    }
+
+    .back-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #111;
+      padding-bottom: 10px;
+    }
+
+    .back-title {
+      font-size: 1.3rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .content-block {
+      margin-bottom: 14px;
+    }
+
+    .block-label {
+      font-size: 0.75rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--black);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .block-text {
+      font-size: 0.95rem;
+      line-height: 1.4;
+      font-weight: 500;
+      color: #222;
+    }
+
+    .code-pill {
+      font-family: 'Space Grotesk', monospace;
+      background: #EFEFEF;
+      border: 1.5px solid #111;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .jargon-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .jargon-pill {
+      background: #FFF3C4;
+      border: 1.5px solid #111;
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    /* CONTROLS */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      width: 100%;
+      max-width: 580px;
+      justify-content: space-between;
+    }
+
+    .btn {
+      background: #FFF;
+      border: var(--border);
+      box-shadow: var(--shadow-sm);
+      font-weight: 800;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      padding: 12px 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 5px 5px 0px #121212;
+    }
+
+    .btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px #121212;
+    }
+
+    .btn-flip {
+      background: var(--yellow);
+      flex: 1;
+      justify-content: center;
+    }
+
+    .progress-bar-wrap {
+      width: 100%;
+      max-width: 580px;
+      background: #DDD;
+      border: 2px solid #111;
+      height: 10px;
+      margin-bottom: 20px;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--black);
+      width: 14.28%;
+      transition: width 0.3s ease;
+    }
+
+    /* FOOTER NAV */
+    .footer-nav {
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    .footer-link {
+      display: inline-block;
+      font-weight: 800;
+      text-decoration: none;
+      color: var(--black);
+      background: #FFF;
+      border: 2px solid #111;
+      box-shadow: var(--shadow-sm);
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+    }
+
+    .footer-link:hover {
+      background: var(--yellow);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="pill-badge">QuestLog Tech Buddy · Deck 1</div>
+    <h1>Tech Flashcards for Designers</h1>
+    <p class="subtitle">Real-world metaphors & insider vocabulary from our actual code.</p>
+  </header>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="pbar"></div>
+  </div>
+
+  <div class="flashcard-wrapper" id="cardWrapper" onclick="toggleFlip()">
+    <div class="flashcard" id="card">
+      
+      <!-- FRONT -->
+      <div class="card-face card-front" id="cardFront">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="card-num" id="cardNum">01 / 07</span>
+          <span style="font-weight:800; font-size:0.8rem; text-transform:uppercase; background:var(--yellow); border:1.5px solid #111; padding:2px 8px;" id="catBadge">CORE TECH</span>
+        </div>
+        <div class="front-center">
+          <div class="card-icon" id="cardIcon">🏛️</div>
+          <h2 class="card-term" id="cardTerm">HTML</h2>
+          <div class="card-tagline" id="cardTagline">The Skeleton / Blueprint</div>
+        </div>
+        <div class="front-footer">
+          <span>Click card to flip</span>
+          <span>QuestLog Context ↻</span>
+        </div>
+      </div>
+
+      <!-- BACK -->
+      <div class="card-face card-back" id="cardBack">
+        <div class="back-header">
+          <div class="back-title" id="backTitle">HTML in Plain English</div>
+          <span class="card-num" id="backNum">01 / 07</span>
+        </div>
+
+        <div class="content-block">
+          <div class="block-label">🎨 The Designer Metaphor</div>
+          <div class="block-text" id="backMetaphor">
+            The concrete walls, door frames, and glass panels of a building. It doesn't have paint or light switches yet—it just defines what objects physically exist in the room.
+          </div>
+        </div>
+
+        <div class="content-block">
+          <div class="block-label">📂 In Our QuestLog File</div>
+          <div class="block-text" id="backContext">
+            In <span class="code-pill">questlog-neobrutalist.html</span>, HTML creates our sidebar <span class="code-pill">&lt;div id="us-col"&gt;</span>, our calendar grid <span class="code-pill">&lt;div id="time-grid"&gt;</span>, and the Add Task input bar.
+          </div>
+        </div>
+
+        <div class="content-block">
+          <div class="block-label">💬 Vocabulary to Flex to Engineers</div>
+          <div class="jargon-tags" id="backJargon">
+            <span class="jargon-pill">Markup</span>
+            <span class="jargon-pill">DOM Tree</span>
+            <span class="jargon-pill">Semantic HTML</span>
+            <span class="jargon-pill">Elements & Tags</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <button class="btn" onclick="prevCard(event)">◀ Prev</button>
+    <button class="btn btn-flip" onclick="toggleFlip(event)">Flip Card ↻</button>
+    <button class="btn" onclick="nextCard(event)">Next ▶</button>
+  </div>
+
+  <div class="footer-nav">
+    <a href="./questlog-neobrutalist.html" class="footer-link">← Back to QuestLog Dashboard</a>
+  </div>
+
+  <script>
+    const CARDS = [
+      {
+        num: "01 / 07",
+        cat: "CORE TECH",
+        catCol: "#FFE135",
+        icon: "🏛️",
+        term: "HTML",
+        tagline: "The Skeleton / Blueprint",
+        backTitle: "HTML in Plain English",
+        metaphor: "Think of an architect's blueprint or the concrete framing of a house. HTML doesn't care about colors or animations—it strictly dictates WHAT exists (a button, a text box, a header).",
+        context: "In <code>questlog-neobrutalist.html</code>, HTML builds our <code>#cal-col</code> (calendar column), the collapsible sidebar, and the task card cards.",
+        jargon: ["Markup Language", "DOM (Document Object Model)", "Tags", "Semantic HTML"]
+      },
+      {
+        num: "02 / 07",
+        cat: "DESIGN SYSTEM",
+        catCol: "#FF6B8B",
+        icon: "🎨",
+        term: "CSS",
+        tagline: "The Styling & Aesthetic Engine",
+        backTitle: "CSS in Plain English",
+        metaphor: "The interior designer. CSS picks the wallpaper, paint colors, padding, typography, and tactile textures that turn cold concrete into an experience.",
+        context: "In lines 50–900 of our file, CSS creates our signature <strong>Neo-brutalism</strong>: thick <code>3px solid #111</code> borders, hard offset drop shadows <code>5px 5px 0 #111</code>, and Outfit typography.",
+        jargon: ["CSS Variables", "Flexbox / Grid", "Box Shadow", "Responsive Breakpoints"]
+      },
+      {
+        num: "03 / 07",
+        cat: "INTERACTIVITY",
+        catCol: "#4D96FF",
+        icon: "⚡",
+        term: "JavaScript",
+        tagline: "The Electricity & Muscle",
+        backTitle: "JavaScript in Plain English",
+        metaphor: "The electrical wiring and motors. When you press an elevator button or flip a light switch, JavaScript is the electrical current that makes things move and react.",
+        context: "JavaScript handles your drag-and-drop chips, calculates 9 AM to 10 PM timeline slots, strikes through completed habits, and pops celebratory graffiti!",
+        jargon: ["Event Listeners", "State Management (S.tasks)", "Functions", "Client-Side Logic"]
+      },
+      {
+        num: "04 / 07",
+        cat: "CLOUD BACKEND",
+        catCol: "#6BCB77",
+        icon: "🗄️",
+        term: "Supabase (Database)",
+        tagline: "The Permanent Cloud Memory",
+        backTitle: "Database in Plain English",
+        metaphor: "A super-fast, secure spreadsheet that lives in the sky. If you close your laptop, the browser forgets, but the database remembers every task forever.",
+        context: "Our Supabase project (<code>sknrridioesaapiijqfl</code>) holds your <code>tasks</code> table with columns for <code>name</code>, <code>sm</code> (start minute), and <code>user_id</code>.",
+        jargon: ["PostgreSQL", "RLS (Row-Level Security)", "Tables & Rows", "REST API"]
+      },
+      {
+        num: "05 / 07",
+        cat: "CLOUD SERVICES",
+        catCol: "#FF9F45",
+        icon: "📬",
+        term: "Webhook & Serverless",
+        tagline: "The On-Demand Digital Butler",
+        backTitle: "Webhooks in Plain English",
+        metaphor: "A smart doorbell that only rings when someone arrives. It wakes up for 200 milliseconds, accepts a delivery, places it in the fridge, and immediately goes back to sleep.",
+        context: "Our file <code>netlify/functions/whatsapp.js</code> sleeps until you text WhatsApp. It wakes up, saves 'Coffee at 3pm' to Supabase, texts you back, and costs $0 in server rent!",
+        jargon: ["Serverless (FaaS)", "Webhook POST", "Payload", "TwiML XML"]
+      },
+      {
+        num: "06 / 07",
+        cat: "ARTIFICIAL INTELLIGENCE",
+        catCol: "#9D4EDD",
+        icon: "🧠",
+        term: "Google Gemini (LLM)",
+        tagline: "The Smart Natural Translator",
+        backTitle: "LLMs in Plain English",
+        metaphor: "An executive assistant with superhuman reading speed. You speak messy conversational notes, and they convert it into a crisp calendar entry without making mistakes.",
+        context: "When you text <em>'Coffee tomorrow at 3pm for 45m'</em>, Gemini 2.5 Flash extracts: <code>{ name: 'Coffee', date: '2026-10-09', sm: 900, dm: 45 }</code>.",
+        jargon: ["Prompt Engineering", "Structured Output (JSON)", "Inference", "Token Limits"]
+      },
+      {
+        num: "07 / 07",
+        cat: "REAL-TIME SYNC",
+        catCol: "#FFE135",
+        icon: "📡",
+        term: "WebSockets & Realtime",
+        tagline: "The Live Walkie-Talkie",
+        backTitle: "Realtime in Plain English",
+        metaphor: "Instead of calling your friend every 5 seconds to ask 'Are you there yet?', you keep an open walkie-talkie line. The moment they speak, you hear it instantly.",
+        context: "Our <code>sb.channel().subscribe()</code> line keeps a live channel open so when you text WhatsApp, the task appears on your QuestLog screen without needing a refresh!",
+        jargon: ["WebSockets", "Pub/Sub", "Postgres Changes", "Live State Mutation"]
+      }
+    ];
+
+    let curIdx = 0;
+    const cardEl = document.getElementById('card');
+    const pbar = document.getElementById('pbar');
+
+    function renderCard() {
+      const c = CARDS[curIdx];
+      cardEl.classList.remove('flipped');
+
+      setTimeout(() => {
+        // Front
+        document.getElementById('cardNum').textContent = c.num;
+        document.getElementById('catBadge').textContent = c.cat;
+        document.getElementById('catBadge').style.background = c.catCol;
+        document.getElementById('cardIcon').textContent = c.icon;
+        document.getElementById('cardTerm').textContent = c.term;
+        document.getElementById('cardTagline').textContent = c.tagline;
+
+        // Back
+        document.getElementById('backNum').textContent = c.num;
+        document.getElementById('backTitle').textContent = c.backTitle;
+        document.getElementById('backMetaphor').innerHTML = c.metaphor;
+        document.getElementById('backContext').innerHTML = c.context;
+        
+        const jargonWrap = document.getElementById('backJargon');
+        jargonWrap.innerHTML = c.jargon.map(j => `<span class="jargon-pill">${j}</span>`).join('');
+
+        // Progress bar
+        pbar.style.width = ((curIdx + 1) / CARDS.length * 100) + '%';
+      }, 150);
+    }
+
+    function toggleFlip(e) {
+      if (e) e.stopPropagation();
+      cardEl.classList.toggle('flipped');
+    }
+
+    function nextCard(e) {
+      if (e) e.stopPropagation();
+      curIdx = (curIdx + 1) % CARDS.length;
+      renderCard();
+    }
+
+    function prevCard(e) {
+      if (e) e.stopPropagation();
+      curIdx = (curIdx - 1 + CARDS.length) % CARDS.length;
+      renderCard();
+    }
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') nextCard();
+      if (e.key === 'ArrowLeft') prevCard();
+      if (e.key === ' ' || e.key === 'Enter') toggleFlip();
+    });
+
+    renderCard();
+  </script>
+</body>
+</html>
