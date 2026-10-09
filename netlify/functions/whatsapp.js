@@ -1,8 +1,6 @@
 // netlify/functions/whatsapp.js
 // QuestLog WhatsApp Webhook powered by Google Gemini and Supabase
 
-const querystring = require('querystring');
-
 // Helper to decode fallback credentials safely
 function decodeKey(b64) {
   try { return Buffer.from(b64, 'base64').toString('utf8'); } catch(e) { return ''; }
@@ -14,14 +12,7 @@ const FALLBACK_SUPA_KEY = decodeKey('c2Jfc2VjcmV0X2dVdXp4QmdaU211cWxPd2lraDNaU1F
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || FALLBACK_GEMINI;
 const SUPA_URL = process.env.SUPABASE_URL || 'https://sknrridioesaapiijqfl.supabase.co';
 const SUPA_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || FALLBACK_SUPA_KEY;
-
-// User IDs for the account to guarantee it syncs whichever email is logged in
-const TARGET_USER_IDS = [
-  '2703888d-a79a-4e8b-a5ad-2b047a88998c', // 123@xyz.com
-  '4a51d743-b441-4557-a7a5-c68aa47c4fbb', // diag_test@example.com
-  '82a5ab75-9b06-41bd-b4dd-697f7d02fb06', // crramya06@gmail.com
-  '6f203b52-9942-4a94-866a-f4f233ef12a5'  // calmellow06@gmail.com
-];
+const TARGET_USER_ID = process.env.TARGET_USER_ID || '82a5ab75-9b06-41bd-b4dd-697f7d02fb06';
 
 function formatTime(min) {
   if (min == null) return 'Unscheduled';
@@ -32,13 +23,7 @@ function formatTime(min) {
   return `${displayH}:${m.toString().padStart(2, '0')} ${ampm}`;
 }
 
-function getTodayStr() {
-  const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
+const getTodayStr = () => new Date().toISOString().slice(0, 10);
 
 // Fallback rule-based parser if AI key is missing or rate limited
 function parseRuleBased(text, todayStr) {
@@ -151,7 +136,7 @@ async function insertTaskToSupabase(task, userId) {
   }
 
   const row = {
-    user_id: userId || DEFAULT_USER_ID,
+    user_id: userId || TARGET_USER_ID,
     name: task.name,
     cat: task.cat || 'personal',
     done: false,
@@ -182,7 +167,7 @@ async function insertTaskToSupabase(task, userId) {
 
 async function getTodayTasksFromSupabase(dateStr, userId) {
   if (!SUPA_KEY) return [];
-  const uid = userId || DEFAULT_USER_ID;
+  const uid = userId || TARGET_USER_ID;
   const res = await fetch(`${SUPA_URL}/rest/v1/tasks?user_id=eq.${uid}&created_for=eq.${dateStr}&order=sm.asc.nullslast`, {
     headers: {
       'apikey': SUPA_KEY,
@@ -196,7 +181,7 @@ async function getTodayTasksFromSupabase(dateStr, userId) {
 async function completeTaskInSupabase(query, userId) {
   if (!SUPA_KEY) return null;
   const today = getTodayStr();
-  const uid = userId || DEFAULT_USER_ID;
+  const uid = userId || TARGET_USER_ID;
   const res = await fetch(`${SUPA_URL}/rest/v1/tasks?user_id=eq.${uid}&created_for=eq.${today}&done=eq.false`, {
     headers: {
       'apikey': SUPA_KEY,
@@ -239,17 +224,7 @@ function twimlResponse(messageText) {
   };
 }
 
-function escapeXml(unsafe) {
-  return unsafe.replace(/[<>&'"]/g, c => {
-    switch (c) {
-      case '<': return '&lt;';
-      case '>': return '&gt;';
-      case '&': return '&amp;';
-      case '\'': return '&apos;';
-      case '"': return '&quot;';
-    }
-  });
-}
+const escapeXml = s => String(s).replace(/[<>&'"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c]));
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'GET') {
@@ -269,13 +244,8 @@ exports.handler = async (event) => {
   }
 
   try {
-    let body = {};
-    if (event.isBase64Encoded) {
-      const buff = Buffer.from(event.body, 'base64');
-      body = querystring.parse(buff.toString('utf8'));
-    } else if (typeof event.body === 'string') {
-      body = querystring.parse(event.body);
-    }
+    const raw = event.isBase64Encoded ? Buffer.from(event.body, 'base64').toString('utf8') : (event.body || '');
+    const body = Object.fromEntries(new URLSearchParams(raw));
 
     const fromNumber = body.From || '';
     const incomingText = (body.Body || '').trim();
@@ -291,7 +261,7 @@ exports.handler = async (event) => {
 
     // 1. "today" or "list"
     if (lower === 'today' || lower === 'list' || lower === 'schedule') {
-      const list = await getTodayTasksFromSupabase(todayStr, DEFAULT_USER_ID);
+      const list = await getTodayTasksFromSupabase(todayStr, TARGET_USER_ID);
       if (!list || !list.length) {
         return twimlResponse(`QUESTLOG ───\nNo tasks scheduled for today yet.\n\nReply with any task to add one (e.g. "Meeting at 2pm")!`);
       }
@@ -306,7 +276,7 @@ exports.handler = async (event) => {
     // 2. "done <name or number>"
     if (lower.startsWith('done ') || lower.startsWith('finish ')) {
       const q = incomingText.replace(/^(done|finish)\s+/i, '').trim();
-      const completed = await completeTaskInSupabase(q, DEFAULT_USER_ID);
+      const completed = await completeTaskInSupabase(q, TARGET_USER_ID);
       if (completed) {
         return twimlResponse(`QUESTLOG ───\n[DONE] Marked complete: "${completed.name}"`);
       } else {
@@ -319,7 +289,7 @@ exports.handler = async (event) => {
     console.log('Parsed intent:', JSON.stringify(parsed));
 
     if (parsed.intent === 'LIST_TASKS') {
-      const list = await getTodayTasksFromSupabase(todayStr, DEFAULT_USER_ID);
+      const list = await getTodayTasksFromSupabase(todayStr, TARGET_USER_ID);
       if (!list || !list.length) {
         return twimlResponse(`QUESTLOG ───\nNo tasks scheduled for today.\nSend a message to add one!`);
       }
@@ -328,7 +298,7 @@ exports.handler = async (event) => {
     }
 
     if (parsed.intent === 'COMPLETE_TASK') {
-      const completed = await completeTaskInSupabase(parsed.searchQuery || parsed.task?.name || '', DEFAULT_USER_ID);
+      const completed = await completeTaskInSupabase(parsed.searchQuery || parsed.task?.name || '', TARGET_USER_ID);
       if (completed) {
         return twimlResponse(`QUESTLOG ───\n[DONE] Completed: "${completed.name}"`);
       }
@@ -343,14 +313,8 @@ exports.handler = async (event) => {
       cat: 'personal'
     };
 
-    // Insert for all user accounts so no user ID is missed
-    for (const uid of TARGET_USER_IDS) {
-      try {
-        await insertTaskToSupabase(taskData, uid);
-      } catch(err) {
-        console.warn('Failed insert for uid:', uid, err.message);
-      }
-    }
+    // Save directly to target user account
+    await insertTaskToSupabase(taskData, TARGET_USER_ID);
 
     const timeLabel = taskData.sm != null ? ` at ${formatTime(taskData.sm)} (${taskData.dm || 60}m)` : ` (${taskData.dm || 60}m unscheduled)`;
     const dateLabel = taskData.date === todayStr ? 'Today' : taskData.date;

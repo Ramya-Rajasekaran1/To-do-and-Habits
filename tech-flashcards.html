@@ -2581,23 +2581,6 @@ Content-Type: text/xml
       setFlowStep(0);
     }
 
-    // BACKWARD COMPATIBLE NODE INSPECTOR CALL
-    function selectArchNode(key) {
-      const map = {
-        'user': 0,
-        'twilio': 1,
-        'netlify': 2,
-        'gemini': 2,
-        'supabase': 3,
-        'realtime': 5,
-        'browser': 6,
-        'questlog': 6
-      };
-      if (map[key] !== undefined) {
-        setFlowStep(map[key]);
-      }
-    }
-
     renderCard();
 
     // Check if URL has ?tab=arch
