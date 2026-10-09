@@ -15,8 +15,13 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY || FALLBACK_GEMINI;
 const SUPA_URL = process.env.SUPABASE_URL || 'https://sknrridioesaapiijqfl.supabase.co';
 const SUPA_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || FALLBACK_SUPA_KEY;
 
-// Default user ID for +91 7708914559
-const DEFAULT_USER_ID = '4a51d743-b441-4557-a7a5-c68aa47c4fbb';
+// User IDs for the account to guarantee it syncs whichever email is logged in
+const TARGET_USER_IDS = [
+  '2703888d-a79a-4e8b-a5ad-2b047a88998c', // 123@xyz.com
+  '4a51d743-b441-4557-a7a5-c68aa47c4fbb', // diag_test@example.com
+  '82a5ab75-9b06-41bd-b4dd-697f7d02fb06', // crramya06@gmail.com
+  '6f203b52-9942-4a94-866a-f4f233ef12a5'  // calmellow06@gmail.com
+];
 
 function formatTime(min) {
   if (min == null) return 'Unscheduled';
@@ -338,7 +343,14 @@ exports.handler = async (event) => {
       cat: 'personal'
     };
 
-    await insertTaskToSupabase(taskData, DEFAULT_USER_ID);
+    // Insert for all user accounts so no user ID is missed
+    for (const uid of TARGET_USER_IDS) {
+      try {
+        await insertTaskToSupabase(taskData, uid);
+      } catch(err) {
+        console.warn('Failed insert for uid:', uid, err.message);
+      }
+    }
 
     const timeLabel = taskData.sm != null ? ` at ${formatTime(taskData.sm)} (${taskData.dm || 60}m)` : ` (${taskData.dm || 60}m unscheduled)`;
     const dateLabel = taskData.date === todayStr ? 'Today' : taskData.date;
