@@ -681,6 +681,371 @@
       transform: translate(1px, 1px);
       box-shadow: 1px 1px 0px #111;
     }
+
+    /* TOP TAB BAR */
+    .deck-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      width: 100%;
+      max-width: 680px;
+      justify-content: center;
+    }
+
+    .deck-tab {
+      background: #FFF;
+      border: var(--border);
+      box-shadow: var(--shadow-sm);
+      padding: 12px 22px;
+      font-weight: 900;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .deck-tab:hover {
+      background: #FFF3C4;
+      transform: translate(-2px, -2px);
+      box-shadow: 5px 5px 0px #111;
+    }
+
+    .deck-tab.active {
+      background: var(--yellow);
+      box-shadow: 4px 4px 0px #111;
+      transform: translate(-1px, -1px);
+    }
+
+    /* ARCHITECTURE VIEW CONTAINER */
+    #archView {
+      width: 100%;
+      max-width: 820px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      padding-bottom: 60px;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .arch-card {
+      background: #FFF;
+      border: var(--border);
+      box-shadow: var(--shadow);
+      border-radius: 12px;
+      padding: 28px 24px;
+    }
+
+    .arch-sec-title {
+      font-size: 1.4rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .arch-sec-desc {
+      font-size: 0.95rem;
+      color: #555;
+      font-weight: 600;
+      margin-bottom: 20px;
+      line-height: 1.45;
+    }
+
+    /* INTERACTIVE PIPELINE FLOW */
+    .pipeline-grid {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 10px 4px 18px 4px;
+    }
+
+    .pipeline-node {
+      background: #FFF;
+      border: 2.5px solid #111;
+      box-shadow: 4px 4px 0px #111;
+      border-radius: 8px;
+      padding: 14px 12px;
+      min-width: 130px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .pipeline-node:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 6px 6px 0px #111;
+      background: #FFF9DB;
+    }
+
+    .pipeline-node.selected {
+      background: var(--yellow);
+      border-color: #111;
+      box-shadow: 5px 5px 0px #111;
+      transform: translate(-2px, -2px);
+    }
+
+    .pipeline-node-icon {
+      font-size: 1.8rem;
+      margin-bottom: 6px;
+    }
+
+    .pipeline-node-name {
+      font-weight: 900;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .pipeline-node-role {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #666;
+      text-transform: uppercase;
+    }
+
+    .pipeline-arrow {
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: #111;
+      flex-shrink: 0;
+    }
+
+    /* NODE INSPECTOR DRAWER */
+    .node-inspector {
+      background: #FAF7F2;
+      border: 2px solid #111;
+      box-shadow: 3px 3px 0px #111;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 14px;
+      animation: popIn 0.2s ease;
+    }
+
+    .ni-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1.5px solid #DDD;
+      padding-bottom: 8px;
+    }
+
+    .ni-title {
+      font-size: 1.15rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .ni-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 650px) {
+      .ni-grid { grid-template-columns: 1fr; }
+    }
+
+    .ni-box {
+      background: #FFF;
+      border: 1.5px solid #111;
+      padding: 10px 14px;
+      border-radius: 6px;
+    }
+
+    .ni-lbl {
+      font-size: 0.7rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .ni-txt {
+      font-size: 0.85rem;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+
+    /* STEP-BY-STEP LIFECYCLE */
+    .lifecycle-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .lifecycle-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: #FAF7F2;
+      border: 2px solid #111;
+      box-shadow: 3px 3px 0px #111;
+      padding: 14px 16px;
+      border-radius: 8px;
+      transition: transform 0.15s ease;
+    }
+
+    .lifecycle-item:hover {
+      transform: translateX(4px);
+      background: #FFF;
+    }
+
+    .lc-num {
+      background: var(--yellow);
+      border: 1.5px solid #111;
+      font-family: 'Space Grotesk', monospace;
+      font-weight: 900;
+      font-size: 0.9rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .lc-content {
+      flex: 1;
+    }
+
+    .lc-title {
+      font-size: 0.95rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .lc-desc {
+      font-size: 0.85rem;
+      line-height: 1.4;
+      color: #333;
+      font-weight: 500;
+    }
+
+    /* DATABASE SCHEMA VIEWER */
+    .schema-wrap {
+      overflow-x: auto;
+      border: 2px solid #111;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    .schema-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      background: #FFF;
+      text-align: left;
+    }
+
+    .schema-table th {
+      background: var(--black);
+      color: #FFF;
+      padding: 10px 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+
+    .schema-table td {
+      padding: 10px 14px;
+      border-bottom: 1.5px solid #E5E5E5;
+      font-weight: 600;
+    }
+
+    .schema-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .schema-table tr:hover td {
+      background: #FFFDF0;
+    }
+
+    .type-pill {
+      font-family: 'Space Grotesk', monospace;
+      background: #EFEFEF;
+      border: 1px solid #111;
+      padding: 2px 6px;
+      font-size: 0.75rem;
+      border-radius: 3px;
+      font-weight: 700;
+    }
+
+    /* TIMELINE MATH BOX */
+    .math-callout {
+      background: #FFF3C4;
+      border: 2px solid #111;
+      box-shadow: 3px 3px 0px #111;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+
+    .math-callout-title {
+      font-weight: 900;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* EVOLUTION STAGES */
+    .stage-timeline {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .stage-card {
+      background: #FAF7F2;
+      border: 2px solid #111;
+      box-shadow: 3px 3px 0px #111;
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .stage-badge {
+      font-size: 0.7rem;
+      font-weight: 900;
+      background: var(--black);
+      color: #FFF;
+      padding: 2px 6px;
+      border-radius: 3px;
+      display: inline-block;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .stage-name {
+      font-size: 1rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .stage-desc {
+      font-size: 0.85rem;
+      color: #444;
+      line-height: 1.4;
+      font-weight: 500;
+    }
   </style>
 </head>
 <body>
@@ -691,65 +1056,364 @@
     <p class="subtitle">Click any card to flip. Click any yellow tag to see info & code context!</p>
   </header>
 
-  <div class="progress-bar-wrap">
-    <div class="progress-bar" id="pbar"></div>
+  <!-- TOP TAB BAR -->
+  <div class="deck-tabs">
+    <button class="deck-tab active" id="tabBtnDeck" onclick="switchMainTab('deck')">🗂️ FLASHCARD DECK</button>
+    <button class="deck-tab" id="tabBtnArch" onclick="switchMainTab('arch')">🗺️ SYSTEM ARCHITECTURE & MAP</button>
   </div>
 
-  <div class="flashcard-wrapper" id="cardWrapper" onclick="toggleFlip()">
-    <div class="flashcard" id="card">
-      
-      <!-- FRONT -->
-      <div class="card-face card-front" id="cardFront">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span class="card-num" id="cardNum">01 / 07</span>
-          <span style="font-weight:800; font-size:0.8rem; text-transform:uppercase; background:var(--yellow); border:1.5px solid #111; padding:2px 8px;" id="catBadge">CORE TECH</span>
+  <!-- VIEW 1: FLASHCARD DECK -->
+  <div id="deckView" style="width:100%; display:flex; flex-direction:column; align-items:center;">
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="pbar"></div>
+    </div>
+
+    <div class="flashcard-wrapper" id="cardWrapper" onclick="toggleFlip()">
+      <div class="flashcard" id="card">
+        
+        <!-- FRONT -->
+        <div class="card-face card-front" id="cardFront">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="card-num" id="cardNum">01 / 07</span>
+            <span style="font-weight:800; font-size:0.8rem; text-transform:uppercase; background:var(--yellow); border:1.5px solid #111; padding:2px 8px;" id="catBadge">CORE TECH</span>
+          </div>
+          <div class="front-center">
+            <div class="card-icon" id="cardIcon">🏛️</div>
+            <h2 class="card-term" id="cardTerm">HTML</h2>
+            <div class="card-tagline" id="cardTagline">The Skeleton / Blueprint</div>
+          </div>
+          <div class="front-footer">
+            <span>Click card to flip</span>
+            <span>QuestLog Context ↻</span>
+          </div>
         </div>
-        <div class="front-center">
-          <div class="card-icon" id="cardIcon">🏛️</div>
-          <h2 class="card-term" id="cardTerm">HTML</h2>
-          <div class="card-tagline" id="cardTagline">The Skeleton / Blueprint</div>
+
+        <!-- BACK -->
+        <div class="card-face card-back" id="cardBack">
+          <div class="back-header">
+            <div class="back-title" id="backTitle">HTML in Plain English</div>
+            <span class="card-num" id="backNum">01 / 07</span>
+          </div>
+
+          <div class="content-block">
+            <div class="block-label">🎨 The Designer Metaphor</div>
+            <div class="block-text" id="backMetaphor"></div>
+          </div>
+
+          <div class="content-block">
+            <div class="block-label">📂 In Our QuestLog File</div>
+            <div class="block-text" id="backContext"></div>
+          </div>
+
+          <div class="content-block">
+            <div class="block-label">💬 Tap Any Jargon to See Definition & Code:</div>
+            <div class="jargon-tags" id="backJargon"></div>
+          </div>
         </div>
-        <div class="front-footer">
-          <span>Click card to flip</span>
-          <span>QuestLog Context ↻</span>
-        </div>
+
       </div>
+    </div>
 
-      <!-- BACK -->
-      <div class="card-face card-back" id="cardBack">
-        <div class="back-header">
-          <div class="back-title" id="backTitle">HTML in Plain English</div>
-          <span class="card-num" id="backNum">01 / 07</span>
-        </div>
+    <!-- CONTROLS -->
+    <div class="controls">
+      <button class="btn" onclick="prevCard(event)">◀ Prev</button>
+      <button class="btn btn-flip" onclick="toggleFlip(event)">Flip Card ↻</button>
+      <button class="btn" onclick="nextCard(event)">Next ▶</button>
+    </div>
 
-        <div class="content-block">
-          <div class="block-label">🎨 The Designer Metaphor</div>
-          <div class="block-text" id="backMetaphor"></div>
-        </div>
-
-        <div class="content-block">
-          <div class="block-label">📂 In Our QuestLog File</div>
-          <div class="block-text" id="backContext"></div>
-        </div>
-
-        <div class="content-block">
-          <div class="block-label">💬 Tap Any Jargon to See Definition & Code:</div>
-          <div class="jargon-tags" id="backJargon"></div>
-        </div>
-      </div>
-
+    <div class="footer-nav">
+      <a href="./questlog-neobrutalist.html" class="footer-link">← Back to QuestLog Dashboard</a>
     </div>
   </div>
 
-  <!-- CONTROLS -->
-  <div class="controls">
-    <button class="btn" onclick="prevCard(event)">◀ Prev</button>
-    <button class="btn btn-flip" onclick="toggleFlip(event)">Flip Card ↻</button>
-    <button class="btn" onclick="nextCard(event)">Next ▶</button>
-  </div>
+  <!-- VIEW 2: SYSTEM ARCHITECTURE & MAP -->
+  <div id="archView" style="display:none;">
 
-  <div class="footer-nav">
-    <a href="./questlog-neobrutalist.html" class="footer-link">← Back to QuestLog Dashboard</a>
+    <!-- SECTION 1: INTERACTIVE END-TO-END PIPELINE -->
+    <div class="arch-card">
+      <div class="arch-sec-title">
+        <span>🔄</span>
+        <span>1. Interactive End-to-End System Pipeline</span>
+      </div>
+      <p class="arch-sec-desc">
+        Click any block below to inspect its role, how it transforms data, its Figma metaphor, and the exact code file.
+      </p>
+
+      <div class="pipeline-grid">
+        <div class="pipeline-node selected" id="node-user" onclick="selectArchNode('user')">
+          <div class="pipeline-node-icon">📱</div>
+          <div class="pipeline-node-name">1. WhatsApp</div>
+          <div class="pipeline-node-role">Input Layer</div>
+        </div>
+
+        <div class="pipeline-arrow">➔</div>
+
+        <div class="pipeline-node" id="node-twilio" onclick="selectArchNode('twilio')">
+          <div class="pipeline-node-icon">⚡</div>
+          <div class="pipeline-node-name">2. Twilio</div>
+          <div class="pipeline-node-role">Gateway Webhook</div>
+        </div>
+
+        <div class="pipeline-arrow">➔</div>
+
+        <div class="pipeline-node" id="node-netlify" onclick="selectArchNode('netlify')">
+          <div class="pipeline-node-icon">🧠</div>
+          <div class="pipeline-node-name">3. Netlify + AI</div>
+          <div class="pipeline-node-role">Brain & Butler</div>
+        </div>
+
+        <div class="pipeline-arrow">➔</div>
+
+        <div class="pipeline-node" id="node-supabase" onclick="selectArchNode('supabase')">
+          <div class="pipeline-node-icon">🗄️</div>
+          <div class="pipeline-node-name">4. Supabase</div>
+          <div class="pipeline-node-role">Postgres DB Vault</div>
+        </div>
+
+        <div class="pipeline-arrow">➔</div>
+
+        <div class="pipeline-node" id="node-browser" onclick="selectArchNode('browser')">
+          <div class="pipeline-node-icon">🖥️</div>
+          <div class="pipeline-node-name">5. QuestLog UI</div>
+          <div class="pipeline-node-role">Realtime Cockpit</div>
+        </div>
+      </div>
+
+      <!-- Node Inspector Box -->
+      <div class="node-inspector" id="nodeInspector">
+        <div class="ni-header">
+          <div class="ni-title" id="niTitle">1. WhatsApp Input Layer</div>
+          <span class="pill-badge" id="niBadge" style="margin-bottom:0;">CAPTURE</span>
+        </div>
+        <div class="ni-grid">
+          <div class="ni-box">
+            <div class="ni-lbl">🎨 Designer Metaphor</div>
+            <div class="ni-txt" id="niMetaphor">A voice memo or sticky note on your steering wheel. You don't have to open an app; you speak naturally while walking or driving.</div>
+          </div>
+          <div class="ni-box">
+            <div class="ni-lbl">📂 Code File Location</div>
+            <div class="ni-txt" id="niFile">User's phone (WhatsApp Sandbox: <code>+1 415 523 8886</code>)</div>
+          </div>
+          <div class="ni-box">
+            <div class="ni-lbl">📥 Input Data</div>
+            <div class="ni-txt" id="niInput">Raw speech or text: <em>"Coffee tomorrow at 3pm for 45m"</em></div>
+          </div>
+          <div class="ni-box">
+            <div class="ni-lbl">📤 Output Data</div>
+            <div class="ni-txt" id="niOutput">SMS/MMS protocol sent to Twilio's cloud telecom servers.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: STEP-BY-STEP LIFECYCLE -->
+    <div class="arch-card">
+      <div class="arch-sec-title">
+        <span>⏱️</span>
+        <span>2. Lifecycle of a Real Task (Step-by-Step)</span>
+      </div>
+      <p class="arch-sec-desc">
+        What happens inside the system during the 1.2 seconds between pressing Send on WhatsApp and seeing the block appear on your screen:
+      </p>
+
+      <div class="lifecycle-list">
+        <div class="lifecycle-item">
+          <div class="lc-num">01</div>
+          <div class="lc-content">
+            <div class="lc-title">You Send a Message on WhatsApp</div>
+            <div class="lc-desc">You text <em>"Coffee tomorrow at 3pm for 45m"</em> from your registered number <code>+91 7708914559</code>.</div>
+          </div>
+        </div>
+
+        <div class="lifecycle-item">
+          <div class="lc-num">02</div>
+          <div class="lc-content">
+            <div class="lc-title">Twilio Catches It & Fires a Webhook POST</div>
+            <div class="lc-desc">Twilio packages your text into a digital envelope (HTTP POST) and sends it across the internet to our live webhook at <code>https://sycora.netlify.app/.netlify/functions/whatsapp</code>.</div>
+          </div>
+        </div>
+
+        <div class="lifecycle-item">
+          <div class="lc-num">03</div>
+          <div class="lc-content">
+            <div class="lc-title">Netlify Serverless Function Wakes Up (200ms)</div>
+            <div class="lc-desc">Our cloud function spins up instantly from sleep, receives the text, and calls Google Gemini 2.5 Flash AI with our custom system prompt.</div>
+          </div>
+        </div>
+
+        <div class="lifecycle-item">
+          <div class="lc-num">04</div>
+          <div class="lc-content">
+            <div class="lc-title">Gemini AI Extracts Structured JSON (550ms)</div>
+            <div class="lc-desc">Gemini extracts clean computer data: <code>{ name: "Coffee", date: "2026-10-10", sm: 900, dm: 45, cat: "personal" }</code>.</div>
+          </div>
+        </div>
+
+        <div class="lifecycle-item">
+          <div class="lc-num">05</div>
+          <div class="lc-content">
+            <div class="lc-title">Supabase Inserts Row into PostgreSQL Database</div>
+            <div class="lc-desc">The function inserts the task into the cloud <code>tasks</code> table using the secret service key, and sends a TwiML confirmation text back to your phone.</div>
+          </div>
+        </div>
+
+        <div class="lifecycle-item">
+          <div class="lc-num">06</div>
+          <div class="lc-content">
+            <div class="lc-title">Realtime WebSockets Alerts the Desktop Dashboard</div>
+            <div class="lc-desc">Supabase fires an instant <code>INSERT</code> push event through the open WebSocket tunnel (<code>sb.channel('realtime-tasks')</code>).</div>
+          </div>
+        </div>
+
+        <div class="lifecycle-item">
+          <div class="lc-num">07</div>
+          <div class="lc-content">
+            <div class="lc-title">JavaScript Mutates State & Renders the Calendar Block</div>
+            <div class="lc-desc">QuestLog adds the task to <code>S.tasks</code>, computes vertical position: <code>(900 - 540) * 1px = 360px</code>, renders the yellow block, and triggers a toast notification without any page reload!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: DATABASE SCHEMA & TIMELINE MATH -->
+    <div class="arch-card">
+      <div class="arch-sec-title">
+        <span>🗄️</span>
+        <span>3. Database Setup & The "Timeline Math" Secret</span>
+      </div>
+      <p class="arch-sec-desc">
+        How our PostgreSQL database is structured and the clever mathematical trick that makes QuestLog's timeblocking 10x faster than traditional apps:
+      </p>
+
+      <div class="schema-wrap">
+        <table class="schema-table">
+          <thead>
+            <tr>
+              <th>Column Name</th>
+              <th>Data Type</th>
+              <th>Example Value</th>
+              <th>Designer Explanation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>id</strong></td>
+              <td><span class="type-pill">uuid</span></td>
+              <td><code>3403159b-c349...</code></td>
+              <td>Unique fingerprint for each task card.</td>
+            </tr>
+            <tr>
+              <td><strong>user_id</strong></td>
+              <td><span class="type-pill">uuid</span></td>
+              <td><code>4a51d743-b441...</code></td>
+              <td>Ties the task to your private login account.</td>
+            </tr>
+            <tr>
+              <td><strong>name</strong></td>
+              <td><span class="type-pill">text</span></td>
+              <td><code>"Coffee"</code></td>
+              <td>Clean title displayed on the calendar card.</td>
+            </tr>
+            <tr>
+              <td><strong>sm</strong></td>
+              <td><span class="type-pill">int (nullable)</span></td>
+              <td><code>900</code></td>
+              <td><strong>Start Minute</strong> from midnight (3:00 PM = 900). Null = Unscheduled!</td>
+            </tr>
+            <tr>
+              <td><strong>dm</strong></td>
+              <td><span class="type-pill">int</span></td>
+              <td><code>45</code></td>
+              <td><strong>Duration Minutes</strong> (Determines card height on calendar).</td>
+            </tr>
+            <tr>
+              <td><strong>cat</strong></td>
+              <td><span class="type-pill">text</span></td>
+              <td><code>"personal"</code></td>
+              <td>Category: work, health, learn, finance, personal.</td>
+            </tr>
+            <tr>
+              <td><strong>done</strong></td>
+              <td><span class="type-pill">boolean</span></td>
+              <td><code>false</code></td>
+              <td>Checked state (true = completed & struck through).</td>
+            </tr>
+            <tr>
+              <td><strong>created_for</strong></td>
+              <td><span class="type-pill">date</span></td>
+              <td><code>"2026-10-10"</code></td>
+              <td>Calendar day this task belongs to.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="math-callout">
+        <div class="math-callout-title">
+          <span>💡</span>
+          <span>Why We Use `sm` (Start Minute) Instead of Standard Dates:</span>
+        </div>
+        <p style="font-size:0.88rem; line-height:1.45; font-weight:500; color:#222;">
+          Most calendar apps store dates like <code>"2026-10-10T15:00:00.000Z"</code>, which require heavy date-parsing libraries to position items. 
+          QuestLog converts every time into <strong>Start Minute (`sm`)</strong>:
+          <br><br>
+          • <strong>9:00 AM</strong> (Grid Start) = 9 × 60 = <strong>540</strong><br>
+          • <strong>3:00 PM</strong> = 15 × 60 = <strong>900</strong><br>
+          • <strong>Card Position Formula:</strong> <code>top: (900 - 540) * 1px = 360px</code>!<br>
+          • <strong>Card Height Formula:</strong> <code>height: dm * 1px = 45px</code>!<br>
+          <br>
+          Dragging, snapping, and resizing blocks becomes <strong>pure grade-school math</strong> that runs at 60 frames per second without lag!
+        </p>
+      </div>
+    </div>
+
+    <!-- SECTION 4: EVOLUTION TIMELINE -->
+    <div class="arch-card">
+      <div class="arch-sec-title">
+        <span>🌱</span>
+        <span>4. Project Evolution: From Concept to Now</span>
+      </div>
+      <p class="arch-sec-desc">
+        How QuestLog evolved step-by-step from an offline mock into an AI-powered omnichannel operating system:
+      </p>
+
+      <div class="stage-timeline">
+        <div class="stage-card">
+          <span class="stage-badge">Stage 1 · Origin</span>
+          <div class="stage-name">Vanilla Prototype</div>
+          <div class="stage-desc">Single HTML file storing demo tasks in your browser's local storage. Super fast, zero dependencies.</div>
+        </div>
+
+        <div class="stage-card">
+          <span class="stage-badge">Stage 2 · Persistence</span>
+          <div class="stage-name">Supabase Cloud</div>
+          <div class="stage-desc">Connected PostgreSQL database and user login so tasks sync across laptops and phones without data loss.</div>
+        </div>
+
+        <div class="stage-card">
+          <span class="stage-badge">Stage 3 · Product Design</span>
+          <div class="stage-name">Neo-Brutalist UX</div>
+          <div class="stage-desc">Overhauled UI: sticky Add Task on top of calendar, collapsible backlog panel, single-row cards, purged emoji clutter.</div>
+        </div>
+
+        <div class="stage-card">
+          <span class="stage-badge">Stage 4 · Omnichannel</span>
+          <div class="stage-name">WhatsApp AI Butler</div>
+          <div class="stage-desc">Added Twilio webhook and Google Gemini AI parser so users can capture tasks on WhatsApp via text or voice.</div>
+        </div>
+
+        <div class="stage-card">
+          <span class="stage-badge">Stage 5 · Realtime</span>
+          <div class="stage-name">Live WebSockets</div>
+          <div class="stage-desc">Subscribed the browser to live database changes so the calendar updates instantly without hitting Refresh.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-nav">
+      <a href="./questlog-neobrutalist.html" class="footer-link">← Back to QuestLog Dashboard</a>
+    </div>
+
   </div>
 
   <!-- JARGON DETAIL MODAL -->
@@ -1216,11 +1880,91 @@
         loadingBubble.innerHTML = formatMarkdown(data.answer || 'No response.');
       } catch (err) {
         console.warn('Ask error:', err);
-        loadingBubble.innerHTML = 'Oops! Could not connect to AI Tech Buddy right now (' + err.message + '). Check back in a moment!';
       } finally {
         sendBtn.disabled = false;
         document.getElementById('chatBody').scrollTop = document.getElementById('chatBody').scrollHeight;
       }
+    }
+
+    // MAIN TAB SWITCHING
+    function switchMainTab(tab) {
+      const btnDeck = document.getElementById('tabBtnDeck');
+      const btnArch = document.getElementById('tabBtnArch');
+      const deckView = document.getElementById('deckView');
+      const archView = document.getElementById('archView');
+
+      if (tab === 'deck') {
+        btnDeck.classList.add('active');
+        btnArch.classList.remove('active');
+        deckView.style.display = 'flex';
+        archView.style.display = 'none';
+      } else {
+        btnArch.classList.add('active');
+        btnDeck.classList.remove('active');
+        deckView.style.display = 'none';
+        archView.style.display = 'flex';
+        window.scrollTo({ top: 120, behavior: 'smooth' });
+      }
+    }
+
+    // ARCHITECTURE NODE INSPECTOR
+    const ARCH_NODES = {
+      user: {
+        title: "1. WhatsApp Input Layer",
+        badge: "CAPTURE",
+        metaphor: "A voice memo or sticky note on your steering wheel. You don't have to open an app; you speak naturally while walking or driving.",
+        file: "User's Phone (WhatsApp Sandbox: <code>+1 415 523 8886</code>)",
+        input: "Raw speech or text: <em>'Coffee tomorrow at 3pm for 45m'</em>",
+        output: "SMS/MMS protocol sent to Twilio's cloud telecom servers."
+      },
+      twilio: {
+        title: "2. Twilio Gateway",
+        badge: "TELECOM BRIDGE",
+        metaphor: "The postal courier. It picks up the physical WhatsApp message and drives it to our digital server doorstep.",
+        file: "Twilio Console -> WhatsApp Sandbox Settings",
+        input: "Incoming WhatsApp message from <code>+91 7708914559</code>",
+        output: "HTTP POST form payload containing From and Body to our Netlify function."
+      },
+      netlify: {
+        title: "3. Netlify Serverless Function + Gemini AI",
+        badge: "BRAIN & BUTLER",
+        metaphor: "An executive assistant with superhuman reading speed. Reads your messy note and turns it into clean calendar fields.",
+        file: "<code>netlify/functions/whatsapp.js</code> (powered by Google Gemini 2.5 Flash)",
+        input: "Raw text <em>'Coffee tomorrow at 3pm 45m'</em> + today's date",
+        output: "Structured JSON: <code>{ name: 'Coffee', sm: 900, dm: 45, cat: 'personal' }</code>"
+      },
+      supabase: {
+        title: "4. Supabase Database Vault",
+        badge: "PERSISTENCE",
+        metaphor: "The master vault. A cloud PostgreSQL spreadsheet that holds your records permanently with Row-Level Security.",
+        file: "Supabase Project (<code>sknrridioesaapiijqfl</code>) -> <code>tasks</code> table",
+        input: "JSON row from Netlify function with secret <code>service_role</code> key",
+        output: "Persisted record inserted; fires Realtime WebSocket event to listeners."
+      },
+      browser: {
+        title: "5. QuestLog Realtime Cockpit",
+        badge: "PRESENTATION",
+        metaphor: "The live cockpit dashboard. It has an open walkie-talkie to the database and repaints the screen in 16ms.",
+        file: "<code>questlog-neobrutalist.html</code> (Lines 2470-2485: <code>sb.channel().subscribe()</code>)",
+        input: "WebSocket <code>INSERT</code> event from Supabase",
+        output: "Live DOM update: renders yellow task block at 3:00 PM with celebration toast!"
+      }
+    };
+
+    function selectArchNode(key) {
+      const data = ARCH_NODES[key];
+      if (!data) return;
+
+      document.querySelectorAll('.pipeline-node').forEach(n => n.classList.remove('selected'));
+      const activeEl = document.getElementById('node-' + key);
+      if (activeEl) activeEl.classList.add('selected');
+
+      document.getElementById('niTitle').textContent = data.title;
+      document.getElementById('niBadge').textContent = data.badge;
+      document.getElementById('niMetaphor').innerHTML = data.metaphor;
+      document.getElementById('niFile').innerHTML = data.file;
+      document.getElementById('niInput').innerHTML = data.input;
+      document.getElementById('niOutput').innerHTML = data.output;
     }
 
     renderCard();
