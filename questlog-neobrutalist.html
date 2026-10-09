@@ -2227,34 +2227,104 @@ function drawGraffiti() {
   gTags = gTags.filter(t => t.life > 0);
   for (const t of gTags) {
     const age = (now - t.born) / 1000;
-    t.life = Math.max(0, 1 - Math.max(0, age - 1.2) / 1.0);
-    t.x += t.vx; t.y += t.vy; t.vy += .09;
+    // Snappy 1.8s total lifetime with graceful fade
+    t.life = Math.max(0, 1 - Math.max(0, age - 0.9) / 0.8);
+    t.x += t.vx; 
+    t.y += t.vy; 
+    t.vy += 0.08;
     const alpha = Math.min(1, t.life * 2.5);
-    GX.save(); GX.globalAlpha = alpha; GX.translate(t.x, t.y); GX.rotate(t.angle);
+    
+    // Snappy entrance pop scale
+    const scale = age < 0.12 ? (age / 0.12) * 1.15 : (age < 0.22 ? 1.15 - (age - 0.12) * 1.5 : 1);
+
+    GX.save();
+    GX.globalAlpha = alpha;
+    GX.translate(t.x, t.y);
+    GX.rotate(t.angle);
+    GX.scale(scale, scale);
+
+    // 1. Spray paint splatter dots
     for (const d of t.dots) {
-      GX.beginPath(); GX.arc(d.ox, d.oy, d.r, 0, Math.PI * 2); GX.fillStyle = t.fill; GX.globalAlpha = alpha * d.a; GX.fill();
+      GX.beginPath();
+      GX.arc(d.ox, d.oy, d.r, 0, Math.PI * 2);
+      GX.fillStyle = t.fill;
+      GX.globalAlpha = alpha * d.a;
+      GX.fill();
     }
     GX.globalAlpha = alpha;
-    const dripY = t.size * .52;
+
+    // 2. Bold Street-Art Text
+    GX.font = `900 ${t.size}px 'Space Grotesk', Impact, system-ui, sans-serif`;
+    GX.textAlign = 'center';
+    GX.textBaseline = 'middle';
+
+    // 3D Offset shadow
+    GX.fillStyle = '#111';
+    GX.fillText(t.word, 4, 4);
+
+    // Thick black outline
+    GX.lineWidth = 7;
+    GX.lineJoin = 'miter';
+    GX.strokeStyle = t.outline || '#111';
+    GX.strokeText(t.word, 0, 0);
+
+    // Vibrant neon fill
+    GX.fillStyle = t.fill;
+    GX.fillText(t.word, 0, 0);
+
+    // Highlight sheen
+    GX.lineWidth = 1.5;
+    GX.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+    GX.strokeText(t.word, -1, -1);
+
+    // 3. Paint Drips
+    const dripY = t.size * 0.45;
     for (const d of t.drips) {
-      d.prog = Math.min(1, d.prog + d.spd); const dLen = d.len * d.prog;
-      GX.beginPath(); GX.moveTo(d.ox, dripY); GX.bezierCurveTo(d.ox + d.w * .5, dripY + dLen * .3, d.ox - d.w * .3, dripY + dLen * .7, d.ox, dripY + dLen);
-      GX.lineWidth = d.w; GX.lineCap = 'round'; GX.strokeStyle = t.fill; GX.stroke();
-      GX.beginPath(); GX.arc(d.ox, dripY + dLen, d.w * .7, 0, Math.PI * 2); GX.fillStyle = t.fill; GX.fill();
+      d.prog = Math.min(1, d.prog + d.spd);
+      const dLen = d.len * d.prog;
+      GX.beginPath();
+      GX.moveTo(d.ox, dripY);
+      GX.bezierCurveTo(d.ox + d.w * 0.5, dripY + dLen * 0.3, d.ox - d.w * 0.3, dripY + dLen * 0.7, d.ox, dripY + dLen);
+      GX.lineWidth = d.w;
+      GX.lineCap = 'round';
+      GX.strokeStyle = t.fill;
+      GX.stroke();
+      GX.beginPath();
+      GX.arc(d.ox, dripY + dLen, d.w * 0.7, 0, Math.PI * 2);
+      GX.fillStyle = t.fill;
+      GX.fill();
     }
+
     GX.restore();
   }
   requestAnimationFrame(drawGraffiti);
 }
 requestAnimationFrame(drawGraffiti);
 
-function burstGraffiti(el) {
-  const rect = el ? el.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 0, height: 0 };
-  const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
-  const count = 2 + Math.floor(Math.random() * 2);
-  for (let i = 0; i < count; i++) {
-    setTimeout(() => spawnGraffiti(cx + (Math.random() - .5) * 100, cy + (Math.random() - .5) * 50), i * 90);
+function burstGraffiti(el, clientX, clientY) {
+  let cx, cy;
+  if (clientX != null && clientY != null && clientX > 0 && clientY > 0) {
+    cx = clientX;
+    cy = clientY;
+  } else if (el && typeof el.getBoundingClientRect === 'function') {
+    const rect = el.getBoundingClientRect();
+    cx = rect.left + rect.width / 2;
+    cy = rect.top + rect.height / 2;
+  } else {
+    cx = window.innerWidth / 2;
+    cy = window.innerHeight / 2;
   }
+
+  // Clamp within screen boundaries so graffiti is always visible
+  cx = Math.max(100, Math.min(window.innerWidth - 100, cx));
+  cy = Math.max(70, Math.min(window.innerHeight - 70, cy));
+
+  // Tag 1: Spawn INSTANTLY on frame 0 (Zero delay!)
+  spawnGraffiti(cx, cy);
+
+  // Tag 2 & 3: Micro-burst staggered slightly
+  setTimeout(() => spawnGraffiti(cx + (Math.random() - .5) * 80, cy + (Math.random() - .5) * 40), 60);
+  setTimeout(() => spawnGraffiti(cx + (Math.random() - .5) * 100, cy + (Math.random() - .5) * 50), 120);
 }
 
 // ── AUTH HELPERS ──────────────────────────────────────────────────
@@ -3727,7 +3797,7 @@ function renderHabits() {
       const isFut = ds > today;
       const checkBg = done ? h.color : '';
       return `
-        <div class="hab-day-cell${isFut?' future-day':''}" role="checkbox" tabindex="0" aria-checked="${done}" aria-label="${dayLabels[i]} ${d.getDate()}, ${esc(h.name)}: ${done?'completed':'not completed'}" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleHab('${h.id}','${ds}');}" onclick="toggleHab('${h.id}','${ds}')">
+        <div class="hab-day-cell${isFut?' future-day':''}" role="checkbox" tabindex="0" aria-checked="${done}" aria-label="${dayLabels[i]} ${d.getDate()}, ${esc(h.name)}: ${done?'completed':'not completed'}" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleHab('${h.id}','${ds}',event);}" onclick="toggleHab('${h.id}','${ds}',event)">
           <div class="hab-day-label${isTod?' today-lbl':''}">${dayLabels[i]}</div>
           <div class="hab-day-num${isTod?' today-num':''}">${d.getDate()}</div>
           <div class="hab-day-check${done?' checked':''}" aria-hidden="true" style="${done?`background:${h.color};border-color:${h.color}`:''}">
@@ -3868,21 +3938,25 @@ async function handleAllAdd(e) {
   toast('','Task added!','Drag onto the calendar','y');
 }
 
-async function toggleDone(e, id) {
-  e.stopPropagation();
+function toggleDone(e, id) {
+  if (e) e.stopPropagation();
   const t = S.tasks.find(t => String(t.id) === String(id));
   if (!t) return;
   t.done = !t.done;
   if (t.done) {
     playTaskCompleteSound();
-    const trigEl = e.currentTarget || e.target;
-    setTimeout(() => burstGraffiti(trigEl), 60);
+    const trigEl = e ? (e.currentTarget || e.target) : null;
+    const cx = e && e.clientX ? e.clientX : null;
+    const cy = e && e.clientY ? e.clientY : null;
+    burstGraffiti(trigEl, cx, cy);
     toast('','Done!', esc(t.name.slice(0,28)), 'g');
   }
   trackEvent('task_toggled', { task_id: id, category: t.cat, is_done: t.done });
-  await saveToggleTask(id, t.done);
+  // OPTIMISTIC UI: Instant checkmark & strike render on frame 0!
   render();
   checkAllDone();
+  // Persist to Supabase in the background
+  saveToggleTask(id, t.done).catch(err => console.warn('saveToggleTask error:', err));
 }
 
 // ════════════════════════════════════════════════════════
@@ -4034,21 +4108,29 @@ async function handleHabAdd(e) {
   }
 }
 
-async function toggleHab(hid, dateStr) {
+function toggleHab(hid, dateStr, e) {
   const h = S.habits.find(h => h.id === hid);
   if (!h) return;
   if (!h.completions) h.completions = [];
   const idx = h.completions.indexOf(dateStr);
   const isChecking = idx < 0;
-  if (!isChecking) h.completions.splice(idx, 1);
-  else { 
+  if (!isChecking) {
+    h.completions.splice(idx, 1);
+  } else { 
     playHabitCheckSound();
     h.completions.push(dateStr); 
-    if (dateStr === todayStr()) toast('','Habit logged!','Keep it up!','g'); 
+    if (dateStr === todayStr()) {
+      const cx = e && e.clientX ? e.clientX : null;
+      const cy = e && e.clientY ? e.clientY : null;
+      burstGraffiti(e ? (e.currentTarget || e.target) : null, cx, cy);
+      toast('','Habit logged!','Keep it up!','g'); 
+    }
   }
   trackEvent('habit_toggled', { habit_id: hid, date: dateStr, is_checking: isChecking });
-  await saveToggleHabit(hid, dateStr, isChecking);
+  // OPTIMISTIC UI: Instant checkmark render!
   render();
+  // Persist in background
+  saveToggleHabit(hid, dateStr, isChecking).catch(err => console.warn('saveToggleHabit error:', err));
 }
 
 async function delHab(id) {

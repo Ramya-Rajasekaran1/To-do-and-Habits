@@ -762,125 +762,388 @@
       line-height: 1.45;
     }
 
-    /* INTERACTIVE PIPELINE FLOW */
-    .pipeline-grid {
+    /* FLOW DIAGRAM (NEO-BRUTALIST FIGJAM STYLE) */
+    .fd-wrap {
       display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 6px;
+    }
+
+    /* CONTROLS HEADER */
+    .fd-controls {
+      display: flex;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      overflow-x: auto;
-      padding: 10px 4px 18px 4px;
-    }
-
-    .pipeline-node {
-      background: #FFF;
-      border: 2.5px solid #111;
-      box-shadow: 4px 4px 0px #111;
-      border-radius: 8px;
-      padding: 14px 12px;
-      min-width: 130px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      flex-shrink: 0;
-      user-select: none;
-    }
-
-    .pipeline-node:hover {
-      transform: translate(-3px, -3px);
-      box-shadow: 6px 6px 0px #111;
-      background: #FFF9DB;
-    }
-
-    .pipeline-node.selected {
-      background: var(--yellow);
-      border-color: #111;
-      box-shadow: 5px 5px 0px #111;
-      transform: translate(-2px, -2px);
-    }
-
-    .pipeline-node-icon {
-      font-size: 1.8rem;
-      margin-bottom: 6px;
-    }
-
-    .pipeline-node-name {
-      font-weight: 900;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      line-height: 1.1;
-      margin-bottom: 4px;
-    }
-
-    .pipeline-node-role {
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: #666;
-      text-transform: uppercase;
-    }
-
-    .pipeline-arrow {
-      font-size: 1.3rem;
-      font-weight: 900;
-      color: #111;
-      flex-shrink: 0;
-    }
-
-    /* NODE INSPECTOR DRAWER */
-    .node-inspector {
       background: #FAF7F2;
       border: 2px solid #111;
-      box-shadow: 3px 3px 0px #111;
+      box-shadow: 3px 3px 0 #111;
+      padding: 10px 14px;
       border-radius: 8px;
-      padding: 20px;
-      margin-top: 14px;
+    }
+
+    .fd-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .fd-btn {
+      background: #FFF;
+      border: 2px solid #111;
+      box-shadow: 2px 2px 0 #111;
+      padding: 6px 12px;
+      font-family: 'Space Grotesk', monospace;
+      font-weight: 900;
+      font-size: 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.1s ease;
+      user-select: none;
+    }
+    .fd-btn:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0 #111;
+      background: #FFF9DB;
+    }
+    .fd-btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 #111;
+    }
+    .fd-btn.primary {
+      background: var(--yellow);
+    }
+
+    .fd-step-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .fd-pill {
+      background: #FFF;
+      border: 1.5px solid #111;
+      box-shadow: 2px 2px 0 #111;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 5px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .fd-pill:hover {
+      background: #FFF9DB;
+      transform: translate(-1px, -1px);
+    }
+    .fd-pill.active {
+      background: #111;
+      color: var(--yellow);
+      box-shadow: 2px 2px 0 var(--yellow);
+      transform: translate(-1px, -1px);
+    }
+
+    /* THE FIGJAM FLOW CANVAS */
+    .fd-canvas {
+      background: #FAF7F2;
+      background-image: radial-gradient(#d3cec4 1.5px, transparent 1.5px);
+      background-size: 16px 16px;
+      border: 2.5px solid #111;
+      box-shadow: 5px 5px 0 #111;
+      border-radius: 12px;
+      padding: 24px 18px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-x: auto;
+    }
+
+    /* TIERS / SWIMLANES */
+    .fd-tier {
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px dashed #999;
+      border-radius: 10px;
+      padding: 18px 14px 14px 14px;
+      position: relative;
+      backdrop-filter: blur(2px);
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .fd-tier.active-tier {
+      border-color: #111;
+      border-style: solid;
+      background: rgba(255, 253, 240, 0.95);
+    }
+
+    .fd-tier-badge {
+      position: absolute;
+      top: -11px;
+      left: 14px;
+      background: #111;
+      color: #FFF;
+      font-size: 0.65rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .fd-tier-row {
+      display: flex;
+      align-items: stretch;
+      justify-content: space-around;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* NODES */
+    .fd-node {
+      background: #FFF;
+      border: 2px solid #111;
+      box-shadow: 3px 3px 0 #111;
+      border-radius: 8px;
+      padding: 12px 14px;
+      flex: 1 1 180px;
+      min-width: 170px;
+      max-width: 250px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s cubic-bezier(0.2, 0, 0, 1);
+      position: relative;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .fd-node:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 5px 5px 0 #111;
+      background: #FFFDF0;
+    }
+    .fd-node.active {
+      background: var(--yellow) !important;
+      box-shadow: 0 0 0 2px #111, 5px 5px 0 #111 !important;
+      transform: translate(-2px, -2px) scale(1.02);
+    }
+    .fd-node.active::after {
+      content: 'ACTIVE STEP';
+      position: absolute;
+      top: -9px;
+      right: 6px;
+      background: #E63946;
+      color: #FFF;
+      font-size: 0.58rem;
+      font-weight: 900;
+      letter-spacing: 0.6px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      border: 1px solid #111;
+      animation: pulseBadge 1s infinite alternate;
+    }
+    @keyframes pulseBadge {
+      from { transform: scale(1); }
+      to { transform: scale(1.08); }
+    }
+
+    .fd-node-icon {
+      font-size: 1.7rem;
+      margin-bottom: 4px;
+    }
+    .fd-node-title {
+      font-size: 0.85rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 1.15;
+      margin-bottom: 3px;
+    }
+    .fd-node-sub {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #555;
+      line-height: 1.25;
+      margin-bottom: 6px;
+    }
+    .fd-node-badge {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 900;
+      background: #F0F0F0;
+      border: 1px solid #111;
+      border-radius: 3px;
+      padding: 2px 6px;
+      text-transform: uppercase;
+      align-self: center;
+    }
+
+    /* INTER-TIER CONNECTORS & LABELS */
+    .fd-cross-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      gap: 12px;
+      padding: 0 10px;
+      flex-wrap: wrap;
+    }
+
+    .fd-path-chip {
+      background: #FFF;
+      border: 1.5px solid #111;
+      box-shadow: 2px 2px 0 #111;
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: #111;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+    .fd-path-chip:hover {
+      background: #FFF9DB;
+      transform: translate(-1px, -1px);
+    }
+    .fd-path-chip.active {
+      background: #111;
+      color: var(--yellow);
+      box-shadow: 2px 2px 0 var(--yellow);
+      transform: scale(1.04);
+    }
+
+    /* LIVE FLIGHT DATA INSPECTOR */
+    .fd-inspector {
+      background: #FAF7F2;
+      border: 2px solid #111;
+      box-shadow: 3px 3px 0 #111;
+      border-radius: 10px;
+      padding: 18px 20px;
       animation: popIn 0.2s ease;
     }
 
-    .ni-header {
+    .fd-ins-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
-      border-bottom: 1.5px solid #DDD;
-      padding-bottom: 8px;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-bottom: 2px solid #E0DCD3;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
     }
 
-    .ni-title {
-      font-size: 1.15rem;
+    .fd-ins-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .fd-ins-num {
+      background: var(--yellow);
+      border: 1.5px solid #111;
+      font-family: 'Space Grotesk', monospace;
+      font-weight: 900;
+      font-size: 0.85rem;
+      padding: 3px 7px;
+      border-radius: 4px;
+    }
+    .fd-ins-title {
+      font-size: 1.05rem;
       font-weight: 900;
       text-transform: uppercase;
     }
 
-    .ni-grid {
+    .fd-ins-tags {
+      display: flex;
+      gap: 6px;
+    }
+    .fd-ins-tag {
+      font-size: 0.65rem;
+      font-weight: 900;
+      border: 1.5px solid #111;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .fd-tag-latency { background: #E2E8F0; }
+    .fd-tag-proto { background: #D1FAE5; }
+
+    .fd-ins-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 720px) {
+      .fd-ins-grid { grid-template-columns: 1fr; }
     }
 
-    @media (max-width: 650px) {
-      .ni-grid { grid-template-columns: 1fr; }
+    .fd-ins-left {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
-    .ni-box {
+    .fd-ins-box {
       background: #FFF;
       border: 1.5px solid #111;
-      padding: 10px 14px;
+      padding: 10px 12px;
       border-radius: 6px;
     }
-
-    .ni-lbl {
-      font-size: 0.7rem;
+    .fd-ins-lbl {
+      font-size: 0.68rem;
       font-weight: 900;
       text-transform: uppercase;
       color: #666;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .fd-ins-txt {
+      font-size: 0.83rem;
+      font-weight: 600;
+      line-height: 1.4;
     }
 
-    .ni-txt {
-      font-size: 0.85rem;
+    .fd-ins-right {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .fd-payload-head {
+      font-size: 0.68rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: #666;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .fd-payload-code {
+      background: #1A1A1A;
+      color: #00FF66;
+      border: 2px solid #111;
+      box-shadow: 2px 2px 0 #111;
+      border-radius: 6px;
+      padding: 12px;
+      font-family: 'Space Grotesk', monospace;
+      font-size: 0.75rem;
       line-height: 1.4;
-      font-weight: 600;
+      overflow-x: auto;
+      white-space: pre;
+      max-height: 240px;
     }
 
     /* STEP-BY-STEP LIFECYCLE */
@@ -1129,80 +1392,212 @@
   <!-- VIEW 2: SYSTEM ARCHITECTURE & MAP -->
   <div id="archView" style="display:none;">
 
-    <!-- SECTION 1: INTERACTIVE END-TO-END PIPELINE -->
+    <!-- SECTION 1: INTERACTIVE SYSTEM FLOW DIAGRAM -->
     <div class="arch-card">
       <div class="arch-sec-title">
-        <span>🔄</span>
-        <span>1. Interactive End-to-End System Pipeline</span>
+        <span>🗺️</span>
+        <span>1. Visual System Architecture & Data Flow Diagram</span>
       </div>
       <p class="arch-sec-desc">
-        Click any block below to inspect its role, how it transforms data, its Figma metaphor, and the exact code file.
+        An interactive visual flow map showing how data travels between your phone, Twilio, Netlify, Gemini AI, Supabase PostgreSQL, and your desktop browser in <strong>~1.2 seconds</strong> with zero page reloads.
       </p>
 
-      <div class="pipeline-grid">
-        <div class="pipeline-node selected" id="node-user" onclick="selectArchNode('user')">
-          <div class="pipeline-node-icon">📱</div>
-          <div class="pipeline-node-name">1. WhatsApp</div>
-          <div class="pipeline-node-role">Input Layer</div>
-        </div>
-
-        <div class="pipeline-arrow">➔</div>
-
-        <div class="pipeline-node" id="node-twilio" onclick="selectArchNode('twilio')">
-          <div class="pipeline-node-icon">⚡</div>
-          <div class="pipeline-node-name">2. Twilio</div>
-          <div class="pipeline-node-role">Gateway Webhook</div>
-        </div>
-
-        <div class="pipeline-arrow">➔</div>
-
-        <div class="pipeline-node" id="node-netlify" onclick="selectArchNode('netlify')">
-          <div class="pipeline-node-icon">🧠</div>
-          <div class="pipeline-node-name">3. Netlify + AI</div>
-          <div class="pipeline-node-role">Brain & Butler</div>
-        </div>
-
-        <div class="pipeline-arrow">➔</div>
-
-        <div class="pipeline-node" id="node-supabase" onclick="selectArchNode('supabase')">
-          <div class="pipeline-node-icon">🗄️</div>
-          <div class="pipeline-node-name">4. Supabase</div>
-          <div class="pipeline-node-role">Postgres DB Vault</div>
-        </div>
-
-        <div class="pipeline-arrow">➔</div>
-
-        <div class="pipeline-node" id="node-browser" onclick="selectArchNode('browser')">
-          <div class="pipeline-node-icon">🖥️</div>
-          <div class="pipeline-node-name">5. QuestLog UI</div>
-          <div class="pipeline-node-role">Realtime Cockpit</div>
-        </div>
-      </div>
-
-      <!-- Node Inspector Box -->
-      <div class="node-inspector" id="nodeInspector">
-        <div class="ni-header">
-          <div class="ni-title" id="niTitle">1. WhatsApp Input Layer</div>
-          <span class="pill-badge" id="niBadge" style="margin-bottom:0;">CAPTURE</span>
-        </div>
-        <div class="ni-grid">
-          <div class="ni-box">
-            <div class="ni-lbl">🎨 Designer Metaphor</div>
-            <div class="ni-txt" id="niMetaphor">A voice memo or sticky note on your steering wheel. You don't have to open an app; you speak naturally while walking or driving.</div>
+      <div class="fd-wrap">
+        <!-- CONTROLS & STEP SCRUBBER -->
+        <div class="fd-controls">
+          <div class="fd-btn-group">
+            <button class="fd-btn primary" id="fdPlayBtn" onclick="toggleFlowPlay()">
+              <span id="fdPlayIcon">▶</span>
+              <span id="fdPlayText">Play Full Flow</span>
+            </button>
+            <button class="fd-btn" onclick="prevFlowStep()" title="Previous Step">◀</button>
+            <button class="fd-btn" onclick="nextFlowStep()" title="Next Step">▶</button>
+            <button class="fd-btn" onclick="resetFlow()" title="Reset to Step 1">↺</button>
           </div>
-          <div class="ni-box">
-            <div class="ni-lbl">📂 Code File Location</div>
-            <div class="ni-txt" id="niFile">User's phone (WhatsApp Sandbox: <code>+1 415 523 8886</code>)</div>
-          </div>
-          <div class="ni-box">
-            <div class="ni-lbl">📥 Input Data</div>
-            <div class="ni-txt" id="niInput">Raw speech or text: <em>"Coffee tomorrow at 3pm for 45m"</em></div>
-          </div>
-          <div class="ni-box">
-            <div class="ni-lbl">📤 Output Data</div>
-            <div class="ni-txt" id="niOutput">SMS/MMS protocol sent to Twilio's cloud telecom servers.</div>
+
+          <div class="fd-step-pills">
+            <div class="fd-pill active" id="pill-0" onclick="setFlowStep(0)">① WhatsApp</div>
+            <div class="fd-pill" id="pill-1" onclick="setFlowStep(1)">② Twilio</div>
+            <div class="fd-pill" id="pill-2" onclick="setFlowStep(2)">③ Gemini AI</div>
+            <div class="fd-pill" id="pill-3" onclick="setFlowStep(3)">④ Supabase DB</div>
+            <div class="fd-pill" id="pill-4" onclick="setFlowStep(4)">⑤A Phone Reply</div>
+            <div class="fd-pill" id="pill-5" onclick="setFlowStep(5)">⑤B Realtime WS</div>
+            <div class="fd-pill" id="pill-6" onclick="setFlowStep(6)">⑥ QuestLog DOM</div>
           </div>
         </div>
+
+        <!-- THE INTERACTIVE FIGJAM FLOW CANVAS -->
+        <div class="fd-canvas" id="fdCanvas">
+          
+          <!-- TIER 1: CLIENT TOUCHPOINTS (USER INTERFACES) -->
+          <div class="fd-tier active-tier" id="fd-tier-clients">
+            <div class="fd-tier-badge">📱 Layer 1: Client Interfaces & User Touchpoints</div>
+            <div class="fd-tier-row">
+              
+              <!-- NODE: WHATSAPP -->
+              <div class="fd-node active" id="fd-node-whatsapp" onclick="setFlowStep(0)">
+                <div class="fd-node-icon">📱</div>
+                <div class="fd-node-title">WhatsApp Mobile</div>
+                <div class="fd-node-sub">User speaks or texts: "Coffee tomorrow at 3pm"</div>
+                <span class="fd-node-badge" style="background:#DCFCE7;">SENDER / ALERT</span>
+              </div>
+
+              <!-- MIDDLE CONNECTOR INFO -->
+              <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; text-align:center;">
+                <div style="font-size:0.65rem; font-weight:900; color:#888; text-transform:uppercase;">TOTAL ROUND TRIP</div>
+                <div style="font-family:'Space Grotesk',monospace; font-weight:900; font-size:1.15rem; color:#111; background:var(--yellow); padding:2px 8px; border:1.5px solid #111; border-radius:4px;">~1.2 SEC</div>
+                <div style="font-size:0.65rem; font-weight:800; color:#555;">Zero Refresh Required</div>
+              </div>
+
+              <!-- NODE: QUESTLOG COCKPIT -->
+              <div class="fd-node" id="fd-node-questlog" onclick="setFlowStep(6)">
+                <div class="fd-node-icon">🖥️</div>
+                <div class="fd-node-title">QuestLog Cockpit</div>
+                <div class="fd-node-sub">Live visual calendar: paints 3:00 PM block in 16ms</div>
+                <span class="fd-node-badge" style="background:#FEF08A;">RECEIVER (60 FPS)</span>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- CONNECTOR CHIPS: TIER 1 -> TIER 2 -->
+          <div class="fd-cross-row">
+            <div class="fd-path-chip active" id="fd-chip-1" onclick="setFlowStep(0)">
+              <span>↓</span> <strong>Step 1:</strong> Cellular / WhatsApp Msg
+            </div>
+            <div class="fd-path-chip" id="fd-chip-5a" onclick="setFlowStep(4)">
+              <span>↑</span> <strong>Step 5A:</strong> SMS Confirmation Reply
+            </div>
+            <div class="fd-path-chip" id="fd-chip-6" onclick="setFlowStep(6)">
+              <span>↑</span> <strong>Step 6:</strong> DOM Paint (sm: 900)
+            </div>
+          </div>
+
+          <!-- TIER 2: CLOUD ORCHESTRATION & AI ENGINE -->
+          <div class="fd-tier" id="fd-tier-cloud">
+            <div class="fd-tier-badge">☁️ Layer 2: Cloud Orchestration & AI Engine</div>
+            <div class="fd-tier-row">
+
+              <!-- NODE: TWILIO -->
+              <div class="fd-node" id="fd-node-twilio" onclick="setFlowStep(1)">
+                <div class="fd-node-icon">⚡</div>
+                <div class="fd-node-title">Twilio Gateway</div>
+                <div class="fd-node-sub">Inbound/Outbound telecom webhook bridge</div>
+                <span class="fd-node-badge" style="background:#FEE2E2;">TELECOM BROKER</span>
+              </div>
+
+              <div style="font-size:1.2rem; font-weight:900; align-self:center; color:#111;">➔</div>
+
+              <!-- NODE: NETLIFY FUNCTION -->
+              <div class="fd-node" id="fd-node-netlify" onclick="setFlowStep(2)">
+                <div class="fd-node-icon">🧠</div>
+                <div class="fd-node-title">Netlify Function</div>
+                <div class="fd-node-sub"><code>whatsapp.js</code> Central Conductor</div>
+                <span class="fd-node-badge" style="background:#E0E7FF;">SERVERLESS RUNTIME</span>
+              </div>
+
+              <div style="font-size:1.2rem; font-weight:900; align-self:center; color:#111;">⇄</div>
+
+              <!-- NODE: GEMINI AI -->
+              <div class="fd-node" id="fd-node-gemini" onclick="setFlowStep(2)">
+                <div class="fd-node-icon">✨</div>
+                <div class="fd-node-title">Gemini 2.5 Flash</div>
+                <div class="fd-node-sub">NLP extraction: converts text to {sm: 900}</div>
+                <span class="fd-node-badge" style="background:#CFFAFE;">AI INTELLIGENCE</span>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- CONNECTOR CHIPS: TIER 2 -> TIER 3 -->
+          <div class="fd-cross-row">
+            <div class="fd-path-chip" id="fd-chip-2" onclick="setFlowStep(1)">
+              <span>↓</span> <strong>Step 2:</strong> HTTP POST Webhook
+            </div>
+            <div class="fd-path-chip" id="fd-chip-3" onclick="setFlowStep(2)">
+              <span>⇄</span> <strong>Step 3:</strong> Prompt ➔ Clean JSON
+            </div>
+            <div class="fd-path-chip" id="fd-chip-4" onclick="setFlowStep(3)">
+              <span>↓</span> <strong>Step 4:</strong> SQL Insert (service_role)
+            </div>
+            <div class="fd-path-chip" id="fd-chip-5b" onclick="setFlowStep(5)">
+              <span>↑</span> <strong>Step 5B:</strong> WebSocket Push
+            </div>
+          </div>
+
+          <!-- TIER 3: PERSISTENCE & REALTIME BUS -->
+          <div class="fd-tier" id="fd-tier-db">
+            <div class="fd-tier-badge">🗄️ Layer 3: Persistence & Realtime Event Bus</div>
+            <div class="fd-tier-row">
+
+              <!-- NODE: SUPABASE POSTGRES -->
+              <div class="fd-node" id="fd-node-supabase" onclick="setFlowStep(3)">
+                <div class="fd-node-icon">🗄️</div>
+                <div class="fd-node-title">Supabase Postgres</div>
+                <div class="fd-node-sub">Permanent <code>tasks</code> table with Row-Level Security</div>
+                <span class="fd-node-badge" style="background:#FEF3C7;">POSTGRESQL VAULT</span>
+              </div>
+
+              <div style="font-size:1.2rem; font-weight:900; align-self:center; color:#111;">➔</div>
+
+              <!-- NODE: REALTIME WEBSOCKET -->
+              <div class="fd-node" id="fd-node-realtime" onclick="setFlowStep(5)">
+                <div class="fd-node-icon">📡</div>
+                <div class="fd-node-title">Supabase Realtime</div>
+                <div class="fd-node-sub">Channel: <code>realtime-tasks</code> Broadcast Bus</div>
+                <span class="fd-node-badge" style="background:#DDD6FE;">WEBSOCKET TUNNEL</span>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- DYNAMIC DATA & PAYLOAD FLIGHT INSPECTOR -->
+        <div class="fd-inspector" id="fdInspector">
+          <div class="fd-ins-header">
+            <div class="fd-ins-title-wrap">
+              <span class="fd-ins-num" id="insNum">01</span>
+              <span class="fd-ins-title" id="insTitle">User Sends WhatsApp Voice or Text</span>
+            </div>
+            <div class="fd-ins-tags">
+              <span class="fd-ins-tag fd-tag-latency" id="insLatency">⚡ ~50ms</span>
+              <span class="fd-ins-tag fd-tag-proto" id="insProtocol">CELLULAR / SMS</span>
+            </div>
+          </div>
+
+          <div class="fd-ins-grid">
+            <div class="fd-ins-left">
+              <div class="fd-ins-box">
+                <div class="fd-ins-lbl">🎯 What's Happening Behind The Scenes</div>
+                <div class="fd-ins-txt" id="insDesc">You send a message or voice note from your registered number (+91 7708914559): <em>"Coffee tomorrow at 3pm for 45m"</em>.</div>
+              </div>
+              <div class="fd-ins-box">
+                <div class="fd-ins-lbl">🎨 Designer Metaphor (Figma Analogy)</div>
+                <div class="fd-ins-txt" id="insMetaphor">Figma Trigger: 'On User Input'. You enter raw text in a prototype input box without worrying about formatting or layout.</div>
+              </div>
+              <div class="fd-ins-box">
+                <div class="fd-ins-lbl">📂 Code File Location</div>
+                <div class="fd-ins-txt" id="insFile">User Phone (WhatsApp Sandbox <code>+1 415 523 8886</code>)</div>
+              </div>
+            </div>
+
+            <div class="fd-ins-right">
+              <div class="fd-payload-head">
+                <span>📦 Flying Data Payload (Wire Packet)</span>
+                <span style="font-size:0.6rem; color:#888;">Live Wire Snapshot</span>
+              </div>
+              <pre class="fd-payload-code" id="insPayload">// 1. Raw Message Payload (Inbound)
+{
+  "from": "whatsapp:+917708914559",
+  "to": "whatsapp:+14155238886",
+  "body": "Coffee tomorrow at 3pm for 45m",
+  "timestamp": "2026-10-09T15:30:00Z"
+}</pre>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -1907,67 +2302,309 @@
       }
     }
 
-    // ARCHITECTURE NODE INSPECTOR
-    const ARCH_NODES = {
-      user: {
-        title: "1. WhatsApp Input Layer",
-        badge: "CAPTURE",
-        metaphor: "A voice memo or sticky note on your steering wheel. You don't have to open an app; you speak naturally while walking or driving.",
-        file: "User's Phone (WhatsApp Sandbox: <code>+1 415 523 8886</code>)",
-        input: "Raw speech or text: <em>'Coffee tomorrow at 3pm for 45m'</em>",
-        output: "SMS/MMS protocol sent to Twilio's cloud telecom servers."
+    // INTERACTIVE FLOW DIAGRAM STATE & DATA
+    const FLOW_STEPS = [
+      {
+        id: "step-1",
+        num: "01",
+        title: "User Sends WhatsApp Voice or Text Note",
+        latency: "~50ms",
+        protocol: "CELLULAR / SMS",
+        nodeId: "fd-node-whatsapp",
+        secondNodeId: null,
+        tierId: "fd-tier-clients",
+        chipId: "fd-chip-1",
+        metaphor: "<strong>Figma Trigger: 'On User Input'.</strong> You type into an unformatted prototype textfield or leave a quick voice comment while on the run. You never have to open the heavy desktop app or fiddle with calendar time pickers.",
+        file: "User's Phone (WhatsApp Sandbox <code>+1 415 523 8886</code>)",
+        desc: "You send a message or voice note from your registered number (<code>+91 7708914559</code>): <em>'Coffee tomorrow at 3pm for 45m'</em>. Your phone's cellular carrier routes the encrypted packet to WhatsApp's global servers.",
+        payload: `// 1. Raw User Message Received on WhatsApp
+{
+  "from": "whatsapp:+917708914559",
+  "to": "whatsapp:+14155238886",
+  "body": "Coffee tomorrow at 3pm for 45m",
+  "media_type": "text/plain",
+  "timestamp": "2026-10-09T15:30:00Z"
+}`
       },
-      twilio: {
-        title: "2. Twilio Gateway",
-        badge: "TELECOM BRIDGE",
-        metaphor: "The postal courier. It picks up the physical WhatsApp message and drives it to our digital server doorstep.",
-        file: "Twilio Console -> WhatsApp Sandbox Settings",
-        input: "Incoming WhatsApp message from <code>+91 7708914559</code>",
-        output: "HTTP POST form payload containing From and Body to our Netlify function."
+      {
+        id: "step-2",
+        num: "02",
+        title: "Twilio Catches Message & Fires Webhook POST",
+        latency: "~180ms",
+        protocol: "HTTP POST / TLS 1.3",
+        nodeId: "fd-node-twilio",
+        secondNodeId: null,
+        tierId: "fd-tier-cloud",
+        chipId: "fd-chip-2",
+        metaphor: "<strong>Figma REST Plugin Hook.</strong> Twilio acts like a courier that picks up your Figma design token and delivers it to an external server webhook endpoint.",
+        file: "Twilio Sandbox -> <code>https://sycora.netlify.app/.netlify/functions/whatsapp</code>",
+        desc: "Twilio receives your WhatsApp message, packages the text and sender metadata into a secure digital envelope (HTTP POST with form encoding), and hits our live Netlify function.",
+        payload: `// 2. HTTP POST Inbound Webhook Payload (Dispatched by Twilio)
+POST /.netlify/functions/whatsapp HTTP/1.1
+Host: sycora.netlify.app
+Content-Type: application/x-www-form-urlencoded
+
+From=whatsapp%3A%2B917708914559&
+To=whatsapp%3A%2B14155238886&
+Body=Coffee+tomorrow+at+3pm+for+45m&
+AccountSid=AC_TWILIO_ACCOUNT_SID_DEMO_SECRET`
       },
-      netlify: {
-        title: "3. Netlify Serverless Function + Gemini AI",
-        badge: "BRAIN & BUTLER",
-        metaphor: "An executive assistant with superhuman reading speed. Reads your messy note and turns it into clean calendar fields.",
-        file: "<code>netlify/functions/whatsapp.js</code> (powered by Google Gemini 2.5 Flash)",
-        input: "Raw text <em>'Coffee tomorrow at 3pm 45m'</em> + today's date",
-        output: "Structured JSON: <code>{ name: 'Coffee', sm: 900, dm: 45, cat: 'personal' }</code>"
+      {
+        id: "step-3",
+        num: "03",
+        title: "Netlify Function & Gemini 2.5 Flash Parse NLP",
+        latency: "~520ms",
+        protocol: "HTTPS / REST JSON",
+        nodeId: "fd-node-gemini",
+        secondNodeId: "fd-node-netlify",
+        tierId: "fd-tier-cloud",
+        chipId: "fd-chip-3",
+        metaphor: "<strong>Figma Smart Tokens & Auto-Layout Rules.</strong> Gemini AI reads raw messy human text and normalizes it into strict, typed Component Properties: Task Name, Start Minute integer (<code>sm: 900</code> = 3:00 PM), Duration (<code>dm: 45</code>), and Category.",
+        file: "<code>netlify/functions/whatsapp.js</code> (Google Gemini 2.5 Flash API)",
+        desc: "Our serverless function spins up in 200ms, injects today's date context, and prompts Gemini 2.5 Flash to extract computer-ready JSON. Gemini computes: <code>3:00 PM = 15 * 60 = 900</code> minutes from midnight.",
+        payload: `// 3. Structured JSON Extracted by Gemini 2.5 Flash
+{
+  "name": "Coffee",
+  "date": "2026-10-10",
+  "sm": 900,         // 15:00 * 60 = 900 mins from midnight
+  "dm": 45,          // Duration: 45 mins
+  "cat": "personal", // Auto-categorized
+  "confidence": 0.98,
+  "original_prompt": "Coffee tomorrow at 3pm for 45m"
+}`
       },
-      supabase: {
-        title: "4. Supabase Database Vault",
-        badge: "PERSISTENCE",
-        metaphor: "The master vault. A cloud PostgreSQL spreadsheet that holds your records permanently with Row-Level Security.",
+      {
+        id: "step-4",
+        num: "04",
+        title: "Supabase Inserts Row into PostgreSQL Vault",
+        latency: "~120ms",
+        protocol: "POSTGRESQL TCP / SQL",
+        nodeId: "fd-node-supabase",
+        secondNodeId: null,
+        tierId: "fd-tier-db",
+        chipId: "fd-chip-4",
+        metaphor: "<strong>Publishing to Shared Figma Team Library.</strong> Writing a brand-new component instance into the master cloud design system so everyone on the team has persistent access.",
         file: "Supabase Project (<code>sknrridioesaapiijqfl</code>) -> <code>tasks</code> table",
-        input: "JSON row from Netlify function with secret <code>service_role</code> key",
-        output: "Persisted record inserted; fires Realtime WebSocket event to listeners."
+        desc: "The Netlify function uses the privileged <code>service_role</code> master key to insert a new row into the PostgreSQL database, locking it safely to your user ID.",
+        payload: `// 4. SQL Record Saved into PostgreSQL tasks Table
+INSERT INTO public.tasks (
+  id,
+  user_id,
+  name,
+  sm,
+  dm,
+  cat,
+  created_for,
+  done
+) VALUES (
+  '3403159b-c349-411a-88cf-9481977759ad',
+  '4a51d743-b441-4770-8d5f-fc8c636e2f12',
+  'Coffee',
+  900,
+  45,
+  'personal',
+  '2026-10-10',
+  false
+);`
       },
-      browser: {
-        title: "5. QuestLog Realtime Cockpit",
-        badge: "PRESENTATION",
-        metaphor: "The live cockpit dashboard. It has an open walkie-talkie to the database and repaints the screen in 16ms.",
-        file: "<code>questlog-neobrutalist.html</code> (Lines 2470-2485: <code>sb.channel().subscribe()</code>)",
-        input: "WebSocket <code>INSERT</code> event from Supabase",
-        output: "Live DOM update: renders yellow task block at 3:00 PM with celebration toast!"
+      {
+        id: "step-5a",
+        num: "05A",
+        title: "Twilio Sends Two-Way Confirmation SMS to Phone",
+        latency: "~150ms",
+        protocol: "TWIML XML / WHATSAPP",
+        nodeId: "fd-node-whatsapp",
+        secondNodeId: "fd-node-twilio",
+        tierId: "fd-tier-clients",
+        chipId: "fd-chip-5a",
+        metaphor: "<strong>Figma Toast Feedback: 'Action Succeeded'.</strong> A quick, reassuring confirmation that closes the loop on mobile so you know your voice command was accurately scheduled without needing to check your laptop.",
+        file: "<code>netlify/functions/whatsapp.js</code> -> TwiML Response Header",
+        desc: "Netlify finishes the HTTP request by returning a TwiML XML payload to Twilio, which immediately delivers a friendly WhatsApp message back to your phone.",
+        payload: `// 5A. TwiML Confirmation Response (Closed-Loop Reply)
+HTTP/1.1 200 OK
+Content-Type: text/xml
+
+<Response>
+  <Message>
+    ✅ Scheduled: Coffee on 2026-10-10 at 3:00 PM (45m)
+  </Message>
+</Response>`
+      },
+      {
+        id: "step-5b",
+        num: "05B",
+        title: "Supabase Realtime Pushes WebSocket Broadcast",
+        latency: "~40ms",
+        protocol: "WEBSOCKET (WSS) PUB-SUB",
+        nodeId: "fd-node-realtime",
+        secondNodeId: null,
+        tierId: "fd-tier-db",
+        chipId: "fd-chip-5b",
+        metaphor: "<strong>Figma Multiplayer Live Sync.</strong> When a collaborator moves a rectangle in Tokyo, your canvas in London shifts instantly in 40ms over an open, persistent WebSocket pipe without any page refresh.",
+        file: "<code>questlog-neobrutalist.html</code> (Lines 2470-2490: <code>sb.channel().subscribe()</code>)",
+        desc: "PostgreSQL's Write-Ahead Log fires an internal trigger that Supabase Realtime picks up and broadcasts down the open WebSocket connection to your active QuestLog browser tab.",
+        payload: `// 5B. Realtime WebSocket Push Event (Zero Refresh)
+{
+  "topic": "realtime-tasks",
+  "event": "INSERT",
+  "payload": {
+    "schema": "public",
+    "table": "tasks",
+    "commit_timestamp": "2026-10-09T15:30:01.120Z",
+    "record": {
+      "id": "3403159b-c349-411a-88cf-9481977759ad",
+      "user_id": "4a51d743-b441...",
+      "name": "Coffee",
+      "sm": 900,
+      "dm": 45,
+      "cat": "personal",
+      "created_for": "2026-10-10",
+      "done": false
+    }
+  }
+}`
+      },
+      {
+        id: "step-6",
+        num: "06",
+        title: "QuestLog Cockpit Calculates Math & Repaints DOM",
+        latency: "~16ms (60 FPS)",
+        protocol: "DOM ENGINE / CSS",
+        nodeId: "fd-node-questlog",
+        secondNodeId: null,
+        tierId: "fd-tier-clients",
+        chipId: "fd-chip-6",
+        metaphor: "<strong>Figma Auto-Layout Y Coordinate Math.</strong> QuestLog runs pure geometry: <code>top = (900 - 540) * 1px = 360px</code>, height = 45px, and paints the bold Neo-Brutalist yellow block into the 3:00 PM slot in 16ms!",
+        file: "<code>questlog-neobrutalist.html</code> -> <code>renderSchedule()</code>",
+        desc: "The browser's JavaScript event handler pushes the new record into <code>S.tasks</code>, performs timeline math, inserts the HTML element into the DOM, and plays an audio celebration tone.",
+        payload: `// 6. DOM Element Injected into Schedule Timeline
+<div class="timeline-task-block cat-personal"
+     data-task-id="3403159b..."
+     style="top: 360px; height: 45px; background: #FFE135; border: 2.5px solid #111;">
+  <span class="task-title">☕ Coffee</span>
+  <span class="task-time">3:00 PM – 3:45 PM</span>
+</div>`
       }
-    };
+    ];
 
+    let currentFlowStep = 0;
+    let flowPlayTimer = null;
+
+    function setFlowStep(idx) {
+      if (idx < 0 || idx >= FLOW_STEPS.length) return;
+      currentFlowStep = idx;
+      const step = FLOW_STEPS[idx];
+
+      // Update Step Pills
+      document.querySelectorAll('.fd-pill').forEach((pill, i) => {
+        pill.classList.toggle('active', i === idx);
+      });
+
+      // Update Canvas Nodes
+      document.querySelectorAll('.fd-node').forEach(node => {
+        node.classList.remove('active');
+      });
+      const activeNode = document.getElementById(step.nodeId);
+      if (activeNode) activeNode.classList.add('active');
+      if (step.secondNodeId) {
+        const secNode = document.getElementById(step.secondNodeId);
+        if (secNode) secNode.classList.add('active');
+      }
+
+      // Update Tiers
+      document.querySelectorAll('.fd-tier').forEach(tier => {
+        tier.classList.remove('active-tier');
+      });
+      const activeTier = document.getElementById(step.tierId);
+      if (activeTier) activeTier.classList.add('active-tier');
+
+      // Update Connector Chips
+      document.querySelectorAll('.fd-path-chip').forEach(chip => {
+        chip.classList.remove('active');
+      });
+      const activeChip = document.getElementById(step.chipId);
+      if (activeChip) activeChip.classList.add('active');
+
+      // Update Inspector Drawer
+      document.getElementById('insNum').textContent = step.num;
+      document.getElementById('insTitle').textContent = step.title;
+      document.getElementById('insLatency').textContent = '⚡ ' + step.latency;
+      document.getElementById('insProtocol').textContent = step.protocol;
+      document.getElementById('insDesc').innerHTML = step.desc;
+      document.getElementById('insMetaphor').innerHTML = step.metaphor;
+      document.getElementById('insFile').innerHTML = step.file;
+      document.getElementById('insPayload').textContent = step.payload;
+    }
+
+    function toggleFlowPlay() {
+      const playBtn = document.getElementById('fdPlayBtn');
+      const icon = document.getElementById('fdPlayIcon');
+      const text = document.getElementById('fdPlayText');
+
+      if (flowPlayTimer) {
+        // Stop
+        clearInterval(flowPlayTimer);
+        flowPlayTimer = null;
+        icon.textContent = '▶';
+        text.textContent = 'Play Full Flow';
+        playBtn.classList.remove('active');
+      } else {
+        // Start playing
+        icon.textContent = '⏸';
+        text.textContent = 'Pause Flow';
+        playBtn.classList.add('active');
+
+        flowPlayTimer = setInterval(() => {
+          let next = currentFlowStep + 1;
+          if (next >= FLOW_STEPS.length) next = 0;
+          setFlowStep(next);
+        }, 1800);
+      }
+    }
+
+    function nextFlowStep() {
+      if (flowPlayTimer) toggleFlowPlay();
+      let next = currentFlowStep + 1;
+      if (next >= FLOW_STEPS.length) next = 0;
+      setFlowStep(next);
+    }
+
+    function prevFlowStep() {
+      if (flowPlayTimer) toggleFlowPlay();
+      let prev = currentFlowStep - 1;
+      if (prev < 0) prev = FLOW_STEPS.length - 1;
+      setFlowStep(prev);
+    }
+
+    function resetFlow() {
+      if (flowPlayTimer) toggleFlowPlay();
+      setFlowStep(0);
+    }
+
+    // BACKWARD COMPATIBLE NODE INSPECTOR CALL
     function selectArchNode(key) {
-      const data = ARCH_NODES[key];
-      if (!data) return;
-
-      document.querySelectorAll('.pipeline-node').forEach(n => n.classList.remove('selected'));
-      const activeEl = document.getElementById('node-' + key);
-      if (activeEl) activeEl.classList.add('selected');
-
-      document.getElementById('niTitle').textContent = data.title;
-      document.getElementById('niBadge').textContent = data.badge;
-      document.getElementById('niMetaphor').innerHTML = data.metaphor;
-      document.getElementById('niFile').innerHTML = data.file;
-      document.getElementById('niInput').innerHTML = data.input;
-      document.getElementById('niOutput').innerHTML = data.output;
+      const map = {
+        'user': 0,
+        'twilio': 1,
+        'netlify': 2,
+        'gemini': 2,
+        'supabase': 3,
+        'realtime': 5,
+        'browser': 6,
+        'questlog': 6
+      };
+      if (map[key] !== undefined) {
+        setFlowStep(map[key]);
+      }
     }
 
     renderCard();
+
+    // Check if URL has ?tab=arch
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('tab') === 'arch') {
+      switchMainTab('arch');
+    }
   </script>
 </body>
 </html>
