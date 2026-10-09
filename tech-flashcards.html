@@ -40,13 +40,13 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 30px 20px;
+      padding: 25px 20px;
     }
 
     /* HEADER */
     header {
       text-align: center;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
       max-width: 650px;
     }
 
@@ -60,7 +60,7 @@
       letter-spacing: 1px;
       padding: 4px 12px;
       text-transform: uppercase;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     h1 {
@@ -69,7 +69,7 @@
       text-transform: uppercase;
       letter-spacing: -0.5px;
       line-height: 1.1;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     p.subtitle {
@@ -78,13 +78,32 @@
       color: #555;
     }
 
+    /* PROGRESS BAR */
+    .progress-bar-wrap {
+      width: 100%;
+      max-width: 580px;
+      background: #DDD;
+      border: 2px solid #111;
+      height: 10px;
+      margin-bottom: 18px;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--black);
+      width: 14.28%;
+      transition: width 0.3s ease;
+    }
+
     /* FLASHCARD CONTAINER */
     .flashcard-wrapper {
       perspective: 1200px;
       width: 100%;
       max-width: 580px;
-      height: 440px;
-      margin-bottom: 25px;
+      height: 460px;
+      margin-bottom: 20px;
       cursor: pointer;
     }
 
@@ -109,7 +128,7 @@
       border: var(--border);
       border-radius: 12px;
       box-shadow: var(--shadow);
-      padding: 35px 30px;
+      padding: 30px 28px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -140,12 +159,12 @@
 
     .card-icon {
       font-size: 3.5rem;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
       display: inline-block;
     }
 
     .card-term {
-      font-size: 2.1rem;
+      font-size: 2.2rem;
       font-weight: 900;
       text-transform: uppercase;
       line-height: 1.1;
@@ -155,7 +174,7 @@
     .card-tagline {
       font-size: 1.15rem;
       font-weight: 600;
-      color: #444;
+      color: #333;
       background: rgba(0,0,0,0.05);
       padding: 6px 14px;
       border-radius: 6px;
@@ -171,7 +190,7 @@
       color: #777;
       text-transform: uppercase;
       border-top: 2px dashed #DDD;
-      padding-top: 15px;
+      padding-top: 14px;
     }
 
     /* BACK FACE */
@@ -185,9 +204,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 15px;
+      margin-bottom: 14px;
       border-bottom: 2px solid #111;
-      padding-bottom: 10px;
+      padding-bottom: 8px;
     }
 
     .back-title {
@@ -197,7 +216,7 @@
     }
 
     .content-block {
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .block-label {
@@ -209,7 +228,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
     .block-text {
@@ -236,20 +255,44 @@
       margin-top: 6px;
     }
 
+    /* INTERACTIVE JARGON PILLS */
     .jargon-pill {
       background: #FFF3C4;
       border: 1.5px solid #111;
-      padding: 3px 8px;
+      box-shadow: 2px 2px 0px #111;
+      padding: 4px 10px;
       font-size: 0.75rem;
       font-weight: 800;
       text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .jargon-pill:hover {
+      background: var(--yellow);
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0px #111;
+    }
+
+    .jargon-pill:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0px #111;
+    }
+
+    .jargon-pill::after {
+      content: " ↗";
+      font-size: 0.8rem;
     }
 
     /* CONTROLS */
     .controls {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 12px;
       width: 100%;
       max-width: 580px;
       justify-content: space-between;
@@ -262,7 +305,7 @@
       font-weight: 800;
       font-size: 0.95rem;
       text-transform: uppercase;
-      padding: 12px 20px;
+      padding: 12px 18px;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -287,27 +330,9 @@
       justify-content: center;
     }
 
-    .progress-bar-wrap {
-      width: 100%;
-      max-width: 580px;
-      background: #DDD;
-      border: 2px solid #111;
-      height: 10px;
-      margin-bottom: 20px;
-      border-radius: 6px;
-      overflow: hidden;
-    }
-
-    .progress-bar {
-      height: 100%;
-      background: var(--black);
-      width: 14.28%;
-      transition: width 0.3s ease;
-    }
-
     /* FOOTER NAV */
     .footer-nav {
-      margin-top: 30px;
+      margin-top: 25px;
       text-align: center;
     }
 
@@ -327,6 +352,107 @@
     .footer-link:hover {
       background: var(--yellow);
     }
+
+    /* MODAL POPUP FOR JARGON DETAILS */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(18, 18, 18, 0.7);
+      backdrop-filter: blur(3px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      padding: 20px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #FFFFFF;
+      border: var(--border);
+      box-shadow: 8px 8px 0px #111;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 520px;
+      padding: 25px;
+      position: relative;
+      animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #111;
+      padding-bottom: 12px;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .modal-close-btn {
+      background: #FFE135;
+      border: 2px solid #111;
+      box-shadow: 2px 2px 0px #111;
+      font-weight: 900;
+      padding: 6px 12px;
+      cursor: pointer;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+    }
+
+    .modal-close-btn:hover {
+      background: #FF6B8B;
+      color: #fff;
+    }
+
+    .modal-section {
+      margin-bottom: 14px;
+    }
+
+    .modal-section-lbl {
+      font-size: 0.75rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #555;
+      margin-bottom: 4px;
+    }
+
+    .modal-section-body {
+      font-size: 0.95rem;
+      line-height: 1.45;
+      font-weight: 500;
+      color: #111;
+    }
+
+    .modal-code-box {
+      background: #1E1E1E;
+      color: #FFF;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-family: 'Space Grotesk', monospace;
+      font-size: 0.85rem;
+      overflow-x: auto;
+      margin-top: 6px;
+      border: 2px solid #111;
+    }
   </style>
 </head>
 <body>
@@ -334,7 +460,7 @@
   <header>
     <div class="pill-badge">QuestLog Tech Buddy · Deck 1</div>
     <h1>Tech Flashcards for Designers</h1>
-    <p class="subtitle">Real-world metaphors & insider vocabulary from our actual code.</p>
+    <p class="subtitle">Click any card to flip. Click any yellow tag to see info & code context!</p>
   </header>
 
   <div class="progress-bar-wrap">
@@ -370,26 +496,17 @@
 
         <div class="content-block">
           <div class="block-label">🎨 The Designer Metaphor</div>
-          <div class="block-text" id="backMetaphor">
-            The concrete walls, door frames, and glass panels of a building. It doesn't have paint or light switches yet—it just defines what objects physically exist in the room.
-          </div>
+          <div class="block-text" id="backMetaphor"></div>
         </div>
 
         <div class="content-block">
           <div class="block-label">📂 In Our QuestLog File</div>
-          <div class="block-text" id="backContext">
-            In <span class="code-pill">questlog-neobrutalist.html</span>, HTML creates our sidebar <span class="code-pill">&lt;div id="us-col"&gt;</span>, our calendar grid <span class="code-pill">&lt;div id="time-grid"&gt;</span>, and the Add Task input bar.
-          </div>
+          <div class="block-text" id="backContext"></div>
         </div>
 
         <div class="content-block">
-          <div class="block-label">💬 Vocabulary to Flex to Engineers</div>
-          <div class="jargon-tags" id="backJargon">
-            <span class="jargon-pill">Markup</span>
-            <span class="jargon-pill">DOM Tree</span>
-            <span class="jargon-pill">Semantic HTML</span>
-            <span class="jargon-pill">Elements & Tags</span>
-          </div>
+          <div class="block-label">💬 Tap Any Jargon to See Definition & Code:</div>
+          <div class="jargon-tags" id="backJargon"></div>
         </div>
       </div>
 
@@ -407,7 +524,207 @@
     <a href="./questlog-neobrutalist.html" class="footer-link">← Back to QuestLog Dashboard</a>
   </div>
 
+  <!-- JARGON DETAIL MODAL -->
+  <div class="modal-overlay" id="jargonModal" onclick="closeModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <span class="pill-badge" style="margin-bottom:4px;">Jargon Deep-Dive</span>
+          <div class="modal-title" id="modalTitle">DOM</div>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal()">✕ Close</button>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-lbl">🎨 Designer & Figma Metaphor</div>
+        <div class="modal-section-body" id="modalMetaphor"></div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-lbl">📂 QuestLog Project Context</div>
+        <div class="modal-section-body" id="modalContext"></div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-lbl">💻 Code Snippet</div>
+        <div class="modal-code-box" id="modalCode"></div>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // GLOSSARY DATA
+    const GLOSSARY = {
+      "DOM (Document Object Model)": {
+        title: "DOM (Document Object Model)",
+        metaphor: "The <strong>Layers Panel</strong> on the left in Figma! It is the living tree of every frame, button, and text layer currently rendered in the window.",
+        context: "In <code>questlog-neobrutalist.html</code>, JavaScript queries the DOM to find elements by ID (like our calendar or sidebar) and change their style or text.",
+        code: "const sidebar = document.getElementById('us-col');\nsidebar.classList.toggle('collapsed');"
+      },
+      "Markup Language": {
+        title: "Markup Language",
+        metaphor: "A system of annotating plain text with tags so the computer knows what role that text plays (e.g. 'This is a heading', 'This is a button').",
+        context: "HTML is the markup language used in <code>questlog-neobrutalist.html</code>. It turns our text into interactive calendar blocks.",
+        code: "<button class=\"add-btn\">+ ADD TASK</button>"
+      },
+      "Tags": {
+        title: "Tags",
+        metaphor: "The basic building shapes in Figma (Rectangle tool, Text frame tool, Ellipse tool). In code, they are wrapped in angle brackets.",
+        context: "Tags like <code>&lt;div&gt;</code> (a frame box), <code>&lt;button&gt;</code> (a clickable button), and <code>&lt;input&gt;</code> (a text field) create our interface.",
+        code: "<input id=\"cal-add-inp\" placeholder=\"Add task on top...\" />"
+      },
+      "Semantic HTML": {
+        title: "Semantic HTML",
+        metaphor: "Properly naming your Figma frames (like <code>Header</code>, <code>Sidebar</code>, <code>Timeline</code>) instead of leaving them all named <code>Frame 4281</code>.",
+        context: "We use <code>&lt;header&gt;</code> for the top bar and <code>&lt;main&gt;</code> for the calendar view so screen-readers and Google understand the structure.",
+        code: "<header class=\"nav-hdr\">\n  <h1>QuestLog</h1>\n</header>"
+      },
+      "CSS Variables": {
+        title: "CSS Variables (Design Tokens)",
+        metaphor: "<strong>Figma Variables / Color Styles</strong>! You define a color like <code>Primary Yellow = #FFE135</code> in one place. Changing it updates the whole app at once.",
+        context: "Defined at line 60 of our CSS. Every card, button, and badge uses these tokens to maintain strict Neo-brutalist consistency.",
+        code: ":root {\n  --yellow: #FFE135;\n  --black: #121212;\n  --border: 3px solid #121212;\n}"
+      },
+      "Flexbox / Grid": {
+        title: "Flexbox & Grid Layouts",
+        metaphor: "<strong>Auto-Layout in Figma</strong>! Flexbox aligns elements horizontally or vertically with custom gap spacing and automatic wrapping.",
+        context: "Used on our single-row task cards so the drag grip, checkbox, task name, duration pill, and delete ✕ button stay aligned with <code>gap: 8px</code>.",
+        code: ".us-card {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  min-height: 40px;\n}"
+      },
+      "Box Shadow": {
+        title: "Box Shadow",
+        metaphor: "The <strong>Drop Shadow Effect</strong> in Figma. In Neo-brutalism, we set Blur to 0 so the shadow is a hard, high-contrast black rectangle.",
+        context: "Gives QuestLog its distinctive tactile sticker / comic-book feel.",
+        code: "box-shadow: 4px 4px 0px #121212;"
+      },
+      "Responsive Breakpoints": {
+        title: "Responsive Breakpoints",
+        metaphor: "<strong>Auto-Layout Constraints</strong> (Desktop 1440 frame vs iPhone 393 frame). When screen width crosses a boundary, layout rules change.",
+        context: "When viewed on mobile (under 768px wide), the sidebar collapses automatically so the calendar timeline gets 100% of the screen.",
+        code: "@media (max-width: 768px) {\n  .today-layout { flex-direction: column; }\n}"
+      },
+      "Event Listeners": {
+        title: "Event Listeners",
+        metaphor: "<strong>Prototype Interactions in Figma</strong> (e.g. <code>On Click</code> → <code>Open Overlay</code>, <code>While Hovering</code>).",
+        context: "Watches for when the user clicks a checkbox, presses Enter on the Add Task input, or drags a card.",
+        code: "inp.addEventListener('keydown', (e) => {\n  if (e.key === 'Enter') addTask();\n});"
+      },
+      "State Management (S.tasks)": {
+        title: "State Management (S.tasks)",
+        metaphor: "<strong>The Single Source of Truth</strong>. In interactive Figma prototypes, it's the current active variant value (e.g. <code>TaskCount = 5</code>).",
+        context: "In QuestLog, <code>S.tasks = [...]</code> holds all current tasks. Whenever we add, delete, or check off a task, we modify <code>S.tasks</code> and call <code>render()</code>.",
+        code: "S.tasks.push(newTask);\nrender();"
+      },
+      "Functions": {
+        title: "Functions",
+        metaphor: "A saved, reusable macro recipe. Instead of rewriting 20 lines of instructions every time, you give the action a name and run it.",
+        context: "<code>toggleSidebar()</code> opens and closes the tasks backlog whenever you click the arrow button.",
+        code: "function toggleSidebar() {\n  isCollapsed = !isCollapsed;\n  document.body.classList.toggle('sidebar-closed');\n}"
+      },
+      "Client-Side Logic": {
+        title: "Client-Side Logic",
+        metaphor: "Calculations done directly on your laptop or phone chip without making a round-trip call to a server.",
+        context: "Calculating that 3:00 PM is 900 minutes from midnight and rendering the card 450px down the page happens client-side in under 1 millisecond.",
+        code: "const topPx = (startMin - 540) * (60 / 60);"
+      },
+      "PostgreSQL": {
+        title: "PostgreSQL Database",
+        metaphor: "A rock-solid, enterprise cloud spreadsheet that stores millions of rows without crashing or corrupting data.",
+        context: "Our Supabase backend is built on PostgreSQL, storing your habits and tasks table.",
+        code: "SELECT * FROM tasks WHERE user_id = '4a51d743...' ORDER BY sm ASC;"
+      },
+      "RLS (Row-Level Security)": {
+        title: "RLS (Row-Level Security)",
+        metaphor: "<strong>Figma Project Access Permissions</strong>. Only members with the right password can open the file; outsiders see an empty screen.",
+        context: "The security rule in Supabase that ensures you only see your own tasks and not another user's schedule.",
+        code: "CREATE POLICY \"Users can view own tasks\" ON tasks\n  FOR SELECT USING (auth.uid() = user_id);"
+      },
+      "Tables & Rows": {
+        title: "Tables & Rows",
+        metaphor: "A table is a spreadsheet tab (e.g. 'Tasks'); each row is one single record (e.g. 'Coffee at 3pm').",
+        context: "Our <code>tasks</code> table has rows with columns: <code>id</code>, <code>name</code>, <code>sm</code>, <code>dm</code>, <code>cat</code>, <code>created_for</code>.",
+        code: "{ name: 'Coffee', sm: 900, dm: 60, cat: 'personal' }"
+      },
+      "REST API": {
+        title: "REST API",
+        metaphor: "A restaurant waiter taking orders. Your app says: <em>'Please bring me tasks for today'</em> (<code>GET</code>) or <em>'Please put this new task in the kitchen'</em> (<code>POST</code>).",
+        context: "How our app reads and writes data to Supabase across the internet.",
+        code: "fetch('https://...supabase.co/rest/v1/tasks', { method: 'POST' });"
+      },
+      "Serverless (FaaS)": {
+        title: "Serverless (FaaS)",
+        metaphor: "A motion-activated porch light. It only draws electricity when someone walks up, does its job, and turns off. You pay $0 when it's idle.",
+        context: "Our <code>netlify/functions/whatsapp.js</code> wakes up for 300ms when you text WhatsApp, writes to Supabase, and shuts down.",
+        code: "exports.handler = async (event) => {\n  // Runs in 300ms, then sleeps\n};"
+      },
+      "Webhook POST": {
+        title: "Webhook POST",
+        metaphor: "A courier dropping off a package at your doorstep the instant something happens elsewhere.",
+        context: "When you text WhatsApp, Twilio instantly POSTs your message to our Netlify function URL.",
+        code: "POST https://sycora.netlify.app/.netlify/functions/whatsapp"
+      },
+      "Payload": {
+        title: "Payload",
+        metaphor: "The actual cargo inside the delivery truck (the package contents).",
+        context: "The incoming data bundle from Twilio containing your phone number and message text.",
+        code: "{ From: 'whatsapp:+917708914559', Body: 'Coffee at 3pm' }"
+      },
+      "TwiML XML": {
+        title: "TwiML (Twilio Markup Language)",
+        metaphor: "The script instructions Twilio reads to know how to reply to your WhatsApp message.",
+        context: "Our webhook sends back TwiML XML telling Twilio: <em>'Text the user: [ADDED] Coffee at 3:00 PM'</em>.",
+        code: "<Response><Message>[ADDED] Coffee at 3:00 PM</Message></Response>"
+      },
+      "Prompt Engineering": {
+        title: "Prompt Engineering",
+        metaphor: "Writing crystal-clear design briefs so an assistant gives you the exact deliverable on the first try without guessing.",
+        context: "In <code>whatsapp.js</code>, our prompt instructs Gemini: <em>'Today is 2026-10-09. Extract name, date, sm, dm, cat. Output ONLY raw JSON.'</em>",
+        code: "const prompt = `You are a productivity task parser for QuestLog...`;"
+      },
+      "Structured Output (JSON)": {
+        title: "Structured Output (JSON)",
+        metaphor: "Forcing an AI to fill out a structured form instead of writing a rambling paragraph.",
+        context: "Ensures Google Gemini returns computer-ready key-value pairs that our calendar can plot directly.",
+        code: "{ \"name\": \"Coffee\", \"sm\": 900, \"dm\": 60, \"cat\": \"personal\" }"
+      },
+      "Inference": {
+        title: "Inference",
+        metaphor: "The 'thinking time' an AI takes to process your message and formulate the answer.",
+        context: "Google Gemini 2.5 Flash runs inference on your WhatsApp text in ~550 milliseconds.",
+        code: "// Gemini inference: 0.55s roundtrip"
+      },
+      "Token Limits": {
+        title: "Tokens & Token Limits",
+        metaphor: "Word count limit. In AI, words are broken into syllables/characters called tokens (~4 characters = 1 token).",
+        context: "Our task parsing prompt is only ~150 tokens, making it cost less than $0.0001 per message!",
+        code: "// Input: ~150 tokens · Output: ~35 tokens"
+      },
+      "WebSockets": {
+        title: "WebSockets",
+        metaphor: "An active phone call or walkie-talkie between your laptop and the server that never hangs up.",
+        context: "Keeps an open bidirectional tunnel so the cloud can push tasks to your screen without you clicking Refresh.",
+        code: "wss://sknrridioesaapiijqfl.supabase.co/realtime/v1/websocket"
+      },
+      "Pub/Sub": {
+        title: "Pub/Sub (Publish & Subscribe)",
+        metaphor: "A podcast or radio station. The station publishes a podcast; all subscribed listeners receive it automatically.",
+        context: "When WhatsApp publishes a new task to Supabase, your open QuestLog dashboard is subscribed and catches the new block live!",
+        code: "sb.channel('realtime-tasks').on('postgres_changes', ...).subscribe();"
+      },
+      "Postgres Changes": {
+        title: "Postgres Changes",
+        metaphor: "A motion sensor attached to the database that beeps whenever a row is inserted, updated, or deleted.",
+        context: "The live trigger that fires when a task is added via WhatsApp.",
+        code: ".on('postgres_changes', { event: 'INSERT', table: 'tasks' }, ...)"
+      },
+      "Live State Mutation": {
+        title: "Live State Mutation",
+        metaphor: "Instant screen redraw. Like editing a component in Figma and seeing all instances update in real time.",
+        context: "Adding the task directly into <code>S.tasks</code> and calling <code>render()</code> without reloading the page.",
+        code: "S.tasks.push(newTask);\nrender();\ntoast('WhatsApp Sync', `New task: ${newTask.name}`);"
+      }
+    };
+
     const CARDS = [
       {
         num: "01 / 07",
@@ -418,7 +735,7 @@
         tagline: "The Skeleton / Blueprint",
         backTitle: "HTML in Plain English",
         metaphor: "Think of an architect's blueprint or the concrete framing of a house. HTML doesn't care about colors or animations—it strictly dictates WHAT exists (a button, a text box, a header).",
-        context: "In <code>questlog-neobrutalist.html</code>, HTML builds our <code>#cal-col</code> (calendar column), the collapsible sidebar, and the task card cards.",
+        context: "In <code>questlog-neobrutalist.html</code>, HTML builds our <code>#cal-col</code> (calendar column), the collapsible sidebar, and the task cards.",
         jargon: ["Markup Language", "DOM (Document Object Model)", "Tags", "Semantic HTML"]
       },
       {
@@ -442,7 +759,7 @@
         tagline: "The Electricity & Muscle",
         backTitle: "JavaScript in Plain English",
         metaphor: "The electrical wiring and motors. When you press an elevator button or flip a light switch, JavaScript is the electrical current that makes things move and react.",
-        context: "JavaScript handles your drag-and-drop chips, calculates 9 AM to 10 PM timeline slots, strikes through completed habits, and pops celebratory graffiti!",
+        context: "JavaScript handles your drag-and-drop chips, calculates 9 AM to 10 PM timeline slots, strikes through completed habits, and pops celebratory confetti!",
         jargon: ["Event Listeners", "State Management (S.tasks)", "Functions", "Client-Side Logic"]
       },
       {
@@ -519,7 +836,7 @@
         document.getElementById('backContext').innerHTML = c.context;
         
         const jargonWrap = document.getElementById('backJargon');
-        jargonWrap.innerHTML = c.jargon.map(j => `<span class="jargon-pill">${j}</span>`).join('');
+        jargonWrap.innerHTML = c.jargon.map(j => `<span class="jargon-pill" onclick="openJargon(event, '${j}')">${j}</span>`).join('');
 
         // Progress bar
         pbar.style.width = ((curIdx + 1) / CARDS.length * 100) + '%';
@@ -543,8 +860,31 @@
       renderCard();
     }
 
+    // OPEN JARGON MODAL
+    function openJargon(e, term) {
+      if (e) e.stopPropagation();
+      const item = GLOSSARY[term];
+      if (!item) return;
+
+      document.getElementById('modalTitle').textContent = item.title;
+      document.getElementById('modalMetaphor').innerHTML = item.metaphor;
+      document.getElementById('modalContext').innerHTML = item.context;
+      document.getElementById('modalCode').textContent = item.code;
+
+      document.getElementById('jargonModal').classList.add('open');
+    }
+
+    function closeModal(e) {
+      if (e) e.stopPropagation();
+      document.getElementById('jargonModal').classList.remove('open');
+    }
+
     // Keyboard navigation
     window.addEventListener('keydown', (e) => {
+      if (document.getElementById('jargonModal').classList.contains('open')) {
+        if (e.key === 'Escape') closeModal();
+        return;
+      }
       if (e.key === 'ArrowRight') nextCard();
       if (e.key === 'ArrowLeft') prevCard();
       if (e.key === ' ' || e.key === 'Enter') toggleFlip();
