@@ -2593,8 +2593,11 @@ async function loginAs(user) {
   trackEvent('user_signed_in', { is_demo: !!user.isDemo });
   
   await loadAllData();
-  
-  // Realtime Live Sync with Supabase (e.g. for WhatsApp tasks)
+
+  // Ensure sidebar is open by default
+  const layout = document.querySelector('.today-layout');
+  if (layout) layout.classList.remove('sidebar-collapsed');
+  updateSidebarUI();
   if (sb && user && user.id && !user.isDemo) {
     try {
       sb.channel(`realtime-tasks-${user.id}`)
@@ -4396,12 +4399,11 @@ document.addEventListener('keydown', (e) => {
 loadRememberedUser();
 initCustomSelects();
 async function init() {
-  // Restore sidebar collapsed state from localStorage
+  // Keep sidebar OPEN by default
   try {
-    if (localStorage.getItem('ql_sidebar_collapsed') === '1') {
-      const layout = document.querySelector('.today-layout');
-      if (layout) layout.classList.add('sidebar-collapsed');
-    }
+    const layout = document.querySelector('.today-layout');
+    if (layout) layout.classList.remove('sidebar-collapsed');
+    localStorage.setItem('ql_sidebar_collapsed', '0');
   } catch(e) {}
   updateSidebarUI();
 
