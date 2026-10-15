@@ -1,17 +1,9 @@
 // netlify/functions/whatsapp.js
 // QuestLog WhatsApp Webhook powered by Google Gemini and Supabase
 
-// Helper to decode fallback credentials safely
-function decodeKey(b64) {
-  try { return Buffer.from(b64, 'base64').toString('utf8'); } catch(e) { return ''; }
-}
-
-const FALLBACK_GEMINI = decodeKey('QVEuQWI4Uk42TGxVeTQ3OXBnQ21IeGFRQ3N4M2lMS2NkZ2V5VFczUDFSd2F4VllYbzJqQUE=');
-const FALLBACK_SUPA_KEY = decodeKey('c2Jfc2VjcmV0X2dVdXp4QmdaU211cWxPd2lraDNaU1FfMS0xRXlJb0U=');
-
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || FALLBACK_GEMINI;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const SUPA_URL = process.env.SUPABASE_URL || 'https://sknrridioesaapiijqfl.supabase.co';
-const SUPA_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || FALLBACK_SUPA_KEY;
+const SUPA_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const TARGET_USER_ID = process.env.TARGET_USER_ID || '82a5ab75-9b06-41bd-b4dd-697f7d02fb06';
 
 function formatTime(min) {

@@ -1,12 +1,7 @@
 // netlify/functions/ask.js
 // AI Tech Buddy Q&A endpoint for Product Designers
 
-function decodeKey(b64) {
-  try { return Buffer.from(b64, 'base64').toString('utf8'); } catch(e) { return ''; }
-}
-
-const FALLBACK_GEMINI = decodeKey('QVEuQWI4Uk42TGxVeTQ3OXBnQ21IeGFRQ3N4M2lMS2NkZ2V5VFczUDFSd2F4VllYbzJqQUE=');
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || FALLBACK_GEMINI;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 
 const SYSTEM_PROMPT = `You are "Tech Buddy", an expert, friendly senior software engineer pair-programming with a talented Product Designer who has NO technical or coding background.
 The designer is building "QuestLog", a daily timeboxing and habit tracker web application styled in Neo-brutalism (thick 3px black borders, #FFE135 yellow highlights, hard offset box-shadows, Outfit typography).
@@ -52,6 +47,14 @@ exports.handler = async (event) => {
         statusCode: 400,
         headers: { 'Access-Control-Allow-Origin': '*' },
         body: JSON.stringify({ error: 'Question is required' })
+      };
+    }
+
+    if (!GEMINI_API_KEY) {
+      return {
+        statusCode: 503,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'AI Tech Buddy is temporarily unconfigured. Please set GEMINI_API_KEY in your Netlify Environment Variables.' })
       };
     }
 
