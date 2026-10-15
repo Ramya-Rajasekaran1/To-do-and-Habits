@@ -1784,15 +1784,133 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
   border-color: #16A34A;
 }
 
-/* ── AUTH SCREEN ── */
+/* ── GUEST PLAYGROUND BANNER ── */
+.guest-banner {
+  background: var(--yellow);
+  color: var(--black);
+  border-bottom: var(--border);
+  padding: 8px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--fb);
+  font-size: 12.5px;
+  font-weight: 700;
+  position: relative;
+  z-index: 310;
+}
+.guest-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.guest-pill {
+  background: var(--black);
+  color: var(--yellow);
+  font-family: var(--fh);
+  font-size: 10px;
+  padding: 3px 8px;
+  letter-spacing: 0.5px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  font-weight: 900;
+}
+.guest-banner-msg {
+  color: #111;
+  font-size: 12px;
+  font-weight: 700;
+}
+.guest-banner-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.guest-cta-btn {
+  background: var(--black);
+  color: var(--white);
+  border: var(--border);
+  box-shadow: 2px 2px 0 var(--black);
+  font-family: var(--fh);
+  font-size: 11px;
+  font-weight: 900;
+  padding: 6px 14px;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: all 0.1s;
+}
+.guest-cta-btn:hover {
+  background: var(--pink);
+  color: var(--white);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--black);
+}
+.guest-dismiss-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+  color: var(--black);
+  padding: 0 4px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.guest-dismiss-btn:hover {
+  color: var(--red);
+}
+@media (max-width: 768px) {
+  .guest-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 14px;
+  }
+  .guest-banner-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* ── AUTH SCREEN MODAL ── */
 .auth-screen {
-  position: fixed; inset: 0; z-index: 9999; background: var(--black); display: flex; align-items: center; justify-content: center;
+  position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center;
+}
+.auth-backdrop {
+  position: absolute; inset: 0; background: rgba(0,0,0,0.72); backdrop-filter: blur(4px);
 }
 .auth-box {
-  border: var(--border); box-shadow: var(--shadow-lg); background: var(--white); width: 380px; max-width: 95vw;
+  position: relative; z-index: 2; border: var(--border); box-shadow: var(--shadow-lg); background: var(--white); width: 380px; max-width: 95vw;
 }
 .auth-logo {
-  background: var(--yellow); border-bottom: var(--border); padding: 18px 24px; display: flex; align-items: center; gap: 10px;
+  background: var(--yellow); border-bottom: var(--border); padding: 16px 20px; display: flex; align-items: center; gap: 10px;
+}
+.auth-close-btn {
+  margin-left: auto;
+  border: var(--border);
+  background: var(--black);
+  color: var(--yellow);
+  font-family: var(--fh);
+  font-size: 14px;
+  font-weight: 900;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--black);
+  transition: all 0.1s;
+}
+.auth-close-btn:hover {
+  background: var(--pink);
+  color: var(--white);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--black);
 }
 .auth-logo-sq {
   width: 14px; height: 14px; background: var(--black); transform: rotate(15deg); flex-shrink: 0;
@@ -1860,13 +1978,25 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
 
 <!-- TOPNAV -->
 <header role="banner">
+  <!-- GUEST PLAYGROUND BANNER -->
+  <div class="guest-banner" id="guest-banner" style="display:none" role="region" aria-label="Guest Mode notice">
+    <div class="guest-banner-left">
+      <span class="guest-pill">⚡ PLAYGROUND MODE</span>
+      <span class="guest-banner-msg">You're exploring QuestLog live! Your tasks and streaks are saved in your browser.</span>
+    </div>
+    <div class="guest-banner-right">
+      <button type="button" class="guest-cta-btn" onclick="openAuthModal('register')">CREATE FREE ACCOUNT / SYNC ☁️</button>
+      <button type="button" class="guest-dismiss-btn" onclick="dismissGuestBanner()" aria-label="Dismiss banner" title="Dismiss banner">✕</button>
+    </div>
+  </div>
+
   <nav class="topnav" aria-label="Main Navigation">
     <div class="logo"><div class="logo-sq" aria-hidden="true"></div>QUESTLOG</div>
     <button class="tab-btn active" onclick="switchTab('today',this)" aria-controls="page-today" aria-selected="true" role="tab">TODAY <span class="tab-count" id="tc-today">0</span></button>
     <button class="tab-btn" onclick="switchTab('all',this)" aria-controls="page-all" aria-selected="false" role="tab">ALL <span class="tab-count" id="tc-all">0</span></button>
     <button class="tab-btn" onclick="switchTab('habits',this)" aria-controls="page-habits" aria-selected="false" role="tab">HABITS <span class="tab-count" id="tc-hab">0</span></button>
     <span class="nav-date" id="nav-date" aria-label="Current date"></span>
-    <button class="gcal-nav-btn" id="nav-logout-btn" onclick="doLogout()" aria-label="Sign out of account">Sign Out</button>
+    <button class="gcal-nav-btn" id="nav-logout-btn" onclick="handleNavAuthClick()" aria-label="Account Action">Sign Out</button>
   </nav>
 </header>
 
@@ -2115,9 +2245,14 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
 </div>
 
 <!-- ── AUTH SCREEN ── -->
-<div class="auth-screen" id="auth-screen">
+<div class="auth-screen" id="auth-screen" style="display:none" role="dialog" aria-modal="true" aria-labelledby="auth-logo-title">
+  <div class="auth-backdrop" onclick="closeAuthModal()" aria-hidden="true"></div>
   <div class="auth-box">
-    <div class="auth-logo"><div class="auth-logo-sq" aria-hidden="true"></div><div class="auth-logo-txt">QUESTLOG</div></div>
+    <div class="auth-logo">
+      <div class="auth-logo-sq" aria-hidden="true"></div>
+      <div class="auth-logo-txt" id="auth-logo-title">QUESTLOG</div>
+      <button type="button" class="auth-close-btn" onclick="closeAuthModal()" aria-label="Close dialog" title="Continue in Guest Playground">✕</button>
+    </div>
     <div class="auth-tabs" role="tablist">
       <button class="auth-tab on" onclick="showAuthTab('login',this)" role="tab" aria-selected="true">SIGN IN</button>
       <button class="auth-tab" onclick="showAuthTab('register',this)" role="tab" aria-selected="false">SIGN UP</button>
@@ -2143,7 +2278,7 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
       <div class="auth-err" id="l-err" role="alert" aria-live="assertive"></div>
       <button class="auth-btn" onclick="doLogin()">SIGN IN →</button>
       <div style="text-align: center; margin-top: 14px; padding-top: 14px; border-top: 1.5px dashed #ccc;">
-        <button type="button" class="auth-btn" onclick="loginAsDemo()" style="background: var(--yellow); color: var(--black); font-size: 12px; padding: 10px;">TRY DEMO MODE (OFFLINE) →</button>
+        <button type="button" class="auth-btn" onclick="closeAuthModal()" style="background: var(--yellow); color: var(--black); font-size: 12px; padding: 10px;">⚡ CONTINUE IN GUEST PLAYGROUND →</button>
       </div>
     </div>
 
@@ -2164,6 +2299,9 @@ button:active, .tab-btn:active, .date-nav-btn:active, .hab-day-cell:active, .hab
       <div class="auth-err" id="r-err" role="alert" aria-live="assertive"></div>
       <div class="auth-success" id="r-success" role="status" aria-live="polite"></div>
       <button class="auth-btn" onclick="doRegister()">CREATE ACCOUNT →</button>
+      <div style="text-align: center; margin-top: 14px; padding-top: 14px; border-top: 1.5px dashed #ccc;">
+        <button type="button" class="auth-btn" onclick="closeAuthModal()" style="background: var(--yellow); color: var(--black); font-size: 12px; padding: 10px;">⚡ CONTINUE IN GUEST PLAYGROUND →</button>
+      </div>
     </div>
 
     <!-- FORGOT PASSWORD -->
@@ -2381,15 +2519,53 @@ function burstGraffiti(el, clientX, clientY) {
   setTimeout(() => spawnGraffiti(cx + (Math.random() - .5) * 100, cy + (Math.random() - .5) * 50), 120);
 }
 
-// ── AUTH HELPERS ──────────────────────────────────────────────────
+// ── AUTH HELPERS & MODAL CONTROLS ──────────────────────────────────
 function showAuthTab(tab, el) {
   document.querySelectorAll('.auth-tab').forEach(b => b.classList.remove('on'));
-  if (el && el.classList.contains('auth-tab')) el.classList.add('on');
+  if (el && el.classList.contains('auth-tab')) {
+    el.classList.add('on');
+  } else {
+    const tabs = document.querySelectorAll('.auth-tab');
+    if (tab === 'login' && tabs[0]) tabs[0].classList.add('on');
+    if (tab === 'register' && tabs[1]) tabs[1].classList.add('on');
+  }
   
   document.getElementById('auth-login').classList.toggle('hidden', tab !== 'login');
   document.getElementById('auth-register').classList.toggle('hidden', tab !== 'register');
   document.getElementById('auth-forgot').classList.toggle('hidden', tab !== 'forgot');
   document.getElementById('auth-recovery').classList.toggle('hidden', tab !== 'recovery');
+}
+
+function openAuthModal(tab = 'login') {
+  const authEl = document.getElementById('auth-screen');
+  if (authEl) authEl.style.display = 'flex';
+  showAuthTab(tab);
+  loadRememberedUser();
+  if (window.posthog) {
+    posthog.capture('auth_modal_opened', { tab, is_guest: !!(curUser && curUser.isDemo) });
+  }
+}
+
+function closeAuthModal() {
+  const authEl = document.getElementById('auth-screen');
+  if (authEl) authEl.style.display = 'none';
+  if (!curUser) {
+    loginAsDemo();
+  }
+}
+
+function dismissGuestBanner() {
+  const gb = document.getElementById('guest-banner');
+  if (gb) gb.style.display = 'none';
+  sessionStorage.setItem('ql_dismiss_guest_banner', 'true');
+}
+
+function handleNavAuthClick() {
+  if (curUser && curUser.isDemo) {
+    openAuthModal('login');
+  } else {
+    doLogout();
+  }
 }
 function setErr(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.add('show'); }
 function clearErr(id) {
@@ -2535,15 +2711,16 @@ async function doLogout() {
     try { await sb.auth.signOut(); } catch (e) {}
   }
   if (window.posthog) posthog.reset();
-  showLoginScreen();
+  await loginAsDemo();
+  toast('👋', 'Signed Out', 'You are now back in Guest Playground mode.', 'y');
 }
 
 async function loginAsDemo() {
   const demoUser = {
     id: 'demo-user-offline',
-    email: 'designer@questlog.demo',
+    email: 'guest@questlog.app',
     isDemo: true,
-    user_metadata: { name: 'Demo Designer' }
+    user_metadata: { name: 'Guest Explorer' }
   };
   return await loginAs(demoUser);
 }
@@ -2559,18 +2736,20 @@ function loadRememberedUser() {
 }
 
 function showLoginScreen() {
-  document.getElementById('auth-screen').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
-  S = { tasks: [], habits: [] }; curUser = null;
-  loadRememberedUser();
+  loginAsDemo();
+  openAuthModal('login');
 }
 
 async function loginAs(user) {
   curUser = user;
-  try {
-    localStorage.setItem('ql_active_user', JSON.stringify(user));
-  } catch (e) {
-    console.error('Failed to store active user in localStorage:', e);
+  if (!user.isDemo) {
+    try {
+      localStorage.setItem('ql_active_user', JSON.stringify(user));
+    } catch (e) {
+      console.error('Failed to store active user in localStorage:', e);
+    }
+  } else {
+    localStorage.removeItem('ql_active_user');
   }
   
   document.getElementById('auth-screen').style.display = 'none';
@@ -2578,9 +2757,32 @@ async function loginAs(user) {
   initialScrollDone = false;
   
   const navLogoutBtn = document.getElementById('nav-logout-btn');
-  if (navLogoutBtn) {
-    const nameStr = user.user_metadata?.name || user.email || 'User';
-    navLogoutBtn.setAttribute('title', `Signed in as ${nameStr}`);
+  const guestBanner = document.getElementById('guest-banner');
+  const isDismissed = sessionStorage.getItem('ql_dismiss_guest_banner') === 'true';
+
+  if (user && user.isDemo) {
+    if (guestBanner && !isDismissed) guestBanner.style.display = 'flex';
+    if (navLogoutBtn) {
+      navLogoutBtn.textContent = '⚡ SIGN IN';
+      navLogoutBtn.setAttribute('title', 'Sign in or create a free cloud account');
+      navLogoutBtn.onclick = () => openAuthModal('login');
+      navLogoutBtn.style.background = 'var(--yellow)';
+      navLogoutBtn.style.color = 'var(--black)';
+      navLogoutBtn.style.borderColor = 'var(--black)';
+      navLogoutBtn.style.boxShadow = '2px 2px 0 var(--black)';
+    }
+  } else {
+    if (guestBanner) guestBanner.style.display = 'none';
+    if (navLogoutBtn) {
+      navLogoutBtn.textContent = 'Sign Out';
+      const nameStr = user?.user_metadata?.name || user?.email || 'User';
+      navLogoutBtn.setAttribute('title', `Signed in as ${nameStr}`);
+      navLogoutBtn.onclick = doLogout;
+      navLogoutBtn.style.background = 'var(--black)';
+      navLogoutBtn.style.color = 'var(--white)';
+      navLogoutBtn.style.borderColor = 'var(--white)';
+      navLogoutBtn.style.boxShadow = 'none';
+    }
   }
   
   if (window.posthog && user && user.id) {
@@ -2622,7 +2824,11 @@ async function loginAs(user) {
   if (savedTab === 'habits') targetBtn = tabBtns[2];
   switchTab(savedTab, targetBtn);
   
-  toast('', 'Welcome!', user.user_metadata?.name || user.email, 'y');
+  if (user && user.isDemo) {
+    toast('⚡', 'Playground Ready', 'Drag or click to test 15m timeboxing!', 'y');
+  } else {
+    toast('👋', 'Welcome back!', user.user_metadata?.name || user.email, 'y');
+  }
 }
 
 // ── DATA PERSISTENCE (Supabase + Offline Fallback) ───────────
@@ -4427,8 +4633,8 @@ async function init() {
         await loginAs(session.user);
         return;
       } else if (hash.includes('type=recovery')) {
-        showLoginScreen();
-        showAuthTab('recovery');
+        await loginAsDemo();
+        openAuthModal('recovery');
         return;
       }
     } catch(e) {
@@ -4438,30 +4644,28 @@ async function init() {
       if (event === 'SIGNED_IN') {
         const hash = window.location.hash || '';
         if (hash.includes('type=recovery')) {
-          document.getElementById('auth-screen').style.display = 'flex';
-          document.getElementById('app').style.display = 'none';
-          showAuthTab('recovery');
+          openAuthModal('recovery');
         } else if (session && session.user) {
           loginAs(session.user);
         }
       }
       if (event === 'SIGNED_OUT') {
         localStorage.removeItem('ql_active_user');
-        showLoginScreen();
+        await loginAsDemo();
+        toast('👋', 'Signed Out', 'You are now in Guest Playground mode.', 'y');
       }
       if (event === 'PASSWORD_RECOVERY') {
-        document.getElementById('auth-screen').style.display = 'flex';
-        document.getElementById('app').style.display = 'none';
-        showAuthTab('recovery');
+        openAuthModal('recovery');
       }
     });
   }
 
-  // Restore active user session from localStorage
-  if (savedUser) {
+  // Restore active user session from localStorage or launch Zero-Bounce Playground
+  if (savedUser && !savedUser.isDemo) {
     await loginAs(savedUser);
   } else {
-    showLoginScreen();
+    // Zero-Bounce Guest Playground: new visitors jump straight into the live interactive app!
+    await loginAsDemo();
   }
 }
 init();
